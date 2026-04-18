@@ -107,7 +107,7 @@ export default function Page() {
         {/* HEADER */}
         <header className="flex justify-between items-center">
           <h1 className="font-bold text-neutral-800 text-xl">
-            Tagihan
+            Pencatatan Tagihan
           </h1>
 
           <Link
@@ -137,7 +137,6 @@ export default function Page() {
             className="flex items-center gap-2 bg-black px-3 py-2 rounded-lg text-white text-sm"
           >
             <LuScanLine size={16} />
-            Scan QR
           </button>
         </div>
 

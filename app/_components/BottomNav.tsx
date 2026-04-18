@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiFileText, FiHome, FiSettings } from "react-icons/fi";
+import { FaRegCircleUser } from "react-icons/fa6";
+import { FiFileText, FiHome } from "react-icons/fi";
 
 //
 export function BottomNav() {
@@ -11,7 +12,7 @@ export function BottomNav() {
   const menus = [
     { name: "Home", icon: FiHome, href: "/dashboard" },
     { name: "Tagihan", icon: FiFileText, href: "/tagihan" },
-    { name: "Saya", icon: FiSettings, href: "/saya" },
+    { name: "Saya", icon: FaRegCircleUser, href: "/saya" },
   ];
 
   return (
