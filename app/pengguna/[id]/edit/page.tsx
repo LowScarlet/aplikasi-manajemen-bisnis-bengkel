@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/db";
 import { pengguna } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
+import { z } from "zod";
 
 /* ================= QUERY ================= */
 
@@ -21,9 +23,15 @@ const getUser = async (id: string) => {
   return result[0] ?? null;
 };
 
-/* ================= TYPE ================= */
-
 export type User = Awaited<ReturnType<typeof getUser>>;
+
+/* ================= SCHEMA ================= */
+
+const updateUserSchema = z.object({
+  nama: z.string().min(1, "Nama wajib diisi").trim(),
+  username: z.string().min(3, "Username minimal 3 karakter").trim(),
+  peran: z.enum(["ADMIN", "MEKANIK"]),
+});
 
 /* ================= PAGE ================= */
 
@@ -35,22 +43,59 @@ export default async function Page({ params }: Props) {
   const { id } = await params;
 
   const user = await getUser(id);
-
   if (!user) return notFound();
 
   /* ================= ACTIONS ================= */
 
-  async function updateUser(formData: FormData) {
+  async function updateUser(prevState: any, formData: FormData) {
     "use server";
 
-    const nama = formData.get("nama") as string;
-    const username = formData.get("username") as string;
-    const peran = formData.get("peran") as "ADMIN" | "MEKANIK";
+    const raw = {
+      nama: formData.get("nama"),
+      username: formData.get("username"),
+      peran: formData.get("peran"),
+    };
 
-    await db
-      .update(pengguna)
-      .set({ nama, username, peran })
-      .where(eq(pengguna.id, id));
+    const result = updateUserSchema.safeParse(raw);
+
+    // ❌ VALIDASI
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+
+      return {
+        errors: {
+          nama: errors.nama?.[0],
+          username: errors.username?.[0],
+          peran: errors.peran?.[0],
+        },
+        values: raw,
+      };
+    }
+
+    const data = result.data;
+
+    try {
+      await db
+        .update(pengguna)
+        .set(data)
+        .where(eq(pengguna.id, id));
+    } catch (err: any) {
+      if (err.code === "23505") {
+        return {
+          errors: {
+            username: "Username sudah digunakan",
+          },
+          values: raw,
+        };
+      }
+
+      return {
+        errors: {
+          global: "Terjadi kesalahan server",
+        },
+        values: raw,
+      };
+    }
 
     redirect("/pengguna");
   }
@@ -59,7 +104,6 @@ export default async function Page({ params }: Props) {
     "use server";
 
     await db.delete(pengguna).where(eq(pengguna.id, id));
-
     redirect("/pengguna");
   }
 

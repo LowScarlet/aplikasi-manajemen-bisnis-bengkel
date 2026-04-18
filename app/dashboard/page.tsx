@@ -3,16 +3,11 @@
 
 import Link from "next/link";
 import {
-  FiPackage,
-  FiPlusCircle,
-  FiClipboard,
-  FiTool
+  FiPackage
 } from "react-icons/fi";
 import { BottomNav } from "../_components/BottomNav";
-import { FaShop, FaUser } from "react-icons/fa6";
 import { GrUserWorker } from "react-icons/gr";
 import { RiUserAddLine } from "react-icons/ri";
-import { BsShop } from "react-icons/bs";
 import { LuShoppingBag } from "react-icons/lu";
 import { MdOutlineCategory } from "react-icons/md";
 
@@ -45,8 +40,8 @@ export default function Page() {
 
           <div className="gap-3 grid grid-cols-5 text-xs text-center">
             <MenuItem icon={FiPackage} label="Barang" href="/barang" />
-            <MenuItem icon={MdOutlineCategory} label="Kategori" href="/kategori_barang" />
             <MenuItem icon={LuShoppingBag} label="Pemasok" href="/pemasok" />
+            <MenuItem icon={MdOutlineCategory} label="Kategori" href="/kategori_barang" />
             <MenuItem icon={GrUserWorker} label="Layanan" href="/layanan" />
             <MenuItem icon={RiUserAddLine} label="Pengguna" href="/pengguna" />
           </div>

@@ -7,32 +7,34 @@ import {
   FragmentBody,
   FragmentFooter,
 } from "@/app/_components/Layouts/FragmentLayout";
-import { FaArrowLeft } from "react-icons/fa6";
-import { User } from "./page";
+
 import {
   DangerButtonAction,
   GhostButton,
   PrimaryButtonAction
 } from "@/app/_components/Buttons";
+
+import { FaArrowLeft } from "react-icons/fa6";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+
 import { useActionState } from "react";
-import { FormField, Input, Select } from "@/app/_components/Form";
+import { FormField, Input } from "@/app/_components/Form";
+import { Layanan } from "./page";
 
 export default function ClientPage({
-  user,
+  layanan,
   onSubmit,
   onDelete,
 }: {
-  user: NonNullable<User>;
+  layanan: NonNullable<Layanan>;
   onSubmit: (prevState: any, formData: FormData) => any;
   onDelete: () => void;
 }) {
   const [state, formAction] = useActionState(onSubmit, {
     errors: {},
     values: {
-      nama: user.nama,
-      username: user.username,
-      peran: user.peran,
+      nama: layanan.nama,
+      harga: layanan.harga,
     },
   });
 
@@ -42,20 +44,21 @@ export default function ClientPage({
       {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          <GhostButton href={`/pengguna/${user.id}`}>
+          <GhostButton href={`/layanan/${layanan.id}`}>
             <FaArrowLeft />
           </GhostButton>
 
           <h1 className="font-bold text-xl">
-            Edit Pengguna
+            Edit Layanan
           </h1>
         </div>
 
+        {/* DELETE */}
         <form action={onDelete}>
           <DangerButtonAction
             type="submit"
             onClick={(e) => {
-              if (!confirm("Yakin mau hapus pengguna ini?")) {
+              if (!confirm("Yakin mau hapus layanan ini?")) {
                 e.preventDefault();
               }
             }}
@@ -78,7 +81,7 @@ export default function ClientPage({
         <form id="update-form" action={formAction} className="space-y-4">
 
           <FormField
-            label="Nama"
+            label="Nama Layanan"
             name="nama"
             error={state.errors?.nama}
           >
@@ -90,30 +93,16 @@ export default function ClientPage({
           </FormField>
 
           <FormField
-            label="Username"
-            name="username"
-            error={state.errors?.username}
+            label="Harga"
+            name="harga"
+            error={state.errors?.harga}
           >
             <Input
-              id="username"
-              name="username"
-              defaultValue={state.values?.username}
+              id="harga"
+              name="harga"
+              type="number"
+              defaultValue={state.values?.harga}
             />
-          </FormField>
-
-          <FormField
-            label="Peran"
-            name="peran"
-            error={state.errors?.peran}
-          >
-            <Select
-              id="peran"
-              name="peran"
-              defaultValue={state.values?.peran}
-            >
-              <option value="ADMIN">ADMIN</option>
-              <option value="MEKANIK">MEKANIK</option>
-            </Select>
           </FormField>
 
         </form>

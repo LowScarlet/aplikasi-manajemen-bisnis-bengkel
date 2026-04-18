@@ -31,9 +31,11 @@ export function FormField({
 
       {children}
 
-      <p className="h-4 text-red-500 text-xs">
-        {error}
-      </p>
+      {error ? (
+        <p className="h-4 text-red-500 text-xs">
+          {error}
+        </p>
+      ) : undefined}
     </div>
   );
 }
