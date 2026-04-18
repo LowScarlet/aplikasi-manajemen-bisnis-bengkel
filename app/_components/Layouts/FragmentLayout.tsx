@@ -13,12 +13,17 @@ export function FragmentLayout({
   className?: string;
 }) {
   return (
-    <main className={cn("bg-neutral-100", className)}>
-      <div className="flex flex-col mx-auto max-w-md min-h-screen">
+    <main
+      className={cn(
+        "bg-linear-to-b from-blue-50 to-neutral-100 min-h-screen",
+        className
+      )}
+    >
+      <div className="flex flex-col bg-inherit mx-auto max-w-md min-h-screen">
         {children}
       </div>
     </main>
-  )
+  );
 }
 
 /* ================= HEADER ================= */
@@ -26,14 +31,19 @@ export function FragmentLayout({
 type FragmentHeaderType = React.FC<{
   children: ReactNode;
   className?: string;
-}>
+}>;
 
 const FragmentHeaderBase: React.FC<{
   children: ReactNode;
   className?: string;
 }> = ({ children, className }) => {
   return (
-    <header className={cn("top-0 z-10 sticky bg-neutral-100 p-4", className)}>
+    <header
+      className={cn(
+        "top-0 z-10 sticky backdrop-blur px-4 py-3",
+        className
+      )}
+    >
       <div className="flex justify-between items-center">
         {children}
       </div>
@@ -52,7 +62,11 @@ export function FragmentBody({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("px-4 grow", className)}>{children}</div>;
+  return (
+    <div className={cn("space-y-6 px-4 pb-24 grow", className)}>
+      {children}
+    </div>
+  );
 }
 
 /* ================= FOOTER ================= */
@@ -64,5 +78,14 @@ export function FragmentFooter({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn("bottom-0 z-10 sticky bg-neutral-100", className)}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "bottom-0 z-10 sticky bg-inherit backdrop-blur",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
 }

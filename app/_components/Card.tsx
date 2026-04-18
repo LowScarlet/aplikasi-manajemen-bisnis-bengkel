@@ -28,7 +28,14 @@ type CardType = React.FC<BaseProps> & {
 
 const CardBase: React.FC<BaseProps> = ({ children, className }) => {
   return (
-    <div className={cn("bg-white shadow p-4 rounded-xl", className)}>
+    <div
+      className={cn(
+        "bg-white/90 backdrop-blur border border-neutral-200/60",
+        "shadow-sm hover:shadow-md transition-all duration-200",
+        "rounded-2xl p-4",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -42,7 +49,13 @@ Card.Link = function CardLink({ href, children, className }) {
   return (
     <Link
       href={href}
-      className={cn("block bg-white shadow p-4 rounded-xl", className)}
+      className={cn(
+        "block bg-white/90 backdrop-blur border border-neutral-200/60",
+        "shadow-sm hover:shadow-md hover:scale-[1.01]",
+        "transition-all duration-200",
+        "rounded-2xl p-4 active:scale-[0.99]",
+        className
+      )}
     >
       {children}
     </Link>
@@ -53,7 +66,12 @@ Card.Link = function CardLink({ href, children, className }) {
 
 Card.Header = function CardHeader({ children, className }) {
   return (
-    <div className={cn("mb-2 font-medium text-neutral-800", className)}>
+    <div
+      className={cn(
+        "mb-3 font-semibold text-neutral-800 text-sm",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -63,7 +81,12 @@ Card.Header = function CardHeader({ children, className }) {
 
 Card.Body = function CardBody({ children, className }) {
   return (
-    <div className={cn("text-neutral-600 text-sm", className)}>
+    <div
+      className={cn(
+        "text-neutral-600 text-sm leading-relaxed",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -73,7 +96,13 @@ Card.Body = function CardBody({ children, className }) {
 
 Card.Footer = function CardFooter({ children, className }) {
   return (
-    <div className={cn("mt-3 pt-3 border-t", className)}>
+    <div
+      className={cn(
+        "mt-4 pt-3 border-neutral-200/70 border-t",
+        "flex items-center justify-between",
+        className
+      )}
+    >
       {children}
     </div>
   );
