@@ -53,38 +53,48 @@ export default function Page() {
           )}
         </header>
 
+
         {/* INFO */}
-        <section className="space-y-1 bg-white shadow p-4 rounded-xl">
-          <p className="font-medium">{data.kode}</p>
-          <p className="text-neutral-500 text-sm">
-            {data.customer || "-"}
-          </p>
-          <StatusBadge status={data.status} />
-        </section>
+        <div className="space-y-2">
+          <h1 className="font-bold">Informasi Kostumer</h1>
+          <section className="space-y-1 bg-white shadow p-4 rounded-xl">
+            <p className="font-medium">{data.kode}</p>
+            <p className="text-neutral-500 text-sm">
+              {data.customer || "-"}
+            </p>
+            <StatusBadge status={data.status} />
+          </section>
+        </div>
 
         {/* ITEMS */}
-        <section className="space-y-3 bg-white shadow p-4 rounded-xl">
-          {data.items.map((item, i) => (
-            <div key={i} className="flex justify-between text-sm">
-              <div>
-                <p>{item.nama}</p>
-                <p className="text-neutral-400 text-xs">
-                  {item.qty} x {item.harga.toLocaleString("id-ID")}
+        <div className="space-y-2">
+          <h1 className="font-bold">Barang, Layanan Dan Lainnya</h1>
+          <section className="space-y-3 bg-white shadow p-4 rounded-xl">
+            {data.items.map((item, i) => (
+              <div key={i} className="flex justify-between text-sm">
+                <div>
+                  <p>{item.nama}</p>
+                  <p className="text-neutral-400 text-xs">
+                    {item.qty} x {item.harga.toLocaleString("id-ID")}
+                  </p>
+                </div>
+                <p>
+                  Rp {(item.qty * item.harga).toLocaleString("id-ID")}
                 </p>
               </div>
-              <p>
-                Rp {(item.qty * item.harga).toLocaleString("id-ID")}
-              </p>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        </div>
 
         {/* TOTAL */}
-        <section className="space-y-2 bg-white shadow p-4 rounded-xl text-sm">
-          <Row label="Total" value={data.total} />
-          <Row label="Dibayar" value={data.dibayar} />
-          <Row label="Sisa" value={sisa} highlight />
-        </section>
+        <div className="space-y-2">
+          <h1 className="font-bold">Total Pembayaran</h1>
+          <section className="space-y-2 bg-white shadow p-4 rounded-xl text-sm">
+            <Row label="Total" value={data.total} />
+            <Row label="Dibayar" value={data.dibayar} />
+            <Row label="Sisa" value={sisa} highlight />
+          </section>
+        </div>
 
         {/* BAYAR */}
         {sisa > 0 && (
