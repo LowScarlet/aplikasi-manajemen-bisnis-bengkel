@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { FiArrowLeft, FiPrinter } from "react-icons/fi";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function Page() {
-  // 🔥 dummy data (ambil dari tagihan nanti)
   const data = {
     kode: "INV-001",
     tanggal: "14/04/2026",
@@ -20,11 +20,46 @@ export default function Page() {
   };
 
   return (
-    <main className="bg-neutral-100 py-10 min-h-screen">
-      <div className="space-y-6 mx-auto px-4 w-full max-w-md">
+    <main className="bg-neutral-100 py-6 min-h-screen">
+
+      {/* STYLE SCREEN + PRINT */}
+      <style jsx global>{`
+        /* ===== SCREEN ===== */
+        #print-area {
+          width: 320px;
+          margin: 0 auto;
+          font-size: 12px;
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
+          body * {
+            visibility: hidden;
+          }
+
+          #print-area, #print-area * {
+            visibility: visible;
+          }
+
+          #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 58mm;
+            font-size: 10px;
+          }
+        }
+      `}</style>
+
+      <div className="space-y-4 mx-auto px-4 max-w-md">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center">
+        <div className="print:hidden flex justify-between items-center">
           <Link href={`/tagihan/${data.kode}`}>
             <FiArrowLeft size={20} />
           </Link>
@@ -37,17 +72,22 @@ export default function Page() {
           </button>
         </div>
 
-        {/* KUITANSI */}
-        <div className="bg-white shadow p-6 rounded-xl text-neutral-800 text-sm">
+        {/* STRUK */}
+        <div
+          id="print-area"
+          className="bg-white p-3 font-mono text-black"
+        >
 
-          {/* TITLE */}
-          <div className="pb-3 border-b text-center">
-            <h1 className="font-bold text-lg">Berkat Motor</h1>
-            <p className="text-xs">Jl. Contoh No.123</p>
+          {/* HEADER */}
+          <div className="text-center">
+            <p className="font-bold text-[14px]">Berkat Motor / Erizal</p>
+            <p className="text-xs">Jl. Sudirman</p> 
           </div>
 
+          <Divider />
+
           {/* INFO */}
-          <div className="flex justify-between py-3 text-xs">
+          <div className="flex justify-between text-xs">
             <div>
               <p>No: {data.kode}</p>
               <p>{data.tanggal}</p>
@@ -57,33 +97,54 @@ export default function Page() {
             </div>
           </div>
 
+          <Divider />
+
           {/* ITEMS */}
-          <div className="space-y-2 py-3 border-t border-b">
+          <div className="space-y-2 text-xs">
             {data.items.map((item, i) => (
-              <div key={i} className="flex justify-between">
-                <div>
-                  <p>{item.nama}</p>
-                  <p className="text-neutral-400 text-xs">
+              <div key={i}>
+                <p>{item.nama}</p>
+                <div className="flex justify-between">
+                  <span>
                     {item.qty} x {item.harga.toLocaleString("id-ID")}
-                  </p>
+                  </span>
+                  <span>
+                    {(item.qty * item.harga).toLocaleString("id-ID")}
+                  </span>
                 </div>
-                <p>
-                  Rp {(item.qty * item.harga).toLocaleString("id-ID")}
-                </p>
               </div>
             ))}
           </div>
 
+          <Divider />
+
           {/* TOTAL */}
-          <div className="space-y-1 py-3">
+          <div className="space-y-1 text-xs">
             <Row label="Total" value={data.total} />
             <Row label="Bayar" value={data.dibayar} />
             <Row label="Kembali" value={data.kembalian} />
           </div>
 
-          {/* FOOTER */}
-          <div className="pt-3 border-t text-xs text-center">
-            <p>Terima kasih 🙏</p>
+          <Divider />
+
+          {/* FOOTER + QR */}
+          <div className="mt-2 text-xs text-center">
+
+            <p>Terima kasih</p>
+
+            {/* QR CODE */}
+            <div className="flex justify-center mt-2">
+              <QRCodeSVG
+                value={`INV:${data.kode}|TOTAL:${data.total}`}
+                size={70}
+                level="M"
+              />
+            </div>
+
+            <p className="mt-1 text-[8px]">
+              Scan untuk cek invoice online
+            </p>
+
           </div>
 
         </div>
@@ -93,16 +154,17 @@ export default function Page() {
   );
 }
 
-//
-// 🧩 ROW
-//
 function Row({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
-      <span className="font-medium">
-        Rp {value.toLocaleString("id-ID")}
-      </span>
+      <span>{value.toLocaleString("id-ID")}</span>
     </div>
+  );
+}
+
+function Divider() {
+  return (
+    <div className="my-2 border-t border-dashed" />
   );
 }
