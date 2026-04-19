@@ -135,7 +135,7 @@ export default function Page() {
             {/* QR CODE */}
             <div className="flex justify-center mt-2">
               <QRCodeSVG
-                value={`INV:${data.kode}|TOTAL:${data.total}`}
+                value={`https://www.lowscarlet.my.id/projects/webs`}
                 size={70}
                 level="M"
               />

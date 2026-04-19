@@ -14,7 +14,7 @@ import {
 export const jenisTransaksiEnum = pgEnum("jenis_transaksi", [
   "MASUK",
   "KELUAR",
-  "KOREKSI"
+  "KOREKSI",
 ]);
 
 export const statusPekerjaanEnum = pgEnum("status_pekerjaan", [
@@ -34,7 +34,6 @@ export const tipeDetailEnum = pgEnum("tipe_detail", [
   "CUSTOM",
 ]);
 
-// 🔥 BARU
 export const statusPembayaranEnum = pgEnum("status_pembayaran", [
   "BELUM_BAYAR",
   "SEBAGIAN",
@@ -100,7 +99,7 @@ export const barang = pgTable("barang", {
 });
 
 //
-// 🔄 TRANSAKSI STOK
+// 🔄 TRANSAKSI BARANG
 //
 export const transaksi_barang = pgTable("transaksi_barang", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -111,8 +110,7 @@ export const transaksi_barang = pgTable("transaksi_barang", {
 
   supplierId: uuid("supplier_id").references(() => supplier.id),
 
-  // 🔥 sekarang refer ke tagihan
-  kuitansiId: uuid("kuitansi_id"),
+  tagihanId: uuid("tagihan_id"), // relasi ke tagihan
 
   jenis: jenisTransaksiEnum("jenis").notNull(),
   jumlah: integer("jumlah").notNull(),
@@ -133,7 +131,7 @@ export const layanan = pgTable("layanan", {
 });
 
 //
-// 🧾 TAGIHAN (DULUNYA KUITANSI)
+// 🧾 TAGIHAN
 //
 export const tagihan = pgTable("tagihan", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -143,7 +141,6 @@ export const tagihan = pgTable("tagihan", {
 
   status: statusPekerjaanEnum("status").default("PROSES"),
 
-  // 🔥 STATUS PEMBAYARAN
   statusPembayaran: statusPembayaranEnum("status_pembayaran")
     .default("BELUM_BAYAR"),
 
@@ -179,18 +176,32 @@ export const tagihan_detail = pgTable("tagihan_detail", {
   subtotal: integer("subtotal").notNull(),
 });
 
-// // // // // // //
+//
+// 💰 PEMBAYARAN (INI YANG BIKIN CICILAN JADI WARAS)
+//
+export const pembayaran = pgTable("pembayaran", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  tagihanId: uuid("tagihan_id")
+    .notNull()
+    .references(() => tagihan.id),
+
+  jumlah: integer("jumlah").notNull(),
+
+  metode: text("metode"),
+  catatan: text("catatan"),
+
+  dibuatPada: timestamp("dibuat_pada").defaultNow(),
+});
 
 //
-// 📦 KATEGORI → BARANG
+// ================= RELATIONS =================
 //
+
 export const kategoriRelations = relations(kategori, ({ many }) => ({
   barang: many(barang),
 }));
 
-//
-// 📦 BARANG
-//
 export const barangRelations = relations(barang, ({ one, many }) => ({
   kategori: one(kategori, {
     fields: [barang.kategoriId],
@@ -200,16 +211,10 @@ export const barangRelations = relations(barang, ({ one, many }) => ({
   tagihanDetail: many(tagihan_detail),
 }));
 
-//
-// 🏢 SUPPLIER
-//
 export const supplierRelations = relations(supplier, ({ many }) => ({
   transaksi: many(transaksi_barang),
 }));
 
-//
-// 🔄 TRANSAKSI BARANG
-//
 export const transaksiRelations = relations(
   transaksi_barang,
   ({ one }) => ({
@@ -222,22 +227,16 @@ export const transaksiRelations = relations(
       references: [supplier.id],
     }),
     tagihan: one(tagihan, {
-      fields: [transaksi_barang.kuitansiId],
+      fields: [transaksi_barang.tagihanId],
       references: [tagihan.id],
     }),
   })
 );
 
-//
-// 👤 PENGGUNA
-//
 export const penggunaRelations = relations(pengguna, ({ many }) => ({
   tagihan: many(tagihan),
 }));
 
-//
-// 🧾 TAGIHAN
-//
 export const tagihanRelations = relations(tagihan, ({ one, many }) => ({
   mekanik: one(pengguna, {
     fields: [tagihan.mekanikId],
@@ -245,11 +244,9 @@ export const tagihanRelations = relations(tagihan, ({ one, many }) => ({
   }),
   details: many(tagihan_detail),
   transaksi: many(transaksi_barang),
+  pembayaran: many(pembayaran), // 🔥 penting
 }));
 
-//
-// 📄 TAGIHAN DETAIL
-//
 export const tagihanDetailRelations = relations(
   tagihan_detail,
   ({ one }) => ({
@@ -268,9 +265,13 @@ export const tagihanDetailRelations = relations(
   })
 );
 
-//
-// 🧰 LAYANAN
-//
 export const layananRelations = relations(layanan, ({ many }) => ({
   tagihanDetail: many(tagihan_detail),
+}));
+
+export const pembayaranRelations = relations(pembayaran, ({ one }) => ({
+  tagihan: one(tagihan, {
+    fields: [pembayaran.tagihanId],
+    references: [tagihan.id],
+  }),
 }));

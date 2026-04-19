@@ -16,7 +16,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="right-0 bottom-0 left-0 z-50 fixed flex justify-center items-center">
+    <nav className="flex justify-center items-center">
       <div className="grid grid-cols-3 py-2 rounded-xl w-full max-w-md">
         {menus.map((item) => {
           const isActive = pathname === item.href;
