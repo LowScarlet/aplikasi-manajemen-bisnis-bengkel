@@ -18,9 +18,10 @@ import {
 
 import { Card } from "@/app/_components/Card";
 
-import { FiArrowLeft, FiPrinter } from "react-icons/fi";
+import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
 import { format } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
+import { MdEdit } from "react-icons/md";
 
 function Row({
   label,
@@ -80,14 +81,19 @@ export default function ClientPage({ data }: { data: any }) {
             Detail Tagihan
           </h1>
         </div>
+        <div className="flex gap-2">
+          <Link href={`/tagihan/${data.id}/kuitansi`}>
+            <PrimaryButtonAction>
+              <MdEdit size={14} />
+            </PrimaryButtonAction>
+          </Link>
 
-        {data.statusPembayaran === "LUNAS" && (
           <Link href={`/tagihan/${data.id}/kuitansi`}>
             <PrimaryButtonAction>
               <FiPrinter size={14} />
             </PrimaryButtonAction>
           </Link>
-        )}
+        </div>
       </FragmentHeader>
 
       {/* BODY */}
@@ -142,6 +148,25 @@ export default function ClientPage({ data }: { data: any }) {
               </p>
             </div>
           ))}
+
+
+          <div className="flex gap-2">
+            <button
+              className="flex justify-center items-center gap-2 py-3 border border-dashed rounded-xl w-full text-sm"
+            >
+              <FiPlus /> Barang
+            </button>
+            <button
+              className="flex justify-center items-center gap-2 py-3 border border-dashed rounded-xl w-full text-sm"
+            >
+              <FiPlus /> Jasa
+            </button>
+            <button
+              className="flex justify-center items-center gap-2 py-3 border border-dashed rounded-xl w-full text-sm"
+            >
+              <FiPlus /> Lainnya
+            </button>
+          </div>
         </Card>
 
         {/* TOTAL */}
@@ -187,21 +212,12 @@ export default function ClientPage({ data }: { data: any }) {
 
       {/* FOOTER */}
       {sisa > 0 && (
-        <FragmentFooter className="space-y-3">
-
-          <input
-            type="number"
-            placeholder="Masukkan nominal"
-            value={bayar}
-            onChange={(e) =>
-              setBayar(e.target.value ? Number(e.target.value) : "")
-            }
-            className="px-3 py-2 border rounded-lg w-full text-sm"
-          />
-
-          <PrimaryButtonAction onClick={handleBayar}>
-            Simpan Pembayaran
-          </PrimaryButtonAction>
+        <FragmentFooter>
+          <div className="space-y-2 px-2 py-4">
+            <PrimaryButtonAction onClick={handleBayar}>
+              Tambah Pembayaran
+            </PrimaryButtonAction>
+          </div>
 
         </FragmentFooter>
       )}
