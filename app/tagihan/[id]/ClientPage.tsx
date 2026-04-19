@@ -2,7 +2,6 @@
 'use client'
 
 import Link from "next/link";
-import { useState } from "react";
 
 import {
   FragmentLayout,
@@ -12,6 +11,7 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
+  DangerButtonAction,
   GhostButton,
   PrimaryButtonAction
 } from "@/app/_components/Buttons";
@@ -21,7 +21,8 @@ import { Card } from "@/app/_components/Card";
 import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
 import { format } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
-import { MdEdit } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
+import { FaPlus } from "react-icons/fa6";
 
 function Row({
   label,
@@ -43,29 +44,9 @@ function Row({
 }
 
 export default function ClientPage({ data }: { data: any }) {
-  const [bayar, setBayar] = useState<number | "">("");
-
   const total = data.total ?? 0;
   const dibayar = data.dibayar ?? 0;
   const sisa = total - dibayar;
-
-  async function handleBayar() {
-    if (!bayar || bayar <= 0) return;
-
-    try {
-      await fetch("/api/pembayaran", {
-        method: "POST",
-        body: JSON.stringify({
-          tagihanId: data.id,
-          jumlah: bayar,
-        }),
-      });
-
-      location.reload();
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   return (
     <FragmentLayout>
@@ -82,12 +63,6 @@ export default function ClientPage({ data }: { data: any }) {
           </h1>
         </div>
         <div className="flex gap-2">
-          <Link href={`/tagihan/${data.id}/kuitansi`}>
-            <PrimaryButtonAction>
-              <MdEdit size={14} />
-            </PrimaryButtonAction>
-          </Link>
-
           <Link href={`/tagihan/${data.id}/kuitansi`}>
             <PrimaryButtonAction>
               <FiPrinter size={14} />
@@ -118,6 +93,15 @@ export default function ClientPage({ data }: { data: any }) {
             {data.catatan ?? "Tidak Ada Catatan!"}
           </p>
         </Card>
+
+        <div className="flex gap-2 py-2">
+          <PrimaryButtonAction>
+            <MdEdit /> Ubah Informasi
+          </PrimaryButtonAction>
+          <PrimaryButtonAction>
+            <MdEdit /> Ubah Status
+          </PrimaryButtonAction>
+        </div>
 
         {/* ITEMS */}
         <Card className="space-y-3">
@@ -191,19 +175,26 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.pembayaran.map((p: any) => (
-            <div key={p.id} className="flex justify-between">
-              <div>
-                <p className="font-medium">
-                  Rp {format(p.jumlah)}
-                </p>
-                <p className="text-neutral-500 text-xs">
-                  {p.metode ?? "-"}
+            <div key={p.id} className="flex justify-between items-start gap-8 cursor-pointer">
+              <div className="flex justify-between grow">
+                <div>
+                  <p className="font-medium">
+                    Rp {format(p.jumlah)}
+                  </p>
+                  <p className="text-neutral-500 text-xs">
+                    {p.metode ?? "-"}
+                  </p>
+                </div>
+
+                <p className="text-neutral-400 text-xs">
+                  {new Date(p.dibuatPada).toLocaleDateString("id-ID")}
                 </p>
               </div>
-
-              <p className="text-neutral-400 text-xs">
-                {new Date(p.dibuatPada).toLocaleDateString("id-ID")}
-              </p>
+              <div className="">
+                <DangerButtonAction>
+                  <MdDelete />
+                </DangerButtonAction>
+              </div>
             </div>
           ))}
         </Card>
@@ -213,9 +204,9 @@ export default function ClientPage({ data }: { data: any }) {
       {/* FOOTER */}
       {sisa > 0 && (
         <FragmentFooter>
-          <div className="space-y-2 px-2 py-4">
-            <PrimaryButtonAction onClick={handleBayar}>
-              Tambah Pembayaran
+          <div className="space-y-2 px-4 py-2">
+            <PrimaryButtonAction>
+              <FaPlus /> Tambah Pembayaran
             </PrimaryButtonAction>
           </div>
 

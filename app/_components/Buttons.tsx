@@ -61,7 +61,7 @@ export function PrimaryButtonAction({
     <button
       {...props}
       className={cn(
-        "bg-blue-500 p-2 rounded w-full text-white text-sm",
+        "flex justify-center items-center gap-2 bg-blue-500 p-2 rounded w-full text-white text-sm",
         className
       )}
     >
