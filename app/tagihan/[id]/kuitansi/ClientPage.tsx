@@ -1,0 +1,243 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
+
+import Link from "next/link";
+import { FiArrowLeft, FiPrinter } from "react-icons/fi";
+import { QRCodeSVG } from "qrcode.react";
+
+import {
+  FragmentLayout,
+  FragmentHeader,
+  FragmentBody,
+} from "@/app/_components/Layouts/FragmentLayout";
+
+export default function ClientPage({ data }: { data: any }) {
+  const total = data.total ?? 0;
+  const dibayar = data.dibayar ?? 0;
+  const kembalian = data.kembalian ?? 0;
+
+  const details = data.details ?? [];
+  const pembayaran = data.pembayaran ?? [];
+
+  return (
+    <FragmentLayout>
+
+      {/* PRINT STYLE */}
+      <style jsx global>{`
+        #print-area {
+          width: 320px;
+          margin: 0 auto;
+          font-size: 12px;
+        }
+
+        @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
+          body * {
+            visibility: hidden;
+          }
+
+          #print-area, #print-area * {
+            visibility: visible;
+          }
+
+          #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 58mm;
+            font-size: 10px;
+          }
+        }
+      `}</style>
+
+      {/* HEADER */}
+      <FragmentHeader>
+        <div className="flex items-center gap-2">
+          <Link href={`/tagihan/${data.id}`}>
+            <FiArrowLeft />
+          </Link>
+
+          <h1 className="font-bold text-xl">
+            Kuitansi
+          </h1>
+        </div>
+
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-1 text-sm"
+        >
+          <FiPrinter /> Print
+        </button>
+      </FragmentHeader>
+
+      {/* BODY */}
+      <FragmentBody className="py-6">
+
+        <div
+          id="print-area"
+          className="bg-white mx-auto p-3 font-mono text-black"
+        >
+
+          {/* HEADER TOKO */}
+          <div className="text-center">
+            <p className="font-bold text-[14px]">
+              Berkat Motor / Erizal
+            </p>
+            <p className="text-xs">
+              Perkebunan Sungai Lala, Sungai Lala, Indragiri Hulu, Riau
+            </p>
+          </div>
+
+          <Divider />
+
+          {/* INFO */}
+          <div className="flex justify-between text-xs">
+            <p>Kode: {data.kode}</p>
+            <p>{formatDate(data.dibuatPada)}</p>
+          </div>
+
+          {/* CUSTOMER + CATATAN */}
+          {(data.namaCustomer || data.catatan) && (
+            <div className="space-y-1 mt-2 text-xs">
+              <p>{data.namaCustomer ?? "-"}</p>
+              {data.catatan && (
+                <p className="text-neutral-600">
+                  {data.catatan}
+                </p>
+              )}
+            </div>
+          )}
+
+          <Divider />
+
+          {/* ITEMS */}
+          <Section title="Barang / Jasa">
+            {details.length === 0 ? (
+              <Empty text="Tidak ada barang / jasa" />
+            ) : (
+              details.map((item: any) => (
+                <div key={item.id}>
+                  <p>{item.nama}</p>
+                  <div className="flex justify-between">
+                    <span>
+                      {item.qty} x {format(item.harga)}
+                    </span>
+                    <span>{format(item.subtotal)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </Section>
+
+          <Divider />
+
+          {/* TOTAL */}
+          <div className="space-y-1 text-xs">
+            <Row label="Total" value={total} />
+          </div>
+
+          <Divider />
+
+          {/* PEMBAYARAN */}
+          <Section title="Riwayat Pembayaran">
+            {pembayaran.length === 0 ? (
+              <Empty text="Belum ada pembayaran" />
+            ) : (
+              pembayaran.map((p: any) => (
+                <div key={p.id} className="flex justify-between">
+                  <span>{formatDate(p.dibuatPada)}</span>
+                  <span>Rp {format(p.jumlah)}</span>
+                </div>
+              ))
+            )}
+          </Section>
+
+          <Divider />
+
+          {/* RINGKASAN */}
+          <div className="space-y-1 text-xs">
+            <Row label="Bayar" value={dibayar} />
+            <Row label="Kembali" value={kembalian} />
+          </div>
+
+          <Divider />
+
+          {/* FOOTER */}
+          <div className="mt-2 text-xs text-center">
+
+            <p>Terima kasih</p>
+
+            <div className="flex justify-center mt-2">
+              <QRCodeSVG
+                value={`${process.env.NEXT_PUBLIC_BASE_URL}/tagihan/${data.id}`}
+                size={70}
+              />
+            </div>
+
+            <p className="mt-1 text-[8px]">
+              Scan untuk cek invoice
+            </p>
+
+          </div>
+
+        </div>
+
+      </FragmentBody>
+
+    </FragmentLayout>
+  );
+}
+
+/* ================= COMPONENT ================= */
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2 text-xs">
+      <p className="font-medium">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return (
+    <p className="text-neutral-400 text-center">
+      {text}
+    </p>
+  );
+}
+
+/* ================= HELPER ================= */
+
+function Row({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex justify-between">
+      <span>{label}</span>
+      <span>{value.toLocaleString("id-ID")}</span>
+    </div>
+  );
+}
+
+function Divider() {
+  return (
+    <div className="my-2 border-t border-dashed" />
+  );
+}
+
+function format(num: number) {
+  return num.toLocaleString("id-ID");
+}
+
+function formatDate(date: string | Date) {
+  return new Date(date).toLocaleDateString("id-ID");
+}

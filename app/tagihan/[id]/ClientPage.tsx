@@ -138,11 +138,6 @@ export default function ClientPage({ data }: { data: any }) {
             <button
               className="flex justify-center items-center gap-2 py-3 border border-dashed rounded-xl w-full text-sm"
             >
-              <FiPlus /> Barang
-            </button>
-            <button
-              className="flex justify-center items-center gap-2 py-3 border border-dashed rounded-xl w-full text-sm"
-            >
               <FiPlus /> Jasa
             </button>
             <button

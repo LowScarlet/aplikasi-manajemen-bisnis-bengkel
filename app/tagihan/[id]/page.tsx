@@ -7,8 +7,8 @@ const getDetail = async (id: string) => {
   return db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
     with: {
-      details: true,      // 🔥 barang & layanan
-      pembayaran: true,   // 🔥 cicilan
+      details: true,
+      pembayaran: true,
     },
   });
 };
