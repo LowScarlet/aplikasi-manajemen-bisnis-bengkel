@@ -63,7 +63,7 @@ export function FragmentBody({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-6 px-4 pb-24 grow", className)}>
+    <div className={cn("space-y-6 px-4 pb-12 grow", className)}>
       {children}
     </div>
   );
