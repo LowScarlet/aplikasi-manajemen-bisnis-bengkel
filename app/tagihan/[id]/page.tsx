@@ -4,6 +4,7 @@ import { db } from "@/db";
 import {
   pembayaran,
   statusPekerjaanEnum,
+  statusPembayaranEnum,
   tagihan,
   tagihan_detail,
   tipeDetailEnum,
@@ -92,6 +93,43 @@ export async function addItem(
   return { success: true };
 }
 
+export async function updateItem(
+  id: string,
+  form: {
+    tipe: typeof tipeDetailEnum.enumValues[number];
+    barangId?: string | null;
+    layananId?: string | null;
+    nama: string;
+    qty: number;
+    harga: number;
+  }
+) {
+  const subtotal = form.qty * form.harga;
+
+  await db
+    .update(tagihan_detail)
+    .set({
+      tipe: form.tipe,
+      barangId: form.barangId ?? null,
+      layananId: form.layananId ?? null,
+      nama: form.nama,
+      qty: form.qty,
+      harga: form.harga,
+      subtotal,
+    })
+    .where(eq(tagihan_detail.id, id));
+
+  await syncTagihan(
+    (await db.query.tagihan_detail.findFirst({
+      where: eq(tagihan_detail.id, id),
+    }))!.tagihanId
+  );
+
+  revalidatePath(`/tagihan`);
+
+  return { success: true };
+}
+
 /* ================= ADD PAYMENT ================= */
 
 export async function addPayment(
@@ -115,9 +153,23 @@ export async function addPayment(
   return { success: true };
 }
 
+export async function deletePayment(id: string, tagihanId: string) {
+  await db
+    .delete(pembayaran)
+    .where(eq(pembayaran.id, id));
+
+  await syncTagihan(tagihanId);
+
+  revalidatePath(`/tagihan/${tagihanId}`);
+
+  return { success: true };
+}
+
 /* ================= SYNC CORE ================= */
 
 export async function syncTagihan(id: string) {
+  /* ================= TOTAL ================= */
+
   const totalResult = await db
     .select({
       total: sql<number>`COALESCE(SUM(${tagihan_detail.subtotal}), 0)`,
@@ -126,6 +178,8 @@ export async function syncTagihan(id: string) {
     .where(eq(tagihan_detail.tagihanId, id));
 
   const total = totalResult[0]?.total ?? 0;
+
+  /* ================= DIBAYAR ================= */
 
   const bayarResult = await db
     .select({
@@ -136,7 +190,23 @@ export async function syncTagihan(id: string) {
 
   const dibayar = bayarResult[0]?.dibayar ?? 0;
 
+  /* ================= KEMBALIAN ================= */
+
   const kembalian = dibayar > total ? dibayar - total : 0;
+
+  /* ================= STATUS PEMBAYARAN ================= */
+
+  let statusPembayaran: typeof statusPembayaranEnum.enumValues[number];
+
+  if (dibayar <= 0) {
+    statusPembayaran = "BELUM_BAYAR";
+  } else if (dibayar >= total) {
+    statusPembayaran = "LUNAS";
+  } else {
+    statusPembayaran = "SEBAGIAN";
+  }
+
+  /* ================= UPDATE ================= */
 
   await db
     .update(tagihan)
@@ -144,10 +214,16 @@ export async function syncTagihan(id: string) {
       total,
       dibayar,
       kembalian,
+      statusPembayaran,
     })
     .where(eq(tagihan.id, id));
 
-  return { total, dibayar, kembalian };
+  return {
+    total,
+    dibayar,
+    kembalian,
+    statusPembayaran,
+  };
 }
 
 /* ================= SERVER ACTION ================= */

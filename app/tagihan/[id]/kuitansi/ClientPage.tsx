@@ -14,10 +14,17 @@ import {
 export default function ClientPage({ data }: { data: any }) {
   const total = data.total ?? 0;
   const dibayar = data.dibayar ?? 0;
-  const kembalian = data.kembalian ?? 0;
+
+  const kembalian = dibayar > total ? dibayar - total : 0;
+  const sisa = dibayar < total ? total - dibayar : 0;
 
   const details = data.details ?? [];
   const pembayaran = data.pembayaran ?? [];
+
+  const currentUrl =
+    typeof window !== "undefined"
+      ? window.location.origin + `/tagihan/${data.id}`
+      : "";
 
   return (
     <FragmentLayout>
@@ -88,7 +95,7 @@ export default function ClientPage({ data }: { data: any }) {
               Berkat Motor / Erizal
             </p>
             <p className="text-xs">
-              Perkebunan Sungai Lala, Sungai Lala, Indragiri Hulu, Riau
+              Perkebunan Sungai Lala, Indragiri Hulu, Riau
             </p>
           </div>
 
@@ -100,7 +107,7 @@ export default function ClientPage({ data }: { data: any }) {
             <p>{formatDate(data.dibuatPada)}</p>
           </div>
 
-          {/* CUSTOMER + CATATAN */}
+          {/* CUSTOMER */}
           {(data.namaCustomer || data.catatan) && (
             <div className="space-y-1 mt-2 text-xs">
               <p>{data.namaCustomer ?? "-"}</p>
@@ -150,7 +157,7 @@ export default function ClientPage({ data }: { data: any }) {
               pembayaran.map((p: any) => (
                 <div key={p.id} className="flex justify-between">
                   <span>{formatDate(p.dibuatPada)}</span>
-                  <span>Rp {format(p.jumlah)}</span>
+                  <span>{format(p.jumlah)}</span>
                 </div>
               ))
             )}
@@ -161,7 +168,12 @@ export default function ClientPage({ data }: { data: any }) {
           {/* RINGKASAN */}
           <div className="space-y-1 text-xs">
             <Row label="Bayar" value={dibayar} />
-            <Row label="Kembali" value={kembalian} />
+
+            {dibayar >= total ? (
+              <Row label="Kembalian" value={kembalian} />
+            ) : (
+              <Row label="Sisa" value={sisa} />
+            )}
           </div>
 
           <Divider />
@@ -172,10 +184,9 @@ export default function ClientPage({ data }: { data: any }) {
             <p>Terima kasih</p>
 
             <div className="flex justify-center mt-2">
-              <QRCodeSVG
-                value={`${process.env.NEXT_PUBLIC_BASE_URL}/tagihan/${data.id}`}
-                size={70}
-              />
+              {currentUrl && (
+                <QRCodeSVG value={currentUrl} size={70} />
+              )}
             </div>
 
             <p className="mt-1 text-[8px]">

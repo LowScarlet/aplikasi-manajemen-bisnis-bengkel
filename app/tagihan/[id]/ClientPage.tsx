@@ -32,7 +32,7 @@ import {
   ModalFooter,
 } from "@/app/_components/Modal";
 
-import { addItem, addPayment, changeStatus, updateInformation } from "./page";
+import { addItem, addPayment, changeStatus, deletePayment, updateInformation, updateItem } from "./page";
 
 /* ================= ROW ================= */
 
@@ -84,6 +84,8 @@ export default function ClientPage({ data }: { data: any }) {
     tipe: "CUSTOM" as "LAYANAN" | "CUSTOM",
   });
 
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+
   /* ================= CALC ================= */
 
   const total = data.total ?? 0;
@@ -114,10 +116,22 @@ export default function ClientPage({ data }: { data: any }) {
         if (!itemForm.layananId) return;
       }
 
-      await addItem(data.id, itemForm);
+      if (editingItemId) {
+        await updateItem(editingItemId, itemForm);
+      } else {
+        await addItem(data.id, itemForm);
+      }
     }
 
     setModal(null);
+    location.reload();
+  };
+
+  const handleDeletePayment = async (id: string) => {
+    const confirmDelete = confirm("Hapus pembayaran ini?");
+    if (!confirmDelete) return;
+
+    await deletePayment(id, data.id);
     location.reload();
   };
 
@@ -193,8 +207,8 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.details.map((item: any) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <div>
+            <div key={item.id} className="flex justify-between items-start gap-2 text-sm">
+              <div className="flex-1">
                 <p className="font-medium">{item.nama}</p>
                 <p className="text-neutral-400 text-xs">
                   {item.qty} x Rp {format(item.harga)}
@@ -202,9 +216,25 @@ export default function ClientPage({ data }: { data: any }) {
                 <TipeBadge tipe={item.tipe} />
               </div>
 
-              <p className="font-semibold">
-                Rp {format(item.subtotal)}
-              </p>
+              <div className="flex gap-1">
+                <PrimaryButtonAction
+                  onClick={() => {
+                    setItemForm({
+                      nama: item.nama,
+                      qty: item.qty,
+                      harga: item.harga,
+                      barangId: item.barangId,
+                      layananId: item.layananId,
+                      tipe: item.tipe,
+                    });
+
+                    setEditingItemId(item.id);
+                    setModal("item");
+                  }}
+                >
+                  <MdEdit />
+                </PrimaryButtonAction>
+              </div>
             </div>
           ))}
 
@@ -266,9 +296,7 @@ export default function ClientPage({ data }: { data: any }) {
               </div>
 
               <div>
-
-
-                <DangerButtonAction>
+                <DangerButtonAction onClick={() => handleDeletePayment(p.id)}>
                   <MdDelete />
                 </DangerButtonAction>
               </div>
@@ -294,6 +322,7 @@ export default function ClientPage({ data }: { data: any }) {
           {modal === "info" && "Ubah Informasi"}
           {modal === "status" && "Ubah Status"}
           {modal === "pembayaran" && "Tambah Pembayaran"}
+          {modal === "item" && (editingItemId ? "Edit Item" : "Tambah Item")}
         </ModalHeader>
 
         <ModalBody>
@@ -394,7 +423,7 @@ export default function ClientPage({ data }: { data: any }) {
                   }
                   className="px-3 py-2 border rounded-lg w-full text-sm"
                 >
-                  <option value="LAINNYA">Lainnya</option>
+                  <option value="CUSTOM">Lainnya</option>
                   <option value="LAYANAN">Layanan</option>
                 </select>
               </div>
