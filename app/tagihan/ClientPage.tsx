@@ -26,6 +26,7 @@ import { LuScanLine } from "react-icons/lu";
 
 import { Tagihan } from "./page";
 import { QRScannerModal } from "../_components/QRScannerModal";
+import { formatDate } from "@/libs/utils";
 
 export default function ClientPage({
   data,
@@ -105,23 +106,30 @@ export default function ClientPage({
               >
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex-1">
-                    <p className="font-medium text-neutral-800">
-                      {item.kode}
-                    </p>
+                    <div className="flex justify-between gap-2">
+                      <p className="font-medium">{item.kode}</p>
+                      <p className="text-neutral-500 text-sm">{item.dibuatPada ? formatDate(item.dibuatPada) : 'Error'}</p>
+                    </div>
 
                     <p className="text-neutral-500 text-xs">
                       {item.namaCustomer ?? "-"} — {item.catatan ?? "-"}
                     </p>
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1 mt-4 text-xs">
+                  <span>
+                    Pengerjaan: {" "}
                     <StatusBadge
                       status={item.status ?? "PROSES"}
                     />
+                  </span>
+                  <span>
+                    Pembayaran: {" "}
                     <StatusBadge
                       status={item.statusPembayaran ?? "BELUM_BAYAR"}
                     />
-                  </div>
+                  </span>
                 </div>
 
                 <div className="flex justify-between text-neutral-600 text-sm">

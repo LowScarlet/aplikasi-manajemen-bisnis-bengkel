@@ -7,12 +7,10 @@ import { useState } from "react";
 import {
   FragmentLayout,
   FragmentHeader,
-  FragmentBody,
-  FragmentFooter,
+  FragmentBody
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
-  DangerButtonAction,
   GhostButton,
   PrimaryButtonAction
 } from "@/app/_components/Buttons";
@@ -20,9 +18,9 @@ import {
 import { Card } from "@/app/_components/Card";
 
 import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
-import { format } from "@/libs/utils";
+import { format, formatDate } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
-import { MdDelete, MdEdit } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import { FaPlus } from "react-icons/fa6";
 
 import {
@@ -33,29 +31,6 @@ import {
 } from "@/app/_components/Modal";
 
 import { addItem, addPayment, changeStatus, deletePayment, updateInformation, updateItem } from "./page";
-
-/* ================= ROW ================= */
-
-function Row({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex justify-between">
-      <span>{label}</span>
-      <span className={highlight ? "font-semibold text-red-500" : "font-medium"}>
-        Rp {value.toLocaleString("id-ID")}
-      </span>
-    </div>
-  );
-}
-
-/* ================= PAGE ================= */
 
 export default function ClientPage({ data }: { data: any }) {
 
@@ -168,33 +143,37 @@ export default function ClientPage({ data }: { data: any }) {
         <Card>
           <div className="flex justify-between items-start gap-2 space-y-2">
             <div className="flex-1">
-              <p className="font-medium">{data.kode}</p>
+              <div className="flex justify-between gap-2">
+                <p className="font-medium">{data.kode}</p>
+                <p className="text-neutral-500 text-sm">{formatDate(data.dibuatPada)}</p>
+              </div>
               <p className="text-neutral-500 text-sm">
                 {data.namaCustomer ?? "-"}
               </p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <StatusBadge status={data.status} />
-              <StatusBadge status={data.statusPembayaran} />
             </div>
           </div>
 
           <p className="mt-4 text-neutral-500 text-sm">
             {data.catatan ?? "Tidak Ada Catatan!"}
           </p>
+
+          <div className="flex flex-col gap-1 mt-4 text-neutral-500 text-sm">
+            <span>
+              Pengerjaan: <StatusBadge status={data.status} />
+            </span>
+            <span>
+              Pembayaran: <StatusBadge status={data.statusPembayaran} />
+            </span>
+          </div>
+
+          <div className="mt-2 py-2">
+            <PrimaryButtonAction onClick={() => setModal("status")}>
+              <MdEdit /> Ubah
+            </PrimaryButtonAction>
+          </div>
         </Card>
 
         {/* ACTION */}
-        <div className="flex sm:flex-row flex-col gap-2 py-2">
-          <PrimaryButtonAction onClick={() => setModal("info")}>
-            <MdEdit /> Ubah Informasi
-          </PrimaryButtonAction>
-
-          <PrimaryButtonAction onClick={() => setModal("status")}>
-            <MdEdit /> Ubah Status Pengerjaan
-          </PrimaryButtonAction>
-        </div>
 
         {/* ITEMS */}
         <Card className="space-y-3">
@@ -208,12 +187,17 @@ export default function ClientPage({ data }: { data: any }) {
 
           {data.details.map((item: any) => (
             <div key={item.id} className="flex justify-between items-start gap-2 text-sm">
-              <div className="flex-1">
-                <p className="font-medium">{item.nama}</p>
-                <p className="text-neutral-400 text-xs">
-                  {item.qty} x Rp {format(item.harga)}
-                </p>
-                <TipeBadge tipe={item.tipe} />
+              <div className="flex flex-1 justify-between">
+                <div className="">
+                  <p className="font-medium">{item.nama}</p>
+
+                  <p className="text-neutral-400 text-xs">
+                    {item.qty} x Rp {format(item.harga)}
+                  </p>
+                </div>
+                <div>
+                  <TipeBadge tipe={item.tipe} />
+                </div>
               </div>
 
               <div className="flex gap-1">
@@ -257,20 +241,9 @@ export default function ClientPage({ data }: { data: any }) {
           </div>
         </Card>
 
-        {/* TOTAL */}
-        <Card className="space-y-2 text-sm">
-          <Row label="Total" value={total} />
-          <Row label="Dibayar" value={dibayar} />
-          {sisa <= 0 ? (
-            <Row label="Kembalian" value={Math.abs(sisa)} />
-          ) : (
-            <Row label="Sisa" value={sisa} highlight />
-          )}
-        </Card>
-
         {/* RIWAYAT */}
         <Card className="space-y-2 text-sm">
-          <p className="font-medium">Riwayat Pembayaran</p>
+          <p className="font-medium">Pembayaran</p>
 
           {data.pembayaran.length === 0 && (
             <p className="text-neutral-500 text-sm text-center">
@@ -279,14 +252,14 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.pembayaran.map((p: any) => (
-            <div key={p.id} className="flex justify-between items-start gap-8">
+            <div key={p.id} className="flex justify-between items-start gap-2">
               <div className="flex justify-between grow">
                 <div>
-                  <p className="font-medium">
+                  <p className="font-sm">
                     Rp {format(p.jumlah)}
                   </p>
                   <p className="text-neutral-500 text-xs">
-                    {p.metode ?? "-"}
+                    {p.metode ?? "Tidak diketahui"}
                   </p>
                 </div>
 
@@ -296,24 +269,54 @@ export default function ClientPage({ data }: { data: any }) {
               </div>
 
               <div>
-                <DangerButtonAction onClick={() => handleDeletePayment(p.id)}>
-                  <MdDelete />
-                </DangerButtonAction>
+                <PrimaryButtonAction onClick={() => handleDeletePayment(p.id)}>
+                  <MdEdit />
+                </PrimaryButtonAction>
               </div>
             </div>
           ))}
         </Card>
 
-      </FragmentBody>
+        {/* TOTAL */}
+        <Card className="space-y-2 text-sm">
+          <p className="font-medium">Detail Pembayaran</p>
 
-      {/* FOOTER */}
-      <FragmentFooter>
-        <div className="space-y-2 px-4 py-2">
+          <div className="flex justify-between">
+            <span>Total</span>
+            <span className={false ? "font-semibold text-red-500" : "font-medium"}>
+              Rp {total.toLocaleString("id-ID")}
+            </span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Dibayar</span>
+            <span className={dibayar < total ? "font-semibold text-red-500" : "font-medium"}>
+              Rp {dibayar.toLocaleString("id-ID")}
+            </span>
+          </div>
+          {sisa <= 0 ? (
+            <div className="flex justify-between">
+              <span>Kembalian</span>
+              <span className={false ? "font-semibold text-red-500" : "font-medium"}>
+                Rp {Math.abs(sisa).toLocaleString("id-ID")}
+              </span>
+            </div>
+          ) : (
+            <div className="flex justify-between">
+              <span>Sisa</span>
+              <span className={true ? "font-semibold text-red-500" : "font-medium"}>
+                Rp {sisa.toLocaleString("id-ID")}
+              </span>
+            </div>
+          )}
+
+
           <PrimaryButtonAction onClick={() => setModal("pembayaran")}>
             <FaPlus /> Tambah Pembayaran
           </PrimaryButtonAction>
-        </div>
-      </FragmentFooter>
+        </Card>
+
+      </FragmentBody>
 
       {/* ================= MODAL ================= */}
       <Modal open={modal !== null} onClose={() => setModal(null)}>

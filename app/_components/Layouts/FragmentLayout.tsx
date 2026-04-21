@@ -1,91 +1,109 @@
 'use client'
 
 import { cn } from "@/libs/utils";
-import { ReactNode } from "react";
+import {
+  ReactNode,
+  forwardRef,
+  HTMLAttributes,
+} from "react";
 
 /* ================= ROOT ================= */
 
-export function FragmentLayout({
-  children,
-  className,
-}: {
+type FragmentLayoutProps = {
   children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <main
-      className={cn(
-        "bg-linear-to-b from-blue-50 to-neutral-100 min-h-screen",
-        className
-      )}
-    >
-      <div className="flex flex-col bg-inherit mx-auto max-w-md min-h-screen">
-        {children}
-      </div>
-    </main>
-  );
-}
+} & HTMLAttributes<HTMLElement>;
+
+export const FragmentLayout = forwardRef<HTMLElement, FragmentLayoutProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <main
+        ref={ref}
+        {...props}
+        className={cn(
+          "bg-linear-to-b from-blue-50 to-neutral-100 min-h-screen",
+          className
+        )}
+      >
+        <div className="flex flex-col bg-inherit mx-auto max-w-md min-h-screen">
+          {children}
+        </div>
+      </main>
+    );
+  }
+);
+
+FragmentLayout.displayName = "FragmentLayout";
 
 /* ================= HEADER ================= */
 
-type FragmentHeaderType = React.FC<{
+type FragmentHeaderProps = {
   children: ReactNode;
-  className?: string;
-}>;
+} & HTMLAttributes<HTMLElement>;
 
-const FragmentHeaderBase: React.FC<{
-  children: ReactNode;
-  className?: string;
-}> = ({ children, className }) => {
-  return (
-    <header
-      className={cn(
-        "top-0 z-10 sticky backdrop-blur px-4 py-3",
-        className
-      )}
-    >
-      <div className="flex justify-between items-center">
-        {children}
-      </div>
-    </header>
-  );
-};
+export const FragmentHeader = forwardRef<HTMLElement, FragmentHeaderProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <header
+        ref={ref}
+        {...props}
+        className={cn(
+          "top-0 z-10 sticky backdrop-blur px-4 py-3",
+          className
+        )}
+      >
+        <div className="flex justify-between items-center">
+          {children}
+        </div>
+      </header>
+    );
+  }
+);
 
-export const FragmentHeader = FragmentHeaderBase as FragmentHeaderType;
+FragmentHeader.displayName = "FragmentHeader";
 
 /* ================= BODY ================= */
 
-export function FragmentBody({
-  children,
-  className,
-}: {
+type FragmentBodyProps = {
   children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("space-y-6 px-4 pb-12 grow", className)}>
-      {children}
-    </div>
-  );
-}
+} & HTMLAttributes<HTMLDivElement>;
+
+export const FragmentBody = forwardRef<HTMLDivElement, FragmentBodyProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn("space-y-6 px-4 pb-12 grow", className)}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+FragmentBody.displayName = "FragmentBody";
 
 /* ================= FOOTER ================= */
 
-export function FragmentFooter({
-  children,
-  className,
-}: {
+type FragmentFooterProps = {
   children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "bottom-0 z-10 sticky bg-inherit backdrop-blur",
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}
+} & HTMLAttributes<HTMLDivElement>;
+
+export const FragmentFooter = forwardRef<HTMLDivElement, FragmentFooterProps>(
+  ({ children, className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn(
+          "bottom-0 z-10 sticky bg-inherit backdrop-blur",
+          className
+        )}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+FragmentFooter.displayName = "FragmentFooter";

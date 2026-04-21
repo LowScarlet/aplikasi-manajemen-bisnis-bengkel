@@ -10,6 +10,8 @@ import {
   FragmentHeader,
   FragmentBody,
 } from "@/app/_components/Layouts/FragmentLayout";
+import { format, formatDate } from "@/libs/utils";
+import { toPng } from "html-to-image";
 
 export default function ClientPage({ data }: { data: any }) {
   const total = data.total ?? 0;
@@ -25,6 +27,51 @@ export default function ClientPage({ data }: { data: any }) {
     typeof window !== "undefined"
       ? window.location.origin + `/tagihan/${data.id}`
       : "";
+
+  const handleShare = async () => {
+    const element = document.getElementById("png-area");
+    if (!element) return;
+
+    try {
+      const width = element.scrollWidth;
+      const height = element.scrollHeight;
+
+      const scale = 3; // 2 = bagus, 3 = HD, 4 = kalau mau overkill
+
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        width: width * scale,
+        height: height * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      });
+
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+
+      const file = new File([blob], `e-receipt_${data.id}.png`, {
+        type: "image/png",
+      });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+        });
+      } else {
+        const link = document.createElement("a");
+        link.download = "kuitansi.png";
+        link.href = dataUrl;
+        link.click();
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <FragmentLayout>
@@ -74,6 +121,13 @@ export default function ClientPage({ data }: { data: any }) {
         </div>
 
         <button
+          onClick={handleShare}
+          className="flex items-center gap-1 text-sm"
+        >
+          Share
+        </button>
+
+        <button
           onClick={() => window.print()}
           className="flex items-center gap-1 text-sm"
         >
@@ -82,11 +136,11 @@ export default function ClientPage({ data }: { data: any }) {
       </FragmentHeader>
 
       {/* BODY */}
-      <FragmentBody className="py-6">
+      <FragmentBody className="py-6" id="png-area">
 
         <div
           id="print-area"
-          className="bg-white mx-auto p-3 font-mono text-black"
+          className="bg-white mx-auto px-3 py-5 font-mono text-black"
         >
 
           {/* HEADER TOKO */}
@@ -94,7 +148,7 @@ export default function ClientPage({ data }: { data: any }) {
             <p className="font-bold text-[14px]">
               Berkat Motor / Erizal
             </p>
-            <p className="text-xs">
+            <p className="px-4 text-xs">
               Perkebunan Sungai Lala, Indragiri Hulu, Riau
             </p>
           </div>
@@ -243,12 +297,4 @@ function Divider() {
   return (
     <div className="my-2 border-t border-dashed" />
   );
-}
-
-function format(num: number) {
-  return num.toLocaleString("id-ID");
-}
-
-function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString("id-ID");
 }
