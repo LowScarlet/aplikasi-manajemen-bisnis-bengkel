@@ -1,12 +1,13 @@
 import { db } from "@/db";
 import { pengguna } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
+import { getUser } from "@/libs/auth";
 
 /* ================= QUERY ================= */
 
-const getUser = async (id: string) => {
+const getUser_ = async (id: string) => {
   const result = await db
     .select({
       id: pengguna.id,
@@ -23,7 +24,7 @@ const getUser = async (id: string) => {
 
 /* ================= TYPE ================= */
 
-export type User = Awaited<ReturnType<typeof getUser>>;
+export type User = Awaited<ReturnType<typeof getUser_>>;
 
 /* ================= PAGE ================= */
 
@@ -32,9 +33,15 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
+  const userauth = await getUser();
+
+  if (!userauth) {
+    redirect("/auth/login");
+  }
+  
   const { id } = await params;
 
-  const user = await getUser(id);
+  const user = await getUser_(id);
 
   if (!user) {
     notFound();

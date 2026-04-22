@@ -4,6 +4,8 @@ import { pengguna } from "@/db/schema";
 import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
+import { getUser } from "@/libs/auth";
 
 export const createUserSchema = z.object({
   nama: z.string().min(1, "Nama wajib diisi").trim(),
@@ -12,7 +14,13 @@ export const createUserSchema = z.object({
   peran: z.enum(["ADMIN", "MEKANIK"]),
 });
 
-export default function Page() {
+export default async function Page() {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+  
   async function createUser(prevState: any, formData: FormData) {
     "use server";
 
@@ -25,7 +33,8 @@ export default function Page() {
 
     const result = createUserSchema.safeParse(raw);
 
-    // ❌ VALIDASI ZOD
+    /* ================= VALIDASI ================= */
+
     if (!result.success) {
       const errors = result.error.flatten().fieldErrors;
 
@@ -42,10 +51,16 @@ export default function Page() {
 
     const data = result.data;
 
+    /* ================= HASH PASSWORD ================= */
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
     try {
-      await db.insert(pengguna).values(data);
+      await db.insert(pengguna).values({
+        ...data,
+        password: hashedPassword,
+      });
     } catch (err: any) {
-      // 🔥 ERROR DB
       if (err.code === "23505") {
         return {
           errors: {

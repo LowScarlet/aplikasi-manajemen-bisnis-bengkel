@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { z } from "zod";
 import { desc, like } from "drizzle-orm";
+import { getUser } from "@/libs/auth";
 
 /* ================= HELPER ================= */
 
@@ -22,7 +23,14 @@ const createSchema = z.object({
 
 /* ================= PAGE ================= */
 
-export default function Page() {
+export default async function Page() {
+  const userauth = await getUser();
+
+  if (!userauth) {
+    redirect("/auth/login");
+  }
+
+  
   async function createTagihan(prevState: any, formData: FormData) {
     "use server";
 

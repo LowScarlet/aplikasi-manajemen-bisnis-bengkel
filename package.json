@@ -11,6 +11,7 @@
   "dependencies": {
     "@bprogress/next": "^3.2.12",
     "@vercel/postgres": "^0.10.0",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",

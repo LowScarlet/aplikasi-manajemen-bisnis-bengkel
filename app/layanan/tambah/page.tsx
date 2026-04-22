@@ -4,6 +4,7 @@ import { layanan } from "@/db/schema";
 import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { z } from "zod";
+import { getUser } from "@/libs/auth";
 
 /* ================= SCHEMA ================= */
 
@@ -16,7 +17,13 @@ export const createLayananSchema = z.object({
 
 /* ================= PAGE ================= */
 
-export default function Page() {
+export default async function Page() {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+  
   async function createLayanan(prevState: any, formData: FormData) {
     "use server";
 

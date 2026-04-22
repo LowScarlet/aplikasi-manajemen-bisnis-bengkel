@@ -2,6 +2,8 @@ import { db } from "@/db";
 import { kategori } from "@/db/schema";
 import { ilike, or } from "drizzle-orm";
 import ClientPage from "./ClientPage";
+import { getUser } from "@/libs/auth";
+import { redirect } from "next/navigation";
 
 /* ================= QUERY ================= */
 
@@ -19,9 +21,9 @@ const getKategori = async (q: string, page: number) => {
     .where(
       q
         ? or(
-            ilike(kategori.nama, `%${q}%`),
-            ilike(kategori.kode, `%${q}%`)
-          )
+          ilike(kategori.nama, `%${q}%`),
+          ilike(kategori.kode, `%${q}%`)
+        )
         : undefined
     )
     .limit(limit)
@@ -42,6 +44,12 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
   const params = await searchParams;
 
   const q = params.q ?? "";

@@ -4,6 +4,7 @@ import { supplier } from "@/db/schema";
 import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { z } from "zod";
+import { getUser } from "@/libs/auth";
 
 /* ================= SCHEMA ================= */
 
@@ -15,7 +16,13 @@ const createSchema = z.object({
 
 /* ================= PAGE ================= */
 
-export default function Page() {
+export default async function Page() {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+  
   async function createSupplier(prevState: any, formData: FormData) {
     "use server";
 

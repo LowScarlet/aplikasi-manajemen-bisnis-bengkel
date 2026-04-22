@@ -6,6 +6,8 @@ import { eq, and } from "drizzle-orm";
 
 import ClientPage from "./ClientPage";
 import { syncTagihan } from "../../../page";
+import { getUser } from "@/libs/auth";
+import { redirect } from "next/navigation";
 
 /* ================= GET DATA ================= */
 
@@ -115,6 +117,12 @@ export default async function Page({
 }: {
   params: Promise<{ id: string; itemId: string }>;
 }) {
+  const userauth = await getUser();
+
+  if (!userauth) {
+    redirect("/auth/login");
+  }
+
   const { id, itemId } = await params;
 
   const result = await getData(id, itemId);

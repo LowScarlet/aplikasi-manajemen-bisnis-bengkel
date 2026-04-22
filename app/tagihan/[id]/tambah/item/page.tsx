@@ -9,6 +9,8 @@ import {
 import { eq } from "drizzle-orm";
 import ClientPage from "./ClientPage";
 import { syncTagihan } from "../../page";
+import { getUser } from "@/libs/auth";
+import { redirect } from "next/navigation";
 
 const getDetail = async (id: string) => {
   return db.query.tagihan.findFirst({
@@ -50,6 +52,12 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userauth = await getUser();
+
+  if (!userauth) {
+    redirect("/auth/login");
+  }
+
   const { id } = await params;
 
   const data = await getDetail(id);

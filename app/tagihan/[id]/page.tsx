@@ -8,6 +8,8 @@ import {
 } from "@/db/schema";
 import { asc, desc, eq, sql } from "drizzle-orm";
 import ClientPage from "./ClientPage";
+import { getUser } from "@/libs/auth";
+import { redirect } from "next/navigation";
 
 /* ================= GET DETAIL ================= */
 
@@ -118,6 +120,12 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const userauth = await getUser();
+
+  if (!userauth) {
+    redirect("/auth/login");
+  }
+
   const { id } = await params;
 
   const data = await getDetail(id);

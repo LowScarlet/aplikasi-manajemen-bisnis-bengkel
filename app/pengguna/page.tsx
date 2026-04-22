@@ -2,6 +2,8 @@ import { db } from "@/db";
 import { pengguna } from "@/db/schema";
 import { ilike, or } from "drizzle-orm";
 import ClientPage from "./ClientPage";
+import { getUser } from "@/libs/auth";
+import { redirect } from "next/navigation";
 
 /* ================= QUERY ================= */
 
@@ -43,6 +45,12 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+  
   const params = await searchParams;
 
   const q = params.q ?? "";
