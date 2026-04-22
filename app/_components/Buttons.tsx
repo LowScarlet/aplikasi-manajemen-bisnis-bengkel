@@ -16,7 +16,7 @@ export function PrimaryButton({
   return (
     <Link
       href={href}
-      className="flex items-center gap-1 bg-blue-500 px-3 py-2 rounded-lg text-white text-sm"
+      className="flex justify-center items-center gap-1 bg-blue-500 px-3 py-2 rounded-lg text-white text-sm"
     >
       {children}
     </Link>
