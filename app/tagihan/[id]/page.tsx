@@ -120,13 +120,13 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   const userauth = await getUser();
 
   if (!userauth) {
-    redirect("/auth/login");
+    redirect(`/tagihan/${id}/kuitansi`);
   }
-
-  const { id } = await params;
 
   const data = await getDetail(id);
 

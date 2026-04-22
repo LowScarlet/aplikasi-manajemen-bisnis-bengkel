@@ -2,7 +2,6 @@
 'use client'
 
 import { FiArrowLeft, FiPrinter } from "react-icons/fi";
-import { QRCodeSVG } from "qrcode.react";
 
 import {
   FragmentLayout,
@@ -13,8 +12,9 @@ import { format, formatDate } from "@/libs/utils";
 import { toPng } from "html-to-image";
 import { GhostButton, PrimaryButtonAction } from "@/app/_components/Buttons";
 import { IoMdShare } from "react-icons/io";
+import Image from "next/image";
 
-export default function ClientPage({ data }: { data: any }) {
+export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
   const total = data.total ?? 0;
   const dibayar = data.dibayar ?? 0;
 
@@ -24,10 +24,6 @@ export default function ClientPage({ data }: { data: any }) {
   const details = data.details ?? [];
   const pembayaran = data.pembayaran ?? [];
 
-  const currentUrl =
-    typeof window !== "undefined"
-      ? window.location.origin + `/tagihan/${data.id}`
-      : "";
 
   const handleShare = async () => {
     const element = document.getElementById("png-area");
@@ -112,9 +108,11 @@ export default function ClientPage({ data }: { data: any }) {
       {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          <GhostButton href={`/tagihan/${data.id}`}>
-            <FiArrowLeft />
-          </GhostButton>
+          {userAuth ? (
+            <GhostButton href={`/tagihan/${data.id}`}>
+              <FiArrowLeft />
+            </GhostButton>
+          ) : undefined}
 
           <h1 className="font-bold text-xl">
             Kuitansi
@@ -244,9 +242,15 @@ export default function ClientPage({ data }: { data: any }) {
             </p>
 
             <div className="flex justify-center mt-2">
-              {currentUrl && (
-                <QRCodeSVG value={currentUrl} size={70} />
-              )}
+              <div className="min-w-2 shrink-0">
+                <Image
+                  src={`/tagihan/${data.id}/qrcode`}
+                  alt="QR Code"
+                  className="bg-white p-1 rounded w-24 h-24 object-contain aspect-square"
+                  width={100}
+                  height={100}
+                />
+              </div>
             </div>
 
             <p className="mt-1 text-[8px]">
