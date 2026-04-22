@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import Link from "next/link";
-
 import {
   FragmentLayout,
   FragmentHeader,
@@ -12,7 +10,6 @@ import {
 import {
   GhostButton,
   PrimaryButton,
-  PrimaryButtonAction
 } from "@/app/_components/Buttons";
 
 import { Card } from "@/app/_components/Card";
@@ -21,6 +18,7 @@ import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
 import { format, formatDate } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
 import { MdEdit } from "react-icons/md";
+import Image from "next/image";
 
 export default function ClientPage({ data }: { data: any }) {
 
@@ -48,11 +46,9 @@ export default function ClientPage({ data }: { data: any }) {
         </div>
 
         <div className="flex gap-2">
-          <Link href={`/tagihan/${data.id}/kuitansi`}>
-            <PrimaryButtonAction>
-              <FiPrinter size={14} />
-            </PrimaryButtonAction>
-          </Link>
+          <PrimaryButton href={`/tagihan/${data.id}/kuitansi`}>
+            <FiPrinter size={14} />
+          </PrimaryButton>
         </div>
       </FragmentHeader>
 
@@ -61,27 +57,40 @@ export default function ClientPage({ data }: { data: any }) {
 
         {/* INFO */}
         <Card>
-          <div className="flex justify-between">
-            <p className="font-medium">{data.kode}</p>
-            <p className="text-neutral-500 text-sm">
-              {formatDate(data.dibuatPada)}
-            </p>
-          </div>
-
-          <p className="text-neutral-500 text-sm">
-            {data.namaCustomer ?? "-"}
-          </p>
-
-          <p className="mt-2 text-neutral-500 text-sm">
-            {data.catatan ?? "Tidak Ada Catatan!"}
-          </p>
-
-          <div className="space-y-1 mt-2 text-sm">
+          <div className="flex justify-between gap-2">
             <div>
-              Pengerjaan: <StatusBadge status={data.status} />
+              <div className="flex justify-between">
+                <p className="font-medium">{data.kode}</p>
+                <p className="text-neutral-500 text-sm">
+                  {formatDate(data.dibuatPada)}
+                </p>
+              </div>
+
+              <p className="text-neutral-500 text-sm">
+                {data.namaCustomer ?? "-"}
+              </p>
+
+              <p className="mt-2 text-neutral-500 text-sm">
+                {data.catatan ?? "Tidak Ada Catatan!"}
+              </p>
+
+              <div className="space-y-1 mt-2 text-sm">
+                <div>
+                  Pengerjaan: <StatusBadge status={data.status} />
+                </div>
+                <div>
+                  Pembayaran: <StatusBadge status={data.statusPembayaran} />
+                </div>
+              </div>
             </div>
-            <div>
-              Pembayaran: <StatusBadge status={data.statusPembayaran} />
+            <div className="">
+              <Image
+                src={`/tagihan/${data.id}/qrcode`}
+                alt="QR Code"
+                className="bg-white p-1 rounded w-20 h-20 aspect-square"
+                width={100}
+                height={100}
+              />
             </div>
           </div>
 

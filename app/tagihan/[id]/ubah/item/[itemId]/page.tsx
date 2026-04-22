@@ -1,8 +1,14 @@
 'use server'
 
 import { db } from "@/db";
-import { tagihan, tagihan_detail, tipeDetailEnum } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import {
+  tagihan,
+  tagihan_detail,
+  tipeDetailEnum,
+  layanan
+} from "@/db/schema";
+
+import { eq, and, ilike } from "drizzle-orm";
 
 import ClientPage from "./ClientPage";
 import { syncTagihan } from "../../../page";
@@ -11,8 +17,11 @@ import { redirect } from "next/navigation";
 
 /* ================= GET DATA ================= */
 
-const getData = async (id: string, itemId: string) => {
-  // ambil item + pastikan dia milik tagihan yang benar
+const getData = async (
+  id: string,
+  itemId: string,
+  search?: string
+) => {
   const item = await db.query.tagihan_detail.findFirst({
     where: and(
       eq(tagihan_detail.id, itemId),
@@ -22,7 +31,6 @@ const getData = async (id: string, itemId: string) => {
 
   if (!item) return null;
 
-  // ambil tagihan
   const data = await db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
     with: {
@@ -32,8 +40,16 @@ const getData = async (id: string, itemId: string) => {
 
   if (!data) return null;
 
-  // ambil layanan (buat dropdown)
-  const layananList = await db.query.layanan.findMany();
+  // 🔥 SERVER SIDE SEARCH
+  const layananList = await db
+    .select()
+    .from(layanan)
+    .where(
+      search
+        ? ilike(layanan.nama, `%${search}%`)
+        : undefined
+    )
+    .limit(20);
 
   return {
     data: {
@@ -43,6 +59,8 @@ const getData = async (id: string, itemId: string) => {
     item,
   };
 };
+
+/* ================= ACTION ================= */
 
 export async function updateItem(
   id: string,
@@ -55,14 +73,12 @@ export async function updateItem(
     harga: number;
   }
 ) {
-  // validasi basic (biar tidak kirim sampah ke DB)
   if (form.qty <= 0 || form.harga < 0) {
     throw new Error("Qty / harga tidak valid");
   }
 
   const subtotal = form.qty * form.harga;
 
-  // update item
   await db
     .update(tagihan_detail)
     .set({
@@ -76,23 +92,20 @@ export async function updateItem(
     })
     .where(eq(tagihan_detail.id, id));
 
-  // ambil tagihanId (jangan asumsi, ambil langsung)
   const item = await db.query.tagihan_detail.findFirst({
     where: eq(tagihan_detail.id, id),
   });
 
   if (!item) {
-    throw new Error("Item tidak ditemukan setelah update. Aneh, tapi mungkin.");
+    throw new Error("Item tidak ditemukan setelah update");
   }
 
-  // sync total + pembayaran
   await syncTagihan(item.tagihanId);
 
   return { success: true };
 }
 
 export async function deleteItem(id: string) {
-  // ambil dulu item (buat tahu tagihanId)
   const item = await db.query.tagihan_detail.findFirst({
     where: eq(tagihan_detail.id, id),
   });
@@ -114,8 +127,10 @@ export async function deleteItem(id: string) {
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string; itemId: string }>;
+  searchParams: Promise<{ search?: string }>;
 }) {
   const userauth = await getUser();
 
@@ -124,8 +139,9 @@ export default async function Page({
   }
 
   const { id, itemId } = await params;
+  const { search } = await searchParams;
 
-  const result = await getData(id, itemId);
+  const result = await getData(id, itemId, search);
 
   if (!result) {
     return <div>Data tidak ditemukan</div>;

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import Link from "next/link";
 import { FiArrowLeft, FiPrinter } from "react-icons/fi";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -12,6 +11,8 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 import { format, formatDate } from "@/libs/utils";
 import { toPng } from "html-to-image";
+import { GhostButton, PrimaryButtonAction } from "@/app/_components/Buttons";
+import { IoMdShare } from "react-icons/io";
 
 export default function ClientPage({ data }: { data: any }) {
   const total = data.total ?? 0;
@@ -111,28 +112,29 @@ export default function ClientPage({ data }: { data: any }) {
       {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          <Link href={`/tagihan/${data.id}`}>
+          <GhostButton href={`/tagihan/${data.id}`}>
             <FiArrowLeft />
-          </Link>
+          </GhostButton>
 
           <h1 className="font-bold text-xl">
             Kuitansi
           </h1>
         </div>
 
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-1 text-sm"
-        >
-          Share
-        </button>
+        <div className="flex gap-2">
 
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-1 text-sm"
-        >
-          <FiPrinter /> Print
-        </button>
+          <PrimaryButtonAction
+            onClick={handleShare}
+          >
+            <IoMdShare size={14} />
+          </PrimaryButtonAction>
+
+          <PrimaryButtonAction
+            onClick={() => window.print()}
+          >
+            <FiPrinter size={14} />
+          </PrimaryButtonAction>
+        </div>
       </FragmentHeader>
 
       {/* BODY */}

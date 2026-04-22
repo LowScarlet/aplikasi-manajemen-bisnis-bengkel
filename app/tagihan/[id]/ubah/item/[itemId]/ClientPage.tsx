@@ -2,7 +2,8 @@
 'use client'
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { cn, format } from "@/libs/utils";
 
 import {
   FragmentLayout,
@@ -17,19 +18,11 @@ import {
 } from "@/app/_components/Buttons";
 
 import { FiArrowLeft } from "react-icons/fi";
-
 import { deleteItem, updateItem } from "./page";
-import { format } from "@/libs/utils";
 
-export default function ClientPage({
-  data,
-  item,
-}: {
-  data: any;
-  item: any;
-}) {
-
+export default function ClientPage({ data, item }: any) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   /* ================= STATE ================= */
 
@@ -45,11 +38,19 @@ export default function ClientPage({
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
 
-  /* ================= CALC ================= */
-
-  const subtotal = (form.qty || 0) * (form.harga || 0);
-
   /* ================= HANDLER ================= */
+
+  const handleSearch = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
 
   const handleSubmit = async () => {
     try {
@@ -70,7 +71,6 @@ export default function ClientPage({
       }
 
       await updateItem(item.id, form);
-
       router.push(`/tagihan/${data.id}`);
     } catch (err) {
       console.error(err);
@@ -88,7 +88,6 @@ export default function ClientPage({
       setLoadingDelete(true);
 
       await deleteItem(id);
-
       router.push(`/tagihan/${data.id}`);
     } catch (err) {
       console.error(err);
@@ -98,11 +97,12 @@ export default function ClientPage({
     }
   };
 
+  const subtotal = (form.qty || 0) * (form.harga || 0);
+
   /* ================= RENDER ================= */
 
   return (
     <FragmentLayout>
-
       <FragmentHeader>
         <div className="flex items-center gap-2">
           <GhostButton href={`/tagihan/${data.id}`}>
@@ -141,105 +141,89 @@ export default function ClientPage({
             </select>
           </div>
 
-          {/* CUSTOM */}
-          {form.tipe === "CUSTOM" && (
-            <>
-              <div>
-                <p className="mb-1 text-xs">Nama</p>
-                <input
-                  value={form.nama}
-                  onChange={(e) =>
-                    setForm({ ...form, nama: e.target.value })
-                  }
-                  className="px-3 py-2 border rounded-lg w-full text-sm"
-                />
-              </div>
-
-              <div className="gap-2 grid grid-cols-2">
-                <div>
-                  <p className="mb-1 text-xs">Qty</p>
-                  <input
-                    type="number"
-                    value={form.qty}
-                    onChange={(e) =>
-                      setForm({ ...form, qty: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-
-                <div>
-                  <p className="mb-1 text-xs">Harga</p>
-                  <input
-                    type="number"
-                    value={form.harga}
-                    onChange={(e) =>
-                      setForm({ ...form, harga: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* LAYANAN */}
+          {/* ================= LAYANAN ================= */}
           {form.tipe === "LAYANAN" && (
-            <>
-              <div>
-                <p className="mb-1 text-xs">Pilih Layanan</p>
-                <select
-                  value={form.layananId ?? ""}
-                  onChange={(e) => {
-                    const selected = data.layananList.find(
-                      (l: any) => l.id === e.target.value
-                    );
+            <div>
+              <p className="mb-1 text-xs">Pilih Layanan</p>
 
-                    setForm({
-                      ...form,
-                      layananId: selected?.id ?? null,
-                      nama: selected?.nama ?? "",
-                      harga: selected?.harga ?? 0,
-                    });
-                  }}
-                  className="px-3 py-2 border rounded-lg w-full text-sm"
-                >
-                  <option value="">Pilih layanan</option>
-                  {data.layananList?.map((l: any) => (
-                    <option key={l.id} value={l.id}>
-                      {l.nama} - Rp {format(l.harga)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <input
+                placeholder="Cari layanan..."
+                defaultValue={searchParams.get("search") ?? ""}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="mb-2 px-3 py-2 border rounded-lg w-full text-sm"
+              />
 
-              <div className="gap-2 grid grid-cols-2">
-                <div>
-                  <p className="mb-1 text-xs">Qty</p>
-                  <input
-                    type="number"
-                    value={form.qty}
-                    onChange={(e) =>
-                      setForm({ ...form, qty: Number(e.target.value) })
+              <div className="border rounded-lg max-h-48 overflow-auto">
+                {data.layananList.length === 0 && (
+                  <div className="p-2 text-neutral-500 text-sm">
+                    Tidak ada layanan
+                  </div>
+                )}
+
+                {data.layananList.map((l: any) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        layananId: l.id,
+                        nama: l.nama,
+                        harga: l.harga,
+                      })
                     }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-
-                <div>
-                  <p className="mb-1 text-xs">Harga</p>
-                  <input
-                    type="number"
-                    value={form.harga}
-                    onChange={(e) =>
-                      setForm({ ...form, harga: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
+                    className={cn(
+                      "hover:bg-neutral-100 px-3 py-2 w-full text-sm text-left",
+                      form.layananId === l.id && "bg-blue-50"
+                    )}
+                  >
+                    {l.nama} - Rp {format(l.harga)}
+                  </button>
+                ))}
               </div>
-            </>
+            </div>
           )}
+
+          {/* ================= CUSTOM ================= */}
+          {form.tipe === "CUSTOM" && (
+            <div>
+              <p className="mb-1 text-xs">Nama</p>
+              <input
+                value={form.nama}
+                onChange={(e) =>
+                  setForm({ ...form, nama: e.target.value })
+                }
+                className="px-3 py-2 border rounded-lg w-full text-sm"
+              />
+            </div>
+          )}
+
+          {/* QTY & HARGA */}
+          <div className="gap-2 grid grid-cols-2">
+            <div>
+              <p className="mb-1 text-xs">Qty</p>
+              <input
+                type="number"
+                value={form.qty}
+                onChange={(e) =>
+                  setForm({ ...form, qty: Number(e.target.value) })
+                }
+                className="px-3 py-2 border rounded-lg w-full text-sm"
+              />
+            </div>
+
+            <div>
+              <p className="mb-1 text-xs">Harga</p>
+              <input
+                type="number"
+                value={form.harga}
+                onChange={(e) =>
+                  setForm({ ...form, harga: Number(e.target.value) })
+                }
+                className="px-3 py-2 border rounded-lg w-full text-sm"
+              />
+            </div>
+          </div>
 
           {/* SUBTOTAL */}
           <div className="text-neutral-500 text-sm">
@@ -251,19 +235,17 @@ export default function ClientPage({
 
         </div>
 
-        <PrimaryButtonAction onClick={handleSubmit} disabled={loadingSubmit}>
-          {loadingSubmit ? "Menyimpan..." : "Simpan Perubahan"}
+        <PrimaryButtonAction onClick={handleSubmit}>
+          Simpan Perubahan
         </PrimaryButtonAction>
 
         <DangerButtonAction
           onClick={() => handleDeleteItem(item.id)}
-          disabled={loadingDelete}
         >
-          {loadingDelete ? "Menghapus..." : "Hapus Item"}
+          Hapus Item
         </DangerButtonAction>
 
       </FragmentBody>
-
     </FragmentLayout>
   );
 }
