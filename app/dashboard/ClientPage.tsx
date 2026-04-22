@@ -19,13 +19,21 @@ import { LuShoppingBag } from "react-icons/lu";
 import { MdOutlineCategory } from "react-icons/md";
 import { GrUserWorker } from "react-icons/gr";
 import { RiUserAddLine } from "react-icons/ri";
-import { DangerButtonAction } from "../_components/Buttons";
 import { IoMdLogOut } from "react-icons/io";
 
+import { DangerButtonAction } from "../_components/Buttons";
 import { logout } from "@/app/auth/logout/action";
 
-export default function ClientPage({ user }: { user: any }) {
-
+export default function ClientPage({
+  user,
+  stats,
+}: {
+  user: any;
+  stats: {
+    pendapatan: number;
+    belumBayar: number;
+  };
+}) {
   return (
     <FragmentLayout>
 
@@ -51,7 +59,6 @@ export default function ClientPage({ user }: { user: any }) {
             </p>
           </div>
         </div>
-
         <div>
           <DangerButtonAction onClick={() => logout()}>
             <IoMdLogOut />
@@ -62,31 +69,35 @@ export default function ClientPage({ user }: { user: any }) {
       {/* BODY */}
       <FragmentBody>
 
-        {/* STATS */}
+        {/* ================= STATS ================= */}
         <section className="gap-3 grid grid-cols-2">
+
+          {/* PENDAPATAN */}
           <Card>
             <Card.Header>Pendapatan</Card.Header>
             <Card.Body>
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-neutral-800 text-lg">
-                  Rp 1.250.000
+                  Rp {stats.pendapatan.toLocaleString("id-ID")}
                 </h3>
                 <FiTrendingUp className="text-neutral-400" />
               </div>
             </Card.Body>
           </Card>
 
+          {/* BELUM BAYAR */}
           <Card.Link href="/tagihan">
             <Card.Header>Belum Dibayar</Card.Header>
             <Card.Body>
               <h3 className="font-bold text-red-500 text-lg">
-                5 Tagihan
+                {stats.belumBayar} Tagihan
               </h3>
             </Card.Body>
           </Card.Link>
+
         </section>
 
-        {/* MENU */}
+        {/* ================= MENU ================= */}
         <section>
           <Card>
             <Card.Header>Manajemen Data</Card.Header>
@@ -102,7 +113,7 @@ export default function ClientPage({ user }: { user: any }) {
           </Card>
         </section>
 
-        {/* AKTIVITAS */}
+        {/* ================= AKTIVITAS ================= */}
         <section>
           <Card>
             <Card.Header>Aktivitas Terbaru</Card.Header>

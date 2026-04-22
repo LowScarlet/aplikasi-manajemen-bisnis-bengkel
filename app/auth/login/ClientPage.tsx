@@ -39,7 +39,7 @@ export default function ClientPage() {
   return (
     <div className="flex justify-center items-center min-h-screen">
 
-      <div className="space-y-4 p-6 border rounded-xl w-full max-w-sm">
+      <div className="space-y-4 p-6 rounded-xl w-full max-w-sm">
 
         <h1 className="font-bold text-xl text-center">
           Login

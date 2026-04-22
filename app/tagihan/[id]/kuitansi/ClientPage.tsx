@@ -239,6 +239,10 @@ export default function ClientPage({ data }: { data: any }) {
 
             <p>Terima kasih</p>
 
+            <p className="mt-1 text-[10px]">
+              Whatsapp: 0812-xxxx-xxxx
+            </p>
+
             <div className="flex justify-center mt-2">
               {currentUrl && (
                 <QRCodeSVG value={currentUrl} size={70} />
