@@ -8,7 +8,6 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import ClientPage from "./ClientPage";
-import { revalidatePath } from "next/cache";
 
 const getDetail = async (id: string) => {
   return db.query.tagihan.findFirst({
@@ -35,7 +34,13 @@ export async function updateTagihan(
     })
     .where(eq(tagihan.id, id));
 
-  revalidatePath(`/tagihan/${id}`);
+  return { success: true };
+}
+
+export async function deleteTagihan(id: string) {
+  // optional: validasi dulu kalau mau
+
+  await db.delete(tagihan).where(eq(tagihan.id, id));
 
   return { success: true };
 }

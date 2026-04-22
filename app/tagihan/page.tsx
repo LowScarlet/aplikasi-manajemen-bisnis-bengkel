@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { tagihan } from "@/db/schema";
-import { ilike, or, desc } from "drizzle-orm";
+import { ilike, or, desc, sql, asc } from "drizzle-orm";
 import ClientPage from "./ClientPage";
 
 /* ================= QUERY ================= */
@@ -25,12 +25,22 @@ const getTagihan = async (q: string, page: number) => {
     .where(
       q
         ? or(
-            ilike(tagihan.kode, `%${q}%`),
-            ilike(tagihan.namaCustomer, `%${q}%`)
-          )
+          ilike(tagihan.kode, `%${q}%`),
+          ilike(tagihan.namaCustomer, `%${q}%`)
+        )
         : undefined
     )
-    .orderBy(desc(tagihan.dibuatPada))
+    .orderBy(
+      asc(sql`
+        CASE
+          WHEN ${tagihan.statusPembayaran} = 'BELUM_BAYAR' THEN 1
+          WHEN ${tagihan.statusPembayaran} = 'SEBAGIAN' THEN 2
+          WHEN ${tagihan.statusPembayaran} = 'LUNAS' THEN 3
+          ELSE 99
+        END
+      `),
+      desc(tagihan.dibuatPada)
+    )
     .limit(limit)
     .offset(offset);
 };

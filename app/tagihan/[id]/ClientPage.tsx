@@ -103,28 +103,32 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.details.map((item: any) => (
-            <div key={item.id} className="flex justify-between text-sm">
-
-              <div>
+            <div key={item.id} className="flex justify-between gap-2 text-sm">
+              <div className="flex-1">
                 <div className="flex justify-between gap-2">
                   <p className="font-medium">{item.nama}</p>
-                  <TipeBadge tipe={item.tipe} />
+                  <div>
+                    <TipeBadge tipe={item.tipe} />
+                  </div>
                 </div>
 
-                <p className="text-neutral-400 text-xs">
-                  {item.qty} x Rp {format(item.harga)}
-                </p>
+                <div className="flex justify-between gap-2">
+                  <p className="text-neutral-400 text-xs">
+                    {item.qty} x Rp {format(item.harga)}
+                  </p>
 
-                <p className="text-neutral-400 text-xs">
-                  Rp {format(item.qty * item.harga)}
-                </p>
+                  <p className="text-neutral-400 text-xs">
+                    Rp {format(item.qty * item.harga)}
+                  </p>
+                </div>
               </div>
-
-              <PrimaryButton
-                href={`/tagihan/${data.id}/ubah/item/${item.id}`}
-              >
-                <MdEdit />
-              </PrimaryButton>
+              <div>
+                <PrimaryButton
+                  href={`/tagihan/${data.id}/ubah/item/${item.id}`}
+                >
+                  <MdEdit />
+                </PrimaryButton>
+              </div>
 
             </div>
           ))}
@@ -145,20 +149,21 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.pembayaran.map((p: any) => (
-            <div key={p.id} className="flex justify-between text-sm">
+            <div key={p.id} className="flex justify-between gap-2 text-sm">
 
               <div>
                 <p>Rp {format(p.jumlah)}</p>
                 <p className="text-neutral-500 text-xs">
-                  {p.metode ?? "-"}
+                  {p.metode ?? "Tidak diketahui"} - {p.catatan ?? "Tidak ada catatan"}
                 </p>
               </div>
-
-              <PrimaryButton
-                href={`/tagihan/${data.id}/ubah/pembayaran/${p.id}`}
-              >
-                <MdEdit />
-              </PrimaryButton>
+              <div>
+                <PrimaryButton
+                  href={`/tagihan/${data.id}/ubah/pembayaran/${p.id}`}
+                >
+                  <MdEdit />
+                </PrimaryButton>
+              </div>
 
             </div>
           ))}

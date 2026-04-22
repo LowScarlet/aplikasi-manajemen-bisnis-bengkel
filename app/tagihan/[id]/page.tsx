@@ -6,19 +6,48 @@ import {
   tagihan,
   tagihan_detail
 } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 import ClientPage from "./ClientPage";
 
 /* ================= GET DETAIL ================= */
 
 const getDetail = async (id: string) => {
-  return db.query.tagihan.findFirst({
+  // ================= TAGIHAN =================
+  const data = await db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
-    with: {
-      details: true,
-      pembayaran: true,
-    },
   });
+
+  if (!data) return null;
+
+  // ================= DETAILS =================
+  const details = await db
+    .select()
+    .from(tagihan_detail)
+    .where(eq(tagihan_detail.tagihanId, id))
+    .orderBy(
+      sql`
+        CASE
+          WHEN ${tagihan_detail.tipe} = 'BARANG' THEN 1
+          WHEN ${tagihan_detail.tipe} = 'CUSTOM' THEN 2
+          WHEN ${tagihan_detail.tipe} = 'LAYANAN' THEN 3
+          ELSE 99
+        END
+      `,
+      asc(tagihan_detail.id)
+    );
+
+  // ================= PEMBAYARAN =================
+  const pembayaranList = await db
+    .select()
+    .from(pembayaran)
+    .where(eq(pembayaran.tagihanId, id))
+    .orderBy(desc(pembayaran.dibuatPada));
+
+  return {
+    ...data,
+    details,
+    pembayaran: pembayaranList,
+  };
 };
 
 /* ================= SYNC CORE ================= */

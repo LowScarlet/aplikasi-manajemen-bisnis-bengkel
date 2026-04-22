@@ -11,13 +11,14 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
+  DangerButtonAction,
   GhostButton,
   PrimaryButtonAction
 } from "@/app/_components/Buttons";
 
 import { FiArrowLeft } from "react-icons/fi";
 
-import { updateTagihan } from "./page";
+import { deleteTagihan, updateTagihan } from "./page";
 
 export default function ClientPage({ data }: { data: any }) {
 
@@ -31,6 +32,9 @@ export default function ClientPage({ data }: { data: any }) {
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
+  /* ================= HANDLER ================= */
 
   const handleSubmit = async () => {
     try {
@@ -44,6 +48,24 @@ export default function ClientPage({ data }: { data: any }) {
       alert("Gagal menyimpan perubahan");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const confirmDelete = confirm("Hapus tagihan ini?");
+      if (!confirmDelete) return;
+
+      setLoadingDelete(true);
+
+      await deleteTagihan(data.id);
+
+      router.push("/tagihan");
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menghapus tagihan");
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
@@ -90,7 +112,7 @@ export default function ClientPage({ data }: { data: any }) {
             />
           </div>
 
-          {/* STATUS PEKERJAAN */}
+          {/* STATUS */}
           <div>
             <p className="mb-1 text-xs">Status Pengerjaan</p>
             <select
@@ -124,9 +146,17 @@ export default function ClientPage({ data }: { data: any }) {
 
         </div>
 
+        {/* ACTION */}
         <PrimaryButtonAction onClick={handleSubmit} disabled={loading}>
           {loading ? "Menyimpan..." : "Simpan"}
         </PrimaryButtonAction>
+
+        <DangerButtonAction
+          onClick={handleDelete}
+          disabled={loadingDelete}
+        >
+          {loadingDelete ? "Menghapus..." : "Hapus Tagihan"}
+        </DangerButtonAction>
 
       </FragmentBody>
 
