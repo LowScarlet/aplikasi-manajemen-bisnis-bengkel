@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
+import { useRouter } from "next/navigation";
 
 import {
   Modal,
@@ -9,7 +10,6 @@ import {
   ModalBody
 } from "@/app/_components/Modal";
 
-import { PrimaryButtonAction } from "@/app/_components/Buttons";
 import { FiX } from "react-icons/fi";
 
 export function QRScannerModal({
@@ -21,9 +21,22 @@ export function QRScannerModal({
   onClose: () => void;
   onScan: (value: string) => void;
 }) {
+  const router = useRouter();
+
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isRunningRef = useRef(false);
   const [result, setResult] = useState<string | null>(null);
+
+  /* ================= VALIDATE URL ================= */
+
+  const isValidUrl = (value: string) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
 
   /* ================= STOP SCANNER ================= */
 
@@ -66,7 +79,13 @@ export function QRScannerModal({
 
         if (isRunningRef.current) {
           stopScanner();
-          onScan(decodedText);
+
+          if (isValidUrl(decodedText)) {
+            router.push(decodedText);
+          } else {
+            onScan(decodedText);
+          }
+
           onClose();
         }
       },
@@ -79,7 +98,7 @@ export function QRScannerModal({
       isMounted = false;
       stopScanner();
     };
-  }, [open, onScan, onClose, stopScanner]);
+  }, [open, onScan, onClose, stopScanner, router]);
 
   /* ================= FILE ================= */
 
@@ -89,7 +108,13 @@ export function QRScannerModal({
     try {
       const decodedText = await scanner.scanFile(file, true);
       setResult(decodedText);
-      onScan(decodedText);
+
+      if (isValidUrl(decodedText)) {
+        router.push(decodedText);
+      } else {
+        onScan(decodedText);
+      }
+
       onClose();
     } catch (err) {
       console.error(err);

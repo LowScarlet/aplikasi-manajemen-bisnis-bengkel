@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   FragmentLayout,
@@ -18,11 +18,12 @@ import {
 import { FiArrowLeft } from "react-icons/fi";
 
 import { addItem } from "./page";
-import { format } from "@/libs/utils";
+import { cn, format } from "@/libs/utils";
 
 export default function ClientPage({ data }: { data: any }) {
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   /* ================= STATE ================= */
 
@@ -36,6 +37,20 @@ export default function ClientPage({ data }: { data: any }) {
   });
 
   const [loading, setLoading] = useState(false);
+
+  /* ================= SEARCH ================= */
+
+  const handleSearch = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+
+    router.push(`?${params.toString()}`);
+  };
 
   /* ================= CALC ================= */
 
@@ -115,104 +130,116 @@ export default function ClientPage({ data }: { data: any }) {
             </select>
           </div>
 
-          {/* CUSTOM */}
+          {/* ================= LAYANAN ================= */}
+          {itemForm.tipe === "LAYANAN" && (
+            <div>
+              <p className="mb-1 text-xs">Pilih Layanan</p>
+
+              <input
+                placeholder="Cari layanan..."
+                defaultValue={searchParams.get("search") ?? ""}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="mb-2 px-3 py-2 border rounded-lg w-full text-sm"
+              />
+
+              <div className="border rounded-lg max-h-48 overflow-auto">
+                {data.layananList.length === 0 && (
+                  <div className="p-2 text-neutral-500 text-sm">
+                    Tidak ada layanan
+                  </div>
+                )}
+
+                {data.layananList.map((l: any) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() =>
+                      setItemForm({
+                        ...itemForm,
+                        layananId: l.id,
+                        nama: l.nama,
+                        harga: l.harga,
+                      })
+                    }
+                    className={cn(
+                      "hover:bg-neutral-100 px-3 py-2 w-full text-sm text-left",
+                      itemForm.layananId === l.id && "bg-blue-50"
+                    )}
+                  >
+                    {l.nama} - Rp {format(l.harga)}
+                  </button>
+                ))}
+              </div>
+
+              <div className="gap-2 grid grid-cols-2 mt-2">
+                <div>
+                  <p className="mb-1 text-xs">Qty</p>
+                  <input
+                    type="number"
+                    value={itemForm.qty}
+                    onChange={(e) =>
+                      setItemForm({ ...itemForm, qty: Number(e.target.value) })
+                    }
+                    className="px-3 py-2 border rounded-lg w-full text-sm"
+                  />
+                </div>
+
+                <div>
+                  <p className="mb-1 text-xs">Harga</p>
+                  <input
+                    type="number"
+                    value={itemForm.harga}
+                    onChange={(e) =>
+                      setItemForm({ ...itemForm, harga: Number(e.target.value) })
+                    }
+                    className="px-3 py-2 border rounded-lg w-full text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================= CUSTOM ================= */}
           {itemForm.tipe === "CUSTOM" && (
-            <>
+            <div>
+              <p className="mb-1 text-xs">Nama</p>
+              <input
+                value={itemForm.nama}
+                onChange={(e) =>
+                  setItemForm({ ...itemForm, nama: e.target.value })
+                }
+                className="px-3 py-2 border rounded-lg w-full text-sm"
+              />
+            </div>
+          )}
+
+          {/* QTY & HARGA (untuk CUSTOM) */}
+          {itemForm.tipe === "CUSTOM" && (
+            <div className="gap-2 grid grid-cols-2">
               <div>
-                <p className="mb-1 text-xs">Nama</p>
+                <p className="mb-1 text-xs">Qty</p>
                 <input
-                  value={itemForm.nama}
+                  type="number"
+                  value={itemForm.qty}
                   onChange={(e) =>
-                    setItemForm({ ...itemForm, nama: e.target.value })
+                    setItemForm({ ...itemForm, qty: Number(e.target.value) })
                   }
                   className="px-3 py-2 border rounded-lg w-full text-sm"
                 />
               </div>
 
-              <div className="gap-2 grid grid-cols-2">
-                <div>
-                  <p className="mb-1 text-xs">Qty</p>
-                  <input
-                    type="number"
-                    value={itemForm.qty}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, qty: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-
-                <div>
-                  <p className="mb-1 text-xs">Harga</p>
-                  <input
-                    type="number"
-                    value={itemForm.harga}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, harga: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* LAYANAN */}
-          {itemForm.tipe === "LAYANAN" && (
-            <>
               <div>
-                <p className="mb-1 text-xs">Pilih Layanan</p>
-                <select
-                  value={itemForm.layananId ?? ""}
-                  onChange={(e) => {
-                    const selected = data.layananList.find(
-                      (l: any) => l.id === e.target.value
-                    );
-
-                    setItemForm({
-                      ...itemForm,
-                      layananId: selected?.id ?? null,
-                      nama: selected?.nama ?? "",
-                      harga: selected?.harga ?? 0,
-                    });
-                  }}
+                <p className="mb-1 text-xs">Harga</p>
+                <input
+                  type="number"
+                  value={itemForm.harga}
+                  onChange={(e) =>
+                    setItemForm({ ...itemForm, harga: Number(e.target.value) })
+                  }
                   className="px-3 py-2 border rounded-lg w-full text-sm"
-                >
-                  <option value="">Pilih layanan</option>
-                  {data.layananList?.map((l: any) => (
-                    <option key={l.id} value={l.id}>
-                      {l.nama} - Rp {format(l.harga)}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
-
-              <div className="gap-2 grid grid-cols-2">
-                <div>
-                  <p className="mb-1 text-xs">Qty</p>
-                  <input
-                    type="number"
-                    value={itemForm.qty}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, qty: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-
-                <div>
-                  <p className="mb-1 text-xs">Harga</p>
-                  <input
-                    type="number"
-                    value={itemForm.harga}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, harga: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-              </div>
-            </>
+            </div>
           )}
 
         </div>

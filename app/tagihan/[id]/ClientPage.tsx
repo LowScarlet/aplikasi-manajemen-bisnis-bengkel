@@ -58,7 +58,7 @@ export default function ClientPage({ data }: { data: any }) {
         {/* INFO */}
         <Card>
           <div className="flex justify-between gap-2">
-            <div>
+            <div className="grow">
               <div className="flex justify-between">
                 <p className="font-medium text-sm">{data.kode}</p>
                 <p className="text-neutral-500 text-xs">
@@ -74,7 +74,7 @@ export default function ClientPage({ data }: { data: any }) {
                 {data.catatan ?? "Tidak Ada Catatan!"}
               </p>
 
-              <div className="space-y-1 mt-2 text-sm">
+              <div className="space-y-1 mt-2 text-xs">
                 <div>
                   Pengerjaan: <StatusBadge status={data.status} />
                 </div>
@@ -158,13 +158,14 @@ export default function ClientPage({ data }: { data: any }) {
           )}
 
           {data.pembayaran.map((p: any) => (
-            <div key={p.id} className="flex justify-between gap-2 text-sm">
-
+            <div key={p.id} className="flex justify-between items-center gap-2 text-sm">
               <div>
                 <p>Rp {format(p.jumlah)}</p>
-                <p className="text-neutral-500 text-xs">
-                  {p.metode ?? "Tidak diketahui"} - {p.catatan ?? "Tidak ada catatan"}
-                </p>
+                {(p.metode?.trim() || p.catatan?.trim()) && (
+                  <p className="text-neutral-500 text-xs">
+                    {(p.metode?.trim() || "Tidak diketahui")} - {(p.catatan?.trim() || "Tidak ada catatan")}
+                  </p>
+                )}
               </div>
               <div>
                 <PrimaryButton
