@@ -60,8 +60,8 @@ export default function ClientPage({ data }: { data: any }) {
           <div className="flex justify-between gap-2">
             <div>
               <div className="flex justify-between">
-                <p className="font-medium">{data.kode}</p>
-                <p className="text-neutral-500 text-sm">
+                <p className="font-medium text-sm">{data.kode}</p>
+                <p className="text-neutral-500 text-xs">
                   {formatDate(data.dibuatPada)}
                 </p>
               </div>
@@ -83,11 +83,11 @@ export default function ClientPage({ data }: { data: any }) {
                 </div>
               </div>
             </div>
-            <div className="">
+            <div className="min-w-20 shrink-0">
               <Image
                 src={`/tagihan/${data.id}/qrcode`}
                 alt="QR Code"
-                className="bg-white p-1 rounded w-20 h-20 aspect-square"
+                className="bg-white p-1 rounded w-20 h-20 object-contain aspect-square"
                 width={100}
                 height={100}
               />
