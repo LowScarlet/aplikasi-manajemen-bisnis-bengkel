@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import {
-  pembayaran, statusPembayaranEnum,
+  pembayaran, statusPekerjaanEnum, statusPembayaranEnum,
   tagihan,
   tagihan_detail
 } from "@/db/schema";
@@ -111,6 +111,16 @@ export async function syncTagihan(id: string) {
     kembalian,
     statusPembayaran,
   };
+}
+
+export async function updateStatusTagihan(
+  id: string,
+  status: typeof statusPekerjaanEnum.enumValues[number]
+) {
+  await db
+    .update(tagihan)
+    .set({ status })
+    .where(eq(tagihan.id, id));
 }
 
 /* ================= PAGE ================= */

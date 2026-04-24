@@ -8,8 +8,10 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
+  DangerButtonAction,
   GhostButton,
   PrimaryButton,
+  PrimaryButtonAction,
 } from "@/app/_components/Buttons";
 
 import { Card } from "@/app/_components/Card";
@@ -17,10 +19,18 @@ import { Card } from "@/app/_components/Card";
 import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
 import { format, formatDate } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
-import { MdEdit } from "react-icons/md";
+import { MdCancel, MdEdit } from "react-icons/md";
 import Image from "next/image";
+import { updateStatusTagihan } from "./page";
+import { IoMdCheckmark } from "react-icons/io";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ClientPage({ data }: { data: any }) {
+
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
 
   /* ================= CALC ================= */
 
@@ -29,6 +39,21 @@ export default function ClientPage({ data }: { data: any }) {
   const sisa = total - dibayar;
 
   /* ================= RENDER ================= */
+
+  const handleChangeStatus = async (status: any) => {
+    try {
+      setLoading(true);
+
+      await updateStatusTagihan(data.id, status)
+
+      router.refresh()
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menyimpan perubahan");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <FragmentLayout>
@@ -54,6 +79,36 @@ export default function ClientPage({ data }: { data: any }) {
 
       {/* BODY */}
       <FragmentBody className="space-y-4">
+
+        {/* ================= STATUS ALERT ================= */}
+        {data.status === "PROSES" && (
+          <Card className="bg-yellow-50 border border-yellow-200">
+            <div className="space-y-3">
+
+              <p className="font-medium text-yellow-800 text-sm">
+                Status Pengerjaan Saat Ini{" "}
+                <span className="font-semibold">Sedang Di Kerjakan</span>
+              </p>
+
+              <div className="flex gap-2">
+                <DangerButtonAction
+                  disabled={loading}
+                  onClick={() => handleChangeStatus('BATAL')}
+                >
+                  <MdCancel size={16} /> Batalkan
+                </DangerButtonAction>
+
+                <PrimaryButtonAction
+                  disabled={loading}
+                  onClick={() => handleChangeStatus('SELESAI')}
+                >
+                  <IoMdCheckmark size={16} /> Sudah Selesai
+                </PrimaryButtonAction>
+              </div>
+
+            </div>
+          </Card>
+        )}
 
         {/* INFO */}
         <Card>

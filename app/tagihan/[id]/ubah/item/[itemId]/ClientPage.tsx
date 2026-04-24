@@ -159,25 +159,33 @@ export default function ClientPage({ data, item }: any) {
                     Tidak ada layanan
                   </div>
                 )}
-
+                
                 {data.layananList.map((l: any) => (
                   <button
                     key={l.id}
                     type="button"
                     onClick={() =>
-                      setForm({
-                        ...form,
+                      setForm(prev => ({
+                        ...prev,
                         layananId: l.id,
                         nama: l.nama,
                         harga: l.harga,
-                      })
+                      }))
                     }
                     className={cn(
-                      "hover:bg-neutral-100 px-3 py-2 w-full text-sm text-left",
-                      form.layananId === l.id && "bg-blue-50"
+                      "flex justify-between items-center px-3 py-2 border rounded-md w-full text-sm text-left transition",
+                      form.layananId === l.id
+                        ? "bg-blue-100 border-blue-500 font-semibold"
+                        : "hover:bg-neutral-100 border-transparent"
                     )}
                   >
-                    {l.nama} - Rp {format(l.harga)}
+                    <span>
+                      {l.nama} - Rp {format(l.harga)}
+                    </span>
+
+                    {form.layananId === l.id && (
+                      <span className="text-blue-600 text-xs">✔</span>
+                    )}
                   </button>
                 ))}
               </div>

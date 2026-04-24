@@ -238,7 +238,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             <p>Terima kasih</p>
 
             <p className="mt-1 text-[10px]">
-              Whatsapp: 0812-xxxx-xxxx
+              Whatsapp: 0813-7250-1295
             </p>
 
             <div className="flex justify-center mt-2">

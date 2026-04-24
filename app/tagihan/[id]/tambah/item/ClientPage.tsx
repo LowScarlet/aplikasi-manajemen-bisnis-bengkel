@@ -154,19 +154,27 @@ export default function ClientPage({ data }: { data: any }) {
                     key={l.id}
                     type="button"
                     onClick={() =>
-                      setItemForm({
-                        ...itemForm,
+                      setItemForm(prev => ({
+                        ...prev,
                         layananId: l.id,
                         nama: l.nama,
                         harga: l.harga,
-                      })
+                      }))
                     }
                     className={cn(
-                      "hover:bg-neutral-100 px-3 py-2 w-full text-sm text-left",
-                      itemForm.layananId === l.id && "bg-blue-50"
+                      "flex justify-between items-center px-3 py-2 border rounded-md w-full text-sm text-left transition",
+                      itemForm.layananId === l.id
+                        ? "bg-blue-100 border-blue-500 font-semibold"
+                        : "hover:bg-neutral-100 border-transparent"
                     )}
                   >
-                    {l.nama} - Rp {format(l.harga)}
+                    <span>
+                      {l.nama} - Rp {format(l.harga)}
+                    </span>
+
+                    {itemForm.layananId === l.id && (
+                      <span className="text-blue-600 text-xs">✔</span>
+                    )}
                   </button>
                 ))}
               </div>
