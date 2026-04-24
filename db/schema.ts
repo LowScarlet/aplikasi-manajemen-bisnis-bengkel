@@ -83,7 +83,9 @@ export const barang = pgTable("barang", {
 
   kategoriId: uuid("kategori_id")
     .notNull()
-    .references(() => kategori.id),
+    .references(() => kategori.id, {
+      onDelete: "restrict",
+    }),
 
   catatan: text("catatan"),
   satuan: text("satuan").notNull(),
@@ -106,11 +108,17 @@ export const transaksi_barang = pgTable("transaksi_barang", {
 
   barangId: uuid("barang_id")
     .notNull()
-    .references(() => barang.id),
+    .references(() => barang.id, {
+      onDelete: "restrict",
+    }),
 
-  supplierId: uuid("supplier_id").references(() => supplier.id),
+  supplierId: uuid("supplier_id").references(() => supplier.id, {
+    onDelete: "set null",
+  }),
 
-  tagihanId: uuid("tagihan_id"), // relasi ke tagihan
+  tagihanId: uuid("tagihan_id").references(() => tagihan.id, {
+    onDelete: "cascade",
+  }),
 
   jenis: jenisTransaksiEnum("jenis").notNull(),
   jumlah: integer("jumlah").notNull(),
@@ -144,7 +152,9 @@ export const tagihan = pgTable("tagihan", {
   statusPembayaran: statusPembayaranEnum("status_pembayaran")
     .default("BELUM_BAYAR"),
 
-  mekanikId: uuid("mekanik_id").references(() => pengguna.id),
+  mekanikId: uuid("mekanik_id").references(() => pengguna.id, {
+    onDelete: "set null",
+  }),
 
   total: integer("total").default(0),
   dibayar: integer("dibayar").default(0),
@@ -163,12 +173,19 @@ export const tagihan_detail = pgTable("tagihan_detail", {
 
   tagihanId: uuid("tagihan_id")
     .notNull()
-    .references(() => tagihan.id),
+    .references(() => tagihan.id, {
+      onDelete: "cascade",
+    }),
 
   tipe: tipeDetailEnum("tipe").notNull(),
 
-  barangId: uuid("barang_id").references(() => barang.id),
-  layananId: uuid("layanan_id").references(() => layanan.id),
+  barangId: uuid("barang_id").references(() => barang.id, {
+    onDelete: "set null",
+  }),
+
+  layananId: uuid("layanan_id").references(() => layanan.id, {
+    onDelete: "set null",
+  }),
 
   nama: text("nama").notNull(),
   qty: integer("qty").notNull(),
@@ -177,14 +194,16 @@ export const tagihan_detail = pgTable("tagihan_detail", {
 });
 
 //
-// 💰 PEMBAYARAN (INI YANG BIKIN CICILAN JADI WARAS)
+// 💰 PEMBAYARAN
 //
 export const pembayaran = pgTable("pembayaran", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   tagihanId: uuid("tagihan_id")
     .notNull()
-    .references(() => tagihan.id),
+    .references(() => tagihan.id, {
+      onDelete: "cascade",
+    }),
 
   jumlah: integer("jumlah").notNull(),
 
@@ -244,7 +263,7 @@ export const tagihanRelations = relations(tagihan, ({ one, many }) => ({
   }),
   details: many(tagihan_detail),
   transaksi: many(transaksi_barang),
-  pembayaran: many(pembayaran), // 🔥 penting
+  pembayaran: many(pembayaran),
 }));
 
 export const tagihanDetailRelations = relations(
