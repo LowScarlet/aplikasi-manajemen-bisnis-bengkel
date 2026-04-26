@@ -2,7 +2,6 @@
 'use client'
 
 import { FiArrowLeft, FiPrinter } from "react-icons/fi";
-
 import {
   FragmentLayout,
   FragmentHeader,
@@ -24,7 +23,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
   const details = data.details ?? [];
   const pembayaran = data.pembayaran ?? [];
 
-
   const handleShare = async () => {
     const element = document.getElementById("png-area");
     if (!element) return;
@@ -33,7 +31,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       const width = element.scrollWidth;
       const height = element.scrollHeight;
 
-      const scale = 3; // 2 = bagus, 3 = HD, 4 = kalau mau overkill
+      const scale = 2; // jangan 3, nanti kepanjangan
 
       const dataUrl = await toPng(element, {
         cacheBust: true,
@@ -55,16 +53,13 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-        });
+        await navigator.share({ files: [file] });
       } else {
         const link = document.createElement("a");
         link.download = "kuitansi.png";
         link.href = dataUrl;
         link.click();
       }
-
     } catch (err) {
       console.error(err);
     }
@@ -76,15 +71,24 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* PRINT STYLE */}
       <style jsx global>{`
         #print-area {
-          width: 320px;
+          width: 58mm;
+          max-width: 58mm;
           margin: 0 auto;
-          font-size: 12px;
+          font-size: 10px;
+          line-height: 1.3;
+          letter-spacing: 0.2px;
         }
 
         @media print {
           @page {
             size: 58mm auto;
             margin: 0;
+          }
+
+          html, body {
+            width: 58mm;
+            margin: 0;
+            padding: 0;
           }
 
           body * {
@@ -100,7 +104,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             left: 0;
             top: 0;
             width: 58mm;
-            font-size: 10px;
+            font-size: 9px;
           }
         }
       `}</style>
@@ -108,47 +112,42 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          {userAuth ? (
+          {userAuth && (
             <GhostButton href={`/tagihan/${data.id}`}>
               <FiArrowLeft />
             </GhostButton>
-          ) : undefined}
+          )}
 
-          <h1 className="font-bold text-xl">
+          <h1 className="font-bold text-lg">
             Kuitansi
           </h1>
         </div>
 
         <div className="flex gap-2">
-
-          <PrimaryButtonAction
-            onClick={handleShare}
-          >
+          <PrimaryButtonAction onClick={handleShare}>
             <IoMdShare size={14} />
           </PrimaryButtonAction>
 
-          <PrimaryButtonAction
-            onClick={() => window.print()}
-          >
+          <PrimaryButtonAction onClick={() => window.print()}>
             <FiPrinter size={14} />
           </PrimaryButtonAction>
         </div>
       </FragmentHeader>
 
       {/* BODY */}
-      <FragmentBody className="py-6" id="png-area">
+      <FragmentBody className="py-4" id="png-area">
 
         <div
           id="print-area"
-          className="bg-white mx-auto px-3 py-5 font-mono text-black"
+          className="bg-white mx-auto px-2 py-3 font-mono text-black"
         >
 
           {/* HEADER TOKO */}
           <div className="text-center">
-            <p className="font-bold text-[14px]">
+            <p className="font-bold text-[12px]">
               Berkat Motor / Erizal
             </p>
-            <p className="px-4 text-xs">
+            <p className="text-[9px]">
               Perkebunan Sungai Lala, Indragiri Hulu, Riau
             </p>
           </div>
@@ -156,17 +155,17 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* INFO */}
-          <div className="flex justify-between text-xs">
+          <div className="flex justify-between text-[9px]">
             <p>Kode: {data.kode}</p>
             <p>{formatDate(data.dibuatPada)}</p>
           </div>
 
           {/* CUSTOMER */}
           {(data.namaCustomer || data.catatan) && (
-            <div className="space-y-1 mt-2 text-xs">
+            <div className="space-y-1 mt-1 text-[9px]">
               <p>{data.namaCustomer ?? "-"}</p>
               {data.catatan && (
-                <p className="text-neutral-600">
+                <p className="text-[8px] text-neutral-600">
                   {data.catatan}
                 </p>
               )}
@@ -178,11 +177,11 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           {/* ITEMS */}
           <Section title="Barang / Jasa">
             {details.length === 0 ? (
-              <Empty text="Tidak ada barang / jasa" />
+              <Empty text="Tidak ada" />
             ) : (
               details.map((item: any) => (
-                <div key={item.id}>
-                  <p>{item.nama}</p>
+                <div key={item.id} className="text-[9px]">
+                  <p className="truncate">{item.nama}</p>
                   <div className="flex justify-between">
                     <span>
                       {item.qty} x {format(item.harga)}
@@ -197,19 +196,19 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* TOTAL */}
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1 text-[9px]">
             <Row label="Total" value={total} />
           </div>
 
           <Divider />
 
           {/* PEMBAYARAN */}
-          <Section title="Riwayat Pembayaran">
+          <Section title="Pembayaran">
             {pembayaran.length === 0 ? (
-              <Empty text="Belum ada pembayaran" />
+              <Empty text="Belum ada" />
             ) : (
               pembayaran.map((p: any) => (
-                <div key={p.id} className="flex justify-between">
+                <div key={p.id} className="flex justify-between text-[9px]">
                   <span>{formatDate(p.dibuatPada)}</span>
                   <span>{format(p.jumlah)}</span>
                 </div>
@@ -220,9 +219,8 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* RINGKASAN */}
-          <div className="space-y-1 text-xs">
+          <div className="space-y-1 text-[9px]">
             <Row label="Bayar" value={dibayar} />
-
             {dibayar >= total ? (
               <Row label="Kembalian" value={kembalian} />
             ) : (
@@ -233,30 +231,26 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* FOOTER */}
-          <div className="mt-2 text-xs text-center">
-
+          <div className="mt-2 text-[9px] text-center">
             <p>Terima kasih</p>
 
-            <p className="mt-1 text-[10px]">
-              Whatsapp: 0813-7250-1295
+            <p className="mt-1 text-[8px]">
+              WA: 0813-7250-1295
             </p>
 
             <div className="flex justify-center mt-2">
-              <div className="min-w-2 shrink-0">
-                <Image
-                  src={`/tagihan/${data.id}/qrcode`}
-                  alt="QR Code"
-                  className="bg-white p-1 rounded w-24 h-24 object-contain aspect-square"
-                  width={100}
-                  height={100}
-                />
-              </div>
+              <Image
+                src={`/tagihan/${data.id}/qrcode`}
+                alt="QR Code"
+                className="bg-white p-1 rounded w-14 h-14 object-contain"
+                width={60}
+                height={60}
+              />
             </div>
 
             <p className="mt-1 text-[8px]">
-              Scan untuk cek invoice
+              Scan invoice
             </p>
-
           </div>
 
         </div>
@@ -269,24 +263,18 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
 /* ================= COMPONENT ================= */
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: any) {
   return (
-    <div className="space-y-2 text-xs">
+    <div className="space-y-1 text-[9px]">
       <p className="font-medium">{title}</p>
       {children}
     </div>
   );
 }
 
-function Empty({ text }: { text: string }) {
+function Empty({ text }: any) {
   return (
-    <p className="text-neutral-400 text-center">
+    <p className="text-[9px] text-neutral-400 text-center">
       {text}
     </p>
   );
@@ -294,7 +282,7 @@ function Empty({ text }: { text: string }) {
 
 /* ================= HELPER ================= */
 
-function Row({ label, value }: { label: string; value: number }) {
+function Row({ label, value }: any) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
@@ -305,6 +293,6 @@ function Row({ label, value }: { label: string; value: number }) {
 
 function Divider() {
   return (
-    <div className="my-2 border-t border-dashed" />
+    <div className="my-1 border-t border-dashed" />
   );
 }
