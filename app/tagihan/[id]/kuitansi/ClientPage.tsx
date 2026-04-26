@@ -2,6 +2,7 @@
 'use client'
 
 import { FiArrowLeft, FiPrinter } from "react-icons/fi";
+
 import {
   FragmentLayout,
   FragmentHeader,
@@ -23,6 +24,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
   const details = data.details ?? [];
   const pembayaran = data.pembayaran ?? [];
 
+
   const handleShare = async () => {
     const element = document.getElementById("png-area");
     if (!element) return;
@@ -31,7 +33,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       const width = element.scrollWidth;
       const height = element.scrollHeight;
 
-      const scale = 2.5;
+      const scale = 3; // 2 = bagus, 3 = HD, 4 = kalau mau overkill
 
       const dataUrl = await toPng(element, {
         cacheBust: true,
@@ -53,13 +55,16 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
+        await navigator.share({
+          files: [file],
+        });
       } else {
         const link = document.createElement("a");
         link.download = "kuitansi.png";
         link.href = dataUrl;
         link.click();
       }
+
     } catch (err) {
       console.error(err);
     }
@@ -71,28 +76,15 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* PRINT STYLE */}
       <style jsx global>{`
         #print-area {
-          width: 80mm;
-          max-width: 80mm;
+          width: 320px;
           margin: 0 auto;
-
-          /* 🔥 INI YANG DIUBAH */
-          font-family: "Courier New", monospace;
-
-          font-size: 11px;
-          line-height: 1.35;
-          letter-spacing: 0.3px;
+          font-size: 12px;
         }
 
         @media print {
           @page {
-            size: 80mm auto;
+            size: 58mm auto;
             margin: 0;
-          }
-
-          html, body {
-            width: 80mm;
-            margin: 0;
-            padding: 0;
           }
 
           body * {
@@ -107,33 +99,20 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             position: absolute;
             left: 0;
             top: 0;
-            width: 80mm;
-            font-size: 11px;
+            width: 58mm;
+            font-size: 10px;
           }
-        }
-        
-        #print-area {
-          font-family: "Courier New", monospace;
-
-          font-size: 11px;
-
-          /* 🔥 ini yang bikin “thermal feel” */
-          letter-spacing: 0.6px;
-          line-height: 1.5;
-
-          /* optional tapi bagus */
-          word-spacing: 1px;
         }
       `}</style>
 
       {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          {userAuth && (
+          {userAuth ? (
             <GhostButton href={`/tagihan/${data.id}`}>
               <FiArrowLeft />
             </GhostButton>
-          )}
+          ) : undefined}
 
           <h1 className="font-bold text-xl">
             Kuitansi
@@ -141,22 +120,27 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         </div>
 
         <div className="flex gap-2">
-          <PrimaryButtonAction onClick={handleShare}>
+
+          <PrimaryButtonAction
+            onClick={handleShare}
+          >
             <IoMdShare size={14} />
           </PrimaryButtonAction>
 
-          <PrimaryButtonAction onClick={() => window.print()}>
+          <PrimaryButtonAction
+            onClick={() => window.print()}
+          >
             <FiPrinter size={14} />
           </PrimaryButtonAction>
         </div>
       </FragmentHeader>
 
       {/* BODY */}
-      <FragmentBody className="py-5" id="png-area">
+      <FragmentBody className="py-6" id="png-area">
 
         <div
           id="print-area"
-          className="bg-white mx-auto px-3 py-4 text-black"
+          className="bg-white mx-auto px-3 py-5 font-mono text-black"
         >
 
           {/* HEADER TOKO */}
@@ -164,7 +148,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             <p className="font-bold text-[14px]">
               Berkat Motor / Erizal
             </p>
-            <p className="text-[11px]">
+            <p className="px-4 text-xs">
               Perkebunan Sungai Lala, Indragiri Hulu, Riau
             </p>
           </div>
@@ -172,16 +156,17 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* INFO */}
-          <div className="flex justify-between text-[11px]">
+          <div className="flex justify-between text-xs">
             <p>Kode: {data.kode}</p>
             <p>{formatDate(data.dibuatPada)}</p>
           </div>
 
+          {/* CUSTOMER */}
           {(data.namaCustomer || data.catatan) && (
-            <div className="space-y-1 mt-2 text-[11px]">
+            <div className="space-y-1 mt-2 text-xs">
               <p>{data.namaCustomer ?? "-"}</p>
               {data.catatan && (
-                <p className="text-[10px] text-neutral-600">
+                <p className="text-neutral-600">
                   {data.catatan}
                 </p>
               )}
@@ -192,40 +177,52 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
           {/* ITEMS */}
           <Section title="Barang / Jasa">
-            {details.map((item: any) => (
-              <div key={item.id} className="text-[11px]">
-                <p className="break-words">{item.nama}</p>
-                <div className="flex justify-between">
-                  <span>
-                    {item.qty} x {format(item.harga)}
-                  </span>
-                  <span>{format(item.subtotal)}</span>
+            {details.length === 0 ? (
+              <Empty text="Tidak ada barang / jasa" />
+            ) : (
+              details.map((item: any) => (
+                <div key={item.id}>
+                  <p>{item.nama}</p>
+                  <div className="flex justify-between">
+                    <span>
+                      {item.qty} x {format(item.harga)}
+                    </span>
+                    <span>{format(item.subtotal)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </Section>
 
           <Divider />
 
-          <div className="space-y-1 text-[11px]">
+          {/* TOTAL */}
+          <div className="space-y-1 text-xs">
             <Row label="Total" value={total} />
           </div>
 
           <Divider />
 
-          <Section title="Pembayaran">
-            {pembayaran.map((p: any) => (
-              <div key={p.id} className="flex justify-between text-[11px]">
-                <span>{formatDate(p.dibuatPada)}</span>
-                <span>{format(p.jumlah)}</span>
-              </div>
-            ))}
+          {/* PEMBAYARAN */}
+          <Section title="Riwayat Pembayaran">
+            {pembayaran.length === 0 ? (
+              <Empty text="Belum ada pembayaran" />
+            ) : (
+              pembayaran.map((p: any) => (
+                <div key={p.id} className="flex justify-between">
+                  <span>{formatDate(p.dibuatPada)}</span>
+                  <span>{format(p.jumlah)}</span>
+                </div>
+              ))
+            )}
           </Section>
 
           <Divider />
 
-          <div className="space-y-1 text-[11px]">
+          {/* RINGKASAN */}
+          <div className="space-y-1 text-xs">
             <Row label="Bayar" value={dibayar} />
+
             {dibayar >= total ? (
               <Row label="Kembalian" value={kembalian} />
             ) : (
@@ -236,26 +233,30 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* FOOTER */}
-          <div className="mt-3 text-[11px] text-center">
+          <div className="mt-2 text-xs text-center">
+
             <p>Terima kasih</p>
 
             <p className="mt-1 text-[10px]">
-              WA: 0813-7250-1295
+              Whatsapp: 0813-7250-1295
             </p>
 
             <div className="flex justify-center mt-2">
-              <Image
-                src={`/tagihan/${data.id}/qrcode`}
-                alt="QR Code"
-                className="bg-white p-1 rounded w-44 h-44 object-contain"
-                width={100}
-                height={100}
-              />
+              <div className="min-w-2 shrink-0">
+                <Image
+                  src={`/tagihan/${data.id}/qrcode`}
+                  alt="QR Code"
+                  className="bg-white p-1 rounded w-34 h-34 object-contain aspect-square"
+                  width={100}
+                  height={100}
+                />
+              </div>
             </div>
 
-            <p className="mt-1 text-[10px]">
+            <p className="mt-1 text-[8px]">
               Scan untuk cek invoice
             </p>
+
           </div>
 
         </div>
@@ -268,16 +269,32 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
 /* ================= COMPONENT ================= */
 
-function Section({ title, children }: any) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="space-y-2 text-[11px]">
-      <p className="font-semibold">{title}</p>
+    <div className="space-y-2 text-xs">
+      <p className="font-medium">{title}</p>
       {children}
     </div>
   );
 }
 
-function Row({ label, value }: any) {
+function Empty({ text }: { text: string }) {
+  return (
+    <p className="text-neutral-400 text-center">
+      {text}
+    </p>
+  );
+}
+
+/* ================= HELPER ================= */
+
+function Row({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
