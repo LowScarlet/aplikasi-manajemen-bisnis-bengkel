@@ -60,7 +60,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         });
       } else {
         const link = document.createElement("a");
-        link.download = "kuitansi.png";
+        link.download = "e-receipt_${data.id}.png";
         link.href = dataUrl;
         link.click();
       }
