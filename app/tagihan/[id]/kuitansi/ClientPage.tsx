@@ -156,9 +156,9 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* INFO */}
-          <div className="flex justify-between text-xs">
+          <div className="text-xs">
             <p>Kode: {data.kode}</p>
-            <p>{formatDate(data.dibuatPada)}</p>
+            <p>Tanggal: {formatDate(data.dibuatPada)}</p>
           </div>
 
           {/* CUSTOMER */}
