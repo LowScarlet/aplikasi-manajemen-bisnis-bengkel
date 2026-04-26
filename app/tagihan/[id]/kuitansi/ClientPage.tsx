@@ -181,7 +181,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             ) : (
               details.map((item: any) => (
                 <div key={item.id} className="text-[11px]">
-                  <p className="break-words">{item.nama}</p>
+                  <p className="wrap-break-word">{item.nama}</p>
                   <div className="flex justify-between">
                     <span>
                       {item.qty} x {format(item.harga)}
@@ -242,7 +242,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Image
                 src={`/tagihan/${data.id}/qrcode`}
                 alt="QR Code"
-                className="bg-white p-1 rounded w-24 h-24 object-contain"
+                className="bg-white p-1 rounded w-54 h-54 object-contain"
                 width={100}
                 height={100}
               />
