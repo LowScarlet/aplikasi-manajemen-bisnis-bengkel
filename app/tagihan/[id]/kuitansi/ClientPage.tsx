@@ -76,7 +76,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* PRINT STYLE */}
       <style jsx global>{`
         #print-area {
-          width: 320px;
+          width: 58mm;
           margin: 0 auto;
           font-size: 12px;
         }
@@ -140,7 +140,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
         <div
           id="print-area"
-          className="bg-white mx-auto px-3 py-5 font-mono text-black"
+          className="bg-white mx-auto p-2 font-mono text-black"
         >
 
           {/* HEADER TOKO */}
