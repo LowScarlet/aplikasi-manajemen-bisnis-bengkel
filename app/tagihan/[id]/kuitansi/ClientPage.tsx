@@ -74,9 +74,13 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           width: 80mm;
           max-width: 80mm;
           margin: 0 auto;
-          font-size: 12px;
-          line-height: 1.4;
-          letter-spacing: 0.2px;
+
+          /* 🔥 INI YANG DIUBAH */
+          font-family: "Courier New", monospace;
+
+          font-size: 11px;
+          line-height: 1.35;
+          letter-spacing: 0.3px;
         }
 
         @media print {
@@ -106,6 +110,19 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             width: 80mm;
             font-size: 11px;
           }
+        }
+        
+        #print-area {
+          font-family: "Courier New", monospace;
+
+          font-size: 11px;
+
+          /* 🔥 ini yang bikin “thermal feel” */
+          letter-spacing: 0.6px;
+          line-height: 1.5;
+
+          /* optional tapi bagus */
+          word-spacing: 1px;
         }
       `}</style>
 
@@ -139,7 +156,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
         <div
           id="print-area"
-          className="bg-white mx-auto px-3 py-4 font-mono text-black"
+          className="bg-white mx-auto px-3 py-4 text-black"
         >
 
           {/* HEADER TOKO */}
@@ -160,7 +177,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             <p>{formatDate(data.dibuatPada)}</p>
           </div>
 
-          {/* CUSTOMER */}
           {(data.namaCustomer || data.catatan) && (
             <div className="space-y-1 mt-2 text-[11px]">
               <p>{data.namaCustomer ?? "-"}</p>
@@ -176,49 +192,38 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
           {/* ITEMS */}
           <Section title="Barang / Jasa">
-            {details.length === 0 ? (
-              <Empty text="Tidak ada" />
-            ) : (
-              details.map((item: any) => (
-                <div key={item.id} className="text-[11px]">
-                  <p className="wrap-break-word">{item.nama}</p>
-                  <div className="flex justify-between">
-                    <span>
-                      {item.qty} x {format(item.harga)}
-                    </span>
-                    <span>{format(item.subtotal)}</span>
-                  </div>
+            {details.map((item: any) => (
+              <div key={item.id} className="text-[11px]">
+                <p className="break-words">{item.nama}</p>
+                <div className="flex justify-between">
+                  <span>
+                    {item.qty} x {format(item.harga)}
+                  </span>
+                  <span>{format(item.subtotal)}</span>
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </Section>
 
           <Divider />
 
-          {/* TOTAL */}
           <div className="space-y-1 text-[11px]">
             <Row label="Total" value={total} />
           </div>
 
           <Divider />
 
-          {/* PEMBAYARAN */}
           <Section title="Pembayaran">
-            {pembayaran.length === 0 ? (
-              <Empty text="Belum ada" />
-            ) : (
-              pembayaran.map((p: any) => (
-                <div key={p.id} className="flex justify-between text-[11px]">
-                  <span>{formatDate(p.dibuatPada)}</span>
-                  <span>{format(p.jumlah)}</span>
-                </div>
-              ))
-            )}
+            {pembayaran.map((p: any) => (
+              <div key={p.id} className="flex justify-between text-[11px]">
+                <span>{formatDate(p.dibuatPada)}</span>
+                <span>{format(p.jumlah)}</span>
+              </div>
+            ))}
           </Section>
 
           <Divider />
 
-          {/* RINGKASAN */}
           <div className="space-y-1 text-[11px]">
             <Row label="Bayar" value={dibayar} />
             {dibayar >= total ? (
@@ -242,7 +247,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Image
                 src={`/tagihan/${data.id}/qrcode`}
                 alt="QR Code"
-                className="bg-white p-1 rounded w-54 h-54 object-contain"
+                className="bg-white p-1 rounded w-44 h-44 object-contain"
                 width={100}
                 height={100}
               />
@@ -271,16 +276,6 @@ function Section({ title, children }: any) {
     </div>
   );
 }
-
-function Empty({ text }: any) {
-  return (
-    <p className="text-[11px] text-neutral-400 text-center">
-      {text}
-    </p>
-  );
-}
-
-/* ================= HELPER ================= */
 
 function Row({ label, value }: any) {
   return (
