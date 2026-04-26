@@ -138,125 +138,129 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* BODY */}
       <FragmentBody className="py-6" id="png-area">
 
-        <div
-          id="print-area"
-          className="bg-white mx-auto p-2 font-mono text-black"
-        >
 
-          {/* HEADER TOKO */}
-          <div className="text-center">
-            <p className="font-bold text-[14px]">
-              Berkat Motor / Erizal
-            </p>
-            <p className="px-4 text-xs">
-              Perkebunan Sungai Lala, Indragiri Hulu, Riau
-            </p>
-          </div>
+        <div style={{ width: "58mm" }} className="mx-auto">
 
-          <Divider />
+          <div
+            id="print-area"
+            className="bg-white mx-auto p-2 font-mono text-black"
+          >
 
-          {/* INFO */}
-          <div className="text-xs">
-            <p>Kode: {data.kode}</p>
-            <p>Tanggal: {formatDate(data.dibuatPada)}</p>
-          </div>
+            {/* HEADER TOKO */}
+            <div className="text-center">
+              <p className="font-bold text-[14px]">
+                Berkat Motor / Erizal
+              </p>
+              <p className="px-4 text-xs">
+                Perkebunan Sungai Lala, Indragiri Hulu, Riau
+              </p>
+            </div>
 
-          {/* CUSTOMER */}
-          {(data.namaCustomer || data.catatan) && (
-            <div className="space-y-1 mt-2 text-xs">
-              <p>{data.namaCustomer ?? "-"}</p>
-              {data.catatan && (
-                <p className="text-neutral-600">
-                  {data.catatan}
-                </p>
+            <Divider />
+
+            {/* INFO */}
+            <div className="text-xs">
+              <p>Kode: {data.kode}</p>
+              <p>Tanggal: {formatDate(data.dibuatPada)}</p>
+            </div>
+
+            {/* CUSTOMER */}
+            {(data.namaCustomer || data.catatan) && (
+              <div className="space-y-1 mt-2 text-xs">
+                <p>{data.namaCustomer ?? "-"}</p>
+                {data.catatan && (
+                  <p className="text-neutral-600">
+                    {data.catatan}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <Divider />
+
+            {/* ITEMS */}
+            <Section title="Barang / Jasa">
+              {details.length === 0 ? (
+                <Empty text="Tidak ada barang / jasa" />
+              ) : (
+                details.map((item: any) => (
+                  <div key={item.id}>
+                    <p>{item.nama}</p>
+                    <div className="flex justify-between">
+                      <span>
+                        {item.qty} x {format(item.harga)}
+                      </span>
+                      <span>{format(item.subtotal)}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Section>
+
+            <Divider />
+
+            {/* TOTAL */}
+            <div className="space-y-1 text-xs">
+              <Row label="Total" value={total} />
+            </div>
+
+            <Divider />
+
+            {/* PEMBAYARAN */}
+            <Section title="Riwayat Pembayaran">
+              {pembayaran.length === 0 ? (
+                <Empty text="Belum ada pembayaran" />
+              ) : (
+                pembayaran.map((p: any) => (
+                  <div key={p.id} className="flex justify-between">
+                    <span>{formatDate(p.dibuatPada)}</span>
+                    <span>{format(p.jumlah)}</span>
+                  </div>
+                ))
+              )}
+            </Section>
+
+            <Divider />
+
+            {/* RINGKASAN */}
+            <div className="space-y-1 text-xs">
+              <Row label="Bayar" value={dibayar} />
+
+              {dibayar >= total ? (
+                <Row label="Kembalian" value={kembalian} />
+              ) : (
+                <Row label="Sisa" value={sisa} />
               )}
             </div>
-          )}
 
-          <Divider />
+            <Divider />
 
-          {/* ITEMS */}
-          <Section title="Barang / Jasa">
-            {details.length === 0 ? (
-              <Empty text="Tidak ada barang / jasa" />
-            ) : (
-              details.map((item: any) => (
-                <div key={item.id}>
-                  <p>{item.nama}</p>
-                  <div className="flex justify-between">
-                    <span>
-                      {item.qty} x {format(item.harga)}
-                    </span>
-                    <span>{format(item.subtotal)}</span>
-                  </div>
+            {/* FOOTER */}
+            <div className="mt-2 text-xs text-center">
+
+              <p>Terima kasih</p>
+
+              <p className="mt-1 text-[10px]">
+                Whatsapp: 0813-7250-1295
+              </p>
+
+              <div className="flex justify-center mt-2">
+                <div className="min-w-2 shrink-0">
+                  <Image
+                    src={`/tagihan/${data.id}/qrcode`}
+                    alt="QR Code"
+                    className="bg-white p-1 rounded w-34 h-34 object-contain aspect-square"
+                    width={100}
+                    height={100}
+                  />
                 </div>
-              ))
-            )}
-          </Section>
-
-          <Divider />
-
-          {/* TOTAL */}
-          <div className="space-y-1 text-xs">
-            <Row label="Total" value={total} />
-          </div>
-
-          <Divider />
-
-          {/* PEMBAYARAN */}
-          <Section title="Riwayat Pembayaran">
-            {pembayaran.length === 0 ? (
-              <Empty text="Belum ada pembayaran" />
-            ) : (
-              pembayaran.map((p: any) => (
-                <div key={p.id} className="flex justify-between">
-                  <span>{formatDate(p.dibuatPada)}</span>
-                  <span>{format(p.jumlah)}</span>
-                </div>
-              ))
-            )}
-          </Section>
-
-          <Divider />
-
-          {/* RINGKASAN */}
-          <div className="space-y-1 text-xs">
-            <Row label="Bayar" value={dibayar} />
-
-            {dibayar >= total ? (
-              <Row label="Kembalian" value={kembalian} />
-            ) : (
-              <Row label="Sisa" value={sisa} />
-            )}
-          </div>
-
-          <Divider />
-
-          {/* FOOTER */}
-          <div className="mt-2 text-xs text-center">
-
-            <p>Terima kasih</p>
-
-            <p className="mt-1 text-[10px]">
-              Whatsapp: 0813-7250-1295
-            </p>
-
-            <div className="flex justify-center mt-2">
-              <div className="min-w-2 shrink-0">
-                <Image
-                  src={`/tagihan/${data.id}/qrcode`}
-                  alt="QR Code"
-                  className="bg-white p-1 rounded w-34 h-34 object-contain aspect-square"
-                  width={100}
-                  height={100}
-                />
               </div>
+
+              <p className="mt-1 text-[8px]">
+                Scan untuk cek invoice
+              </p>
+
             </div>
-
-            <p className="mt-1 text-[8px]">
-              Scan untuk cek invoice
-            </p>
-
           </div>
 
         </div>
