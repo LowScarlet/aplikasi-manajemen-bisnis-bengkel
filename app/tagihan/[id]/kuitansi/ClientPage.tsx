@@ -31,7 +31,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       const width = element.scrollWidth;
       const height = element.scrollHeight;
 
-      const scale = 2; // jangan 3, nanti kepanjangan
+      const scale = 2.5;
 
       const dataUrl = await toPng(element, {
         cacheBust: true,
@@ -71,22 +71,22 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       {/* PRINT STYLE */}
       <style jsx global>{`
         #print-area {
-          width: 58mm;
-          max-width: 58mm;
+          width: 80mm;
+          max-width: 80mm;
           margin: 0 auto;
-          font-size: 10px;
-          line-height: 1.3;
+          font-size: 12px;
+          line-height: 1.4;
           letter-spacing: 0.2px;
         }
 
         @media print {
           @page {
-            size: 58mm auto;
+            size: 80mm auto;
             margin: 0;
           }
 
           html, body {
-            width: 58mm;
+            width: 80mm;
             margin: 0;
             padding: 0;
           }
@@ -103,8 +103,8 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             position: absolute;
             left: 0;
             top: 0;
-            width: 58mm;
-            font-size: 9px;
+            width: 80mm;
+            font-size: 11px;
           }
         }
       `}</style>
@@ -118,7 +118,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             </GhostButton>
           )}
 
-          <h1 className="font-bold text-lg">
+          <h1 className="font-bold text-xl">
             Kuitansi
           </h1>
         </div>
@@ -135,19 +135,19 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       </FragmentHeader>
 
       {/* BODY */}
-      <FragmentBody className="py-4" id="png-area">
+      <FragmentBody className="py-5" id="png-area">
 
         <div
           id="print-area"
-          className="bg-white mx-auto px-2 py-3 font-mono text-black"
+          className="bg-white mx-auto px-3 py-4 font-mono text-black"
         >
 
           {/* HEADER TOKO */}
           <div className="text-center">
-            <p className="font-bold text-[12px]">
+            <p className="font-bold text-[14px]">
               Berkat Motor / Erizal
             </p>
-            <p className="text-[9px]">
+            <p className="text-[11px]">
               Perkebunan Sungai Lala, Indragiri Hulu, Riau
             </p>
           </div>
@@ -155,17 +155,17 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* INFO */}
-          <div className="flex justify-between text-[9px]">
+          <div className="flex justify-between text-[11px]">
             <p>Kode: {data.kode}</p>
             <p>{formatDate(data.dibuatPada)}</p>
           </div>
 
           {/* CUSTOMER */}
           {(data.namaCustomer || data.catatan) && (
-            <div className="space-y-1 mt-1 text-[9px]">
+            <div className="space-y-1 mt-2 text-[11px]">
               <p>{data.namaCustomer ?? "-"}</p>
               {data.catatan && (
-                <p className="text-[8px] text-neutral-600">
+                <p className="text-[10px] text-neutral-600">
                   {data.catatan}
                 </p>
               )}
@@ -180,8 +180,8 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Empty text="Tidak ada" />
             ) : (
               details.map((item: any) => (
-                <div key={item.id} className="text-[9px]">
-                  <p className="truncate">{item.nama}</p>
+                <div key={item.id} className="text-[11px]">
+                  <p className="break-words">{item.nama}</p>
                   <div className="flex justify-between">
                     <span>
                       {item.qty} x {format(item.harga)}
@@ -196,7 +196,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* TOTAL */}
-          <div className="space-y-1 text-[9px]">
+          <div className="space-y-1 text-[11px]">
             <Row label="Total" value={total} />
           </div>
 
@@ -208,7 +208,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Empty text="Belum ada" />
             ) : (
               pembayaran.map((p: any) => (
-                <div key={p.id} className="flex justify-between text-[9px]">
+                <div key={p.id} className="flex justify-between text-[11px]">
                   <span>{formatDate(p.dibuatPada)}</span>
                   <span>{format(p.jumlah)}</span>
                 </div>
@@ -219,7 +219,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* RINGKASAN */}
-          <div className="space-y-1 text-[9px]">
+          <div className="space-y-1 text-[11px]">
             <Row label="Bayar" value={dibayar} />
             {dibayar >= total ? (
               <Row label="Kembalian" value={kembalian} />
@@ -231,10 +231,10 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
           <Divider />
 
           {/* FOOTER */}
-          <div className="mt-2 text-[9px] text-center">
+          <div className="mt-3 text-[11px] text-center">
             <p>Terima kasih</p>
 
-            <p className="mt-1 text-[8px]">
+            <p className="mt-1 text-[10px]">
               WA: 0813-7250-1295
             </p>
 
@@ -242,14 +242,14 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Image
                 src={`/tagihan/${data.id}/qrcode`}
                 alt="QR Code"
-                className="bg-white p-1 rounded w-14 h-14 object-contain"
-                width={60}
-                height={60}
+                className="bg-white p-1 rounded w-24 h-24 object-contain"
+                width={100}
+                height={100}
               />
             </div>
 
-            <p className="mt-1 text-[8px]">
-              Scan invoice
+            <p className="mt-1 text-[10px]">
+              Scan untuk cek invoice
             </p>
           </div>
 
@@ -265,8 +265,8 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
 function Section({ title, children }: any) {
   return (
-    <div className="space-y-1 text-[9px]">
-      <p className="font-medium">{title}</p>
+    <div className="space-y-2 text-[11px]">
+      <p className="font-semibold">{title}</p>
       {children}
     </div>
   );
@@ -274,7 +274,7 @@ function Section({ title, children }: any) {
 
 function Empty({ text }: any) {
   return (
-    <p className="text-[9px] text-neutral-400 text-center">
+    <p className="text-[11px] text-neutral-400 text-center">
       {text}
     </p>
   );
@@ -293,6 +293,6 @@ function Row({ label, value }: any) {
 
 function Divider() {
   return (
-    <div className="my-1 border-t border-dashed" />
+    <div className="my-2 border-t border-dashed" />
   );
 }
