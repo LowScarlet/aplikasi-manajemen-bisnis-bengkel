@@ -193,35 +193,35 @@ export default function ClientPage({ data }: { data: any }) {
 
           </div>
         </div>
-
-        <div className="bg-base-100 card">
-          <div className="card-body">
-            <p className="font-medium">Detail Pembayaran</p>
-
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>+ Rp {subtotal.toLocaleString("id-ID")}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Ongkos</span>
-              <span>+ Rp {ongkos.toLocaleString("id-ID")}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Diskon</span>
-              <span>- Rp {diskon.toLocaleString("id-ID")}</span>
-            </div>
-
-            <div className="flex justify-between mb-1 border-base-content border-t">
-              <span>Total Pembayaran</span>
-              <span>= Rp {total.toLocaleString("id-ID")}</span>
-            </div>
-          </div>
-        </div>
       </FragmentBody>
       <FragmentFooter>
-        <div className="p-4">
+        <div className="space-y-3 p-4">
+          <div className="bg-base-100 card">
+            <div className="card-body">
+              <p className="font-medium">Detail Pembayaran</p>
+
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>+ Rp {subtotal.toLocaleString("id-ID")}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Ongkos</span>
+                <span>+ Rp {ongkos.toLocaleString("id-ID")}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Diskon</span>
+                <span>- Rp {diskon.toLocaleString("id-ID")}</span>
+              </div>
+
+              <div className="flex justify-between mb-1 border-base-content border-t">
+                <span>Total Pembayaran</span>
+                <span>= Rp {total.toLocaleString("id-ID")}</span>
+              </div>
+            </div>
+          </div>
+
           <Link href={`/tagihan/${data.id}/tambah/item`} className="w-full btn btn-primary">
             <FiPlus /> Tambah Barang / Layanan
           </Link>

@@ -18,9 +18,10 @@ import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
 
 import { addItems } from "./page";
 
-import { format } from "@/libs/utils";
+import { cn, format } from "@/libs/utils";
 
 import Link from "next/link";
+import { TipeBadge } from "@/app/_components/Badge";
 
 export default function ClientPage({
   data,
@@ -118,42 +119,20 @@ export default function ClientPage({
   return (
     <FragmentLayout>
 
-      <FragmentHeader className="flex">
-        <div>
+      <FragmentHeader>
+        <div className="flex items-center gap-2">
 
+          <Link
+            href={`/tagihan/${data.id}`}
+            className="btn btn-ghost btn-square"
+          >
+            <FiArrowLeft />
+          </Link>
 
-          <div className="flex items-center gap-2">
+          <h1 className="font-bold text-xl">
+            Tambah Barang / Layanan
+          </h1>
 
-            <Link
-              href={`/tagihan/${data.id}`}
-              className="btn btn-ghost btn-square"
-            >
-              <FiArrowLeft />
-            </Link>
-
-            <h1 className="font-bold text-xl">
-              Tambah Barang / Layanan
-            </h1>
-
-          </div>
-
-
-
-          <div className="p-4 border rounded-2xl">
-
-            <div className="flex justify-between items-center">
-
-              <span className="font-medium">
-                Grand Total
-              </span>
-
-              <span className="font-bold text-xl">
-                Rp{format(grandTotal)}
-              </span>
-
-            </div>
-
-          </div>
         </div>
 
       </FragmentHeader>
@@ -167,51 +146,70 @@ export default function ClientPage({
             </div>
           )}
 
-          {items.map((item, index) => (
+          {items.map((item, index) => {
+            const isLastItem =
+              index === items.length - 1
 
-            <div
-              key={index}
-              className="flex justify-between items-center p-4 border rounded-2xl"
-            >
-
-              <div>
-
-                <div className="font-bold">
-                  {item.nama}
-                </div>
-
-                <div className="opacity-70 text-sm">
-                  {item.qty} x Rp
-                  {format(item.harga)}
-                </div>
-
-                <div className="mt-1 font-bold">
-                  Rp
-                  {format(
-                    item.qty * item.harga
-                  )}
-                </div>
-
-              </div>
-
-              <button
-                onClick={() =>
-                  handleDeleteItem(index)
-                }
-                className="btn btn-error btn-sm btn-square"
+            return (
+              <div
+                key={item.id ?? index}
+                className={cn(
+                  "flex justify-between gap-2 py-3 text-sm",
+                  !isLastItem &&
+                  "border-b border-base-content border-dashed"
+                )}
               >
-                <FiTrash2 />
-              </button>
+                <div className="flex-1">
+                  <div className="flex justify-between gap-2">
+                    <p className="font-medium">
+                      {item.nama}
+                    </p>
 
-            </div>
-          ))}
+                    <div>
+                      <TipeBadge tipe={item.tipe} />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between gap-2 mt-0.5 text-xs">
+                    <p className="text-neutral-400">
+                      {item.qty} x Rp {format(item.harga)}
+                    </p>
+
+                    <p className="font-bold text-neutral-400 text-end">
+                      Rp {format(item.qty * item.harga)}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    onClick={() =>
+                      handleDeleteItem(index)
+                    }
+                    className="btn btn-error btn-sm btn-square"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
 
         </div>
 
       </FragmentBody>
-      <FragmentFooter>
+      <FragmentFooter className="p-4">
+        <div className="">
+          <div className="flex justify-between items-center">
+            <span className="font-medium">
+              Grand Total
+            </span>
 
-
+            <span className="font-bold text-xl">
+              Rp{format(grandTotal)}
+            </span>
+          </div>
+        </div>
         <div>
           <fieldset className="fieldset">
 
@@ -233,7 +231,7 @@ export default function ClientPage({
 
           </fieldset>
 
-          <div className="gap-3 grid grid-cols-2">
+          <div className="gap-3 grid grid-cols-3">
 
             <fieldset className="fieldset">
 
@@ -308,46 +306,48 @@ export default function ClientPage({
 
             </fieldset>
 
+
+
+            <fieldset className="fieldset">
+
+              <legend className="fieldset-legend">
+                Subtotal
+              </legend>
+
+              <label className="flex items-center gap-2 w-full input input-bordered">
+
+                <span>Rp</span>
+
+                <input
+                  value={format(subtotal)}
+                  className="font-bold grow"
+                  readOnly
+                />
+
+              </label>
+
+            </fieldset>
+
           </div>
+          <div className="space-y-3 py-3">
+            <button
+              type="button"
+              onClick={handleAddToList}
+              className="w-full btn btn-secondary"
+            >
+              Tambah ke Daftar
+            </button>
 
-          <fieldset className="fieldset">
-
-            <legend className="fieldset-legend">
-              Subtotal
-            </legend>
-
-            <label className="flex items-center gap-2 w-full input input-bordered">
-
-              <span>Rp</span>
-
-              <input
-                value={format(subtotal)}
-                className="font-bold grow"
-                readOnly
-              />
-
-            </label>
-
-          </fieldset>
-
-          <button
-            type="button"
-            onClick={handleAddToList}
-            className="w-full btn btn-secondary"
-          >
-            Tambah ke Daftar
-          </button>
-
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full btn btn-primary"
-          >
-            {loading
-              ? "Menyimpan..."
-              : `Simpan ${items.length} Item`}
-          </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full btn btn-primary"
+            >
+              {loading
+                ? "Menyimpan..."
+                : `Simpan ${items.length} Item`}
+            </button>
+          </div>
 
         </div>
       </FragmentFooter>
