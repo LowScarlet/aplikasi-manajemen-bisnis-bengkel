@@ -196,28 +196,43 @@ export default function ClientPage({ data }: { data: any }) {
       </FragmentBody>
       <FragmentFooter>
         <div className="space-y-3 p-4">
-          <div className="bg-base-100 text-xs card">
-            <div className="py-3 card-body">
-              <p className="font-medium">Detail Pembayaran</p>
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300">
+            <input type="checkbox" className="peer" />
 
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>+ Rp {subtotal.toLocaleString("id-ID")}</span>
-              </div>
+            <div className="collapse-title font-medium text-sm">
+              Detail Pembayaran
+            </div>
 
-              <div className="flex justify-between">
-                <span>Ongkos</span>
-                <span>+ Rp {ongkos.toLocaleString("id-ID")}</span>
-              </div>
+            <div className="collapse-content text-xs">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>
+                    + Rp {subtotal.toLocaleString("id-ID")}
+                  </span>
+                </div>
 
-              <div className="flex justify-between">
-                <span>Diskon</span>
-                <span>- Rp {diskon.toLocaleString("id-ID")}</span>
-              </div>
+                <div className="flex justify-between">
+                  <span>Ongkos</span>
+                  <span>
+                    + Rp {ongkos.toLocaleString("id-ID")}
+                  </span>
+                </div>
 
-              <div className="flex justify-between mb-1 border-base-content border-t">
-                <span>Total Pembayaran</span>
-                <span>= Rp {total.toLocaleString("id-ID")}</span>
+                <div className="flex justify-between">
+                  <span>Diskon</span>
+                  <span>
+                    - Rp {diskon.toLocaleString("id-ID")}
+                  </span>
+                </div>
+
+                <div className="flex justify-between pt-2 border-base-300 border-t font-medium">
+                  <span>Total Pembayaran</span>
+
+                  <span>
+                    = Rp {total.toLocaleString("id-ID")}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
