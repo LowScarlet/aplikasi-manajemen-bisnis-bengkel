@@ -9,6 +9,18 @@ export const metadata: Metadata = {
   title: 'Berkat Motor',
   description: 'Aplikasi Manajemen Bengkel Berkat Motor.',
   metadataBase: new URL('https://app.berkatmotor.lowscarlet.my.id'),
+
+  themeColor: [
+    {
+      media: '(prefers-color-scheme: light)',
+      color: '#ffffff',
+    },
+    {
+      media: '(prefers-color-scheme: dark)',
+      color: '#1d232a',
+    },
+  ],
+
   openGraph: {
     type: "website",
     url: "https://app.berkatmotor.lowscarlet.my.id",
@@ -19,9 +31,11 @@ export const metadata: Metadata = {
       '/android-chrome-512x512.png'
     ]
   },
+
   twitter: {
     card: 'summary',
   },
+
   colorScheme: "dark",
   creator: "Tegar Maulana Fahreza",
   publisher: "Vercel"
