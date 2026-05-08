@@ -1,31 +1,36 @@
+// ClientPage.tsx
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+
+import { useRouter } from "next/navigation";
 
 import {
   FragmentLayout,
   FragmentHeader,
-  FragmentBody
+  FragmentBody,
+  FragmentFooter
 } from "@/app/_components/Layouts/FragmentLayout";
 
-import {
-  GhostButton,
-  PrimaryButtonAction
-} from "@/app/_components/Buttons";
+import { FiArrowLeft, FiTrash2 } from "react-icons/fi";
 
-import { FiArrowLeft } from "react-icons/fi";
+import { addItems } from "./page";
 
-import { addItem } from "./page";
-import { cn, format } from "@/libs/utils";
+import { format } from "@/libs/utils";
 
-export default function ClientPage({ data }: { data: any }) {
+import Link from "next/link";
+
+export default function ClientPage({
+  data,
+}: {
+  data: any;
+}) {
 
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  /* ================= STATE ================= */
+  const [loading, setLoading] = useState(false);
 
   const [itemForm, setItemForm] = useState({
     nama: "",
@@ -36,235 +41,316 @@ export default function ClientPage({ data }: { data: any }) {
     tipe: "CUSTOM" as "LAYANAN" | "CUSTOM",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<any[]>([]);
 
-  /* ================= SEARCH ================= */
+  const subtotal =
+    (itemForm.qty || 0) *
+    (itemForm.harga || 0);
 
-  const handleSearch = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const grandTotal = items.reduce(
+    (acc, item) =>
+      acc + (item.qty * item.harga),
+    0
+  );
 
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
+  const handleAddToList = () => {
+
+    if (
+      !itemForm.nama ||
+      itemForm.qty <= 0 ||
+      itemForm.harga <= 0
+    ) {
+      alert("Isi data dengan benar");
+      return;
     }
 
-    router.push(`?${params.toString()}`);
+    setItems([
+      ...items,
+      itemForm,
+    ]);
+
+    setItemForm({
+      nama: "",
+      qty: 1,
+      harga: 0,
+      barangId: null,
+      layananId: null,
+      tipe: "CUSTOM",
+    });
   };
 
-  /* ================= CALC ================= */
+  const handleDeleteItem = (
+    index: number
+  ) => {
 
-  const subtotal = (itemForm.qty || 0) * (itemForm.harga || 0);
-
-  /* ================= HANDLER ================= */
+    setItems(
+      items.filter((_, i) => i !== index)
+    );
+  };
 
   const handleSubmit = async () => {
+
     try {
+
       setLoading(true);
 
-      if (itemForm.tipe === "CUSTOM") {
-        if (!itemForm.nama || itemForm.harga <= 0 || itemForm.qty <= 0) {
-          alert("Isi data dengan benar");
-          return;
-        }
+      if (!items.length) {
+        alert("Belum ada item");
+        return;
       }
 
-      if (itemForm.tipe === "LAYANAN") {
-        if (!itemForm.layananId) {
-          alert("Pilih layanan");
-          return;
-        }
-      }
-
-      await addItem(data.id, itemForm);
+      await addItems(data.id, items);
 
       router.push(`/tagihan/${data.id}`);
+
     } catch (err) {
+
       console.error(err);
-      alert("Gagal menambahkan item");
+
+      alert("Gagal menyimpan item");
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  /* ================= RENDER ================= */
-
   return (
     <FragmentLayout>
 
-      <FragmentHeader>
-        <div className="flex items-center gap-2">
-          <GhostButton href={`/tagihan/${data.id}`}>
-            <FiArrowLeft />
-          </GhostButton>
+      <FragmentHeader className="flex">
+        <div>
 
-          <h1 className="font-bold text-xl">
-            Tambah Barang / Layanan
-          </h1>
+
+          <div className="flex items-center gap-2">
+
+            <Link
+              href={`/tagihan/${data.id}`}
+              className="btn btn-ghost btn-square"
+            >
+              <FiArrowLeft />
+            </Link>
+
+            <h1 className="font-bold text-xl">
+              Tambah Barang / Layanan
+            </h1>
+
+          </div>
+
+
+
+          <div className="p-4 border rounded-2xl">
+
+            <div className="flex justify-between items-center">
+
+              <span className="font-medium">
+                Grand Total
+              </span>
+
+              <span className="font-bold text-xl">
+                Rp{format(grandTotal)}
+              </span>
+
+            </div>
+
+          </div>
         </div>
+
       </FragmentHeader>
 
       <FragmentBody className="space-y-4">
+        <div>
 
-        <div className="space-y-3">
+          {items.length <= 0 && (
+            <div className="opacity-60 py-10 text-sm text-center">
+              Belum ada item
+            </div>
+          )}
 
-          {/* TIPE */}
-          <div>
-            <p className="mb-1 text-xs">Tipe</p>
-            <select
-              value={itemForm.tipe}
+          {items.map((item, index) => (
+
+            <div
+              key={index}
+              className="flex justify-between items-center p-4 border rounded-2xl"
+            >
+
+              <div>
+
+                <div className="font-bold">
+                  {item.nama}
+                </div>
+
+                <div className="opacity-70 text-sm">
+                  {item.qty} x Rp
+                  {format(item.harga)}
+                </div>
+
+                <div className="mt-1 font-bold">
+                  Rp
+                  {format(
+                    item.qty * item.harga
+                  )}
+                </div>
+
+              </div>
+
+              <button
+                onClick={() =>
+                  handleDeleteItem(index)
+                }
+                className="btn btn-error btn-sm btn-square"
+              >
+                <FiTrash2 />
+              </button>
+
+            </div>
+          ))}
+
+        </div>
+
+      </FragmentBody>
+      <FragmentFooter>
+
+
+        <div>
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Nama
+            </legend>
+
+            <input
+              value={itemForm.nama}
               onChange={(e) =>
                 setItemForm({
                   ...itemForm,
-                  tipe: e.target.value as any,
-                  barangId: null,
-                  layananId: null,
-                  nama: "",
-                  harga: 0,
+                  nama: e.target.value,
                 })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
-            >
-              <option value="CUSTOM">Lainnya</option>
-              <option value="LAYANAN">Layanan</option>
-            </select>
+              placeholder="Masukkan nama item"
+              className="w-full input input-bordered"
+            />
+
+          </fieldset>
+
+          <div className="gap-3 grid grid-cols-2">
+
+            <fieldset className="fieldset">
+
+              <legend className="fieldset-legend">
+                Qty
+              </legend>
+
+              <input
+                type="number"
+                min={1}
+                value={itemForm.qty || ""}
+                onChange={(e) => {
+
+                  const raw = e.target.value;
+
+                  if (raw === "") {
+
+                    setItemForm({
+                      ...itemForm,
+                      qty: 0,
+                    });
+
+                    return;
+                  }
+
+                  const cleaned =
+                    raw.replace(/^0+(?=\d)/, "");
+
+                  setItemForm({
+                    ...itemForm,
+                    qty: Number(cleaned),
+                  });
+                }}
+                className="w-full input input-bordered"
+              />
+
+            </fieldset>
+
+            <fieldset className="fieldset">
+
+              <legend className="fieldset-legend">
+                Harga
+              </legend>
+
+              <label className="flex items-center gap-2 w-full input input-bordered">
+
+                <span>Rp</span>
+
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={
+                    itemForm.harga
+                      ? format(itemForm.harga)
+                      : ""
+                  }
+                  onChange={(e) => {
+
+                    const raw =
+                      e.target.value.replace(/\D/g, "");
+
+                    setItemForm({
+                      ...itemForm,
+                      harga: Number(raw),
+                    });
+                  }}
+                  placeholder="0"
+                  className="grow"
+                />
+
+              </label>
+
+            </fieldset>
+
           </div>
 
-          {/* ================= LAYANAN ================= */}
-          {itemForm.tipe === "LAYANAN" && (
-            <div>
-              <p className="mb-1 text-xs">Pilih Layanan</p>
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Subtotal
+            </legend>
+
+            <label className="flex items-center gap-2 w-full input input-bordered">
+
+              <span>Rp</span>
 
               <input
-                placeholder="Cari layanan..."
-                defaultValue={searchParams.get("search") ?? ""}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="mb-2 px-3 py-2 border rounded-lg w-full text-sm"
+                value={format(subtotal)}
+                className="font-bold grow"
+                readOnly
               />
 
-              <div className="border rounded-lg max-h-48 overflow-auto">
-                {data.layananList.length === 0 && (
-                  <div className="p-2 text-neutral-500 text-sm">
-                    Tidak ada layanan
-                  </div>
-                )}
+            </label>
 
-                {data.layananList.map((l: any) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    onClick={() =>
-                      setItemForm(prev => ({
-                        ...prev,
-                        layananId: l.id,
-                        nama: l.nama,
-                        harga: l.harga,
-                      }))
-                    }
-                    className={cn(
-                      "flex justify-between items-center px-3 py-2 border rounded-md w-full text-sm text-left transition",
-                      itemForm.layananId === l.id
-                        ? "bg-blue-100 border-blue-500 font-semibold"
-                        : "hover:bg-neutral-100 border-transparent"
-                    )}
-                  >
-                    <span>
-                      {l.nama} - Rp {format(l.harga)}
-                    </span>
+          </fieldset>
 
-                    {itemForm.layananId === l.id && (
-                      <span className="text-blue-600 text-xs">✔</span>
-                    )}
-                  </button>
-                ))}
-              </div>
+          <button
+            type="button"
+            onClick={handleAddToList}
+            className="w-full btn btn-secondary"
+          >
+            Tambah ke Daftar
+          </button>
 
-              <div className="gap-2 grid grid-cols-2 mt-2">
-                <div>
-                  <p className="mb-1 text-xs">Qty</p>
-                  <input
-                    type="number"
-                    value={itemForm.qty}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, qty: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
 
-                <div>
-                  <p className="mb-1 text-xs">Harga</p>
-                  <input
-                    type="number"
-                    value={itemForm.harga}
-                    onChange={(e) =>
-                      setItemForm({ ...itemForm, harga: Number(e.target.value) })
-                    }
-                    className="px-3 py-2 border rounded-lg w-full text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= CUSTOM ================= */}
-          {itemForm.tipe === "CUSTOM" && (
-            <div>
-              <p className="mb-1 text-xs">Nama</p>
-              <input
-                value={itemForm.nama}
-                onChange={(e) =>
-                  setItemForm({ ...itemForm, nama: e.target.value })
-                }
-                className="px-3 py-2 border rounded-lg w-full text-sm"
-              />
-            </div>
-          )}
-
-          {/* QTY & HARGA (untuk CUSTOM) */}
-          {itemForm.tipe === "CUSTOM" && (
-            <div className="gap-2 grid grid-cols-2">
-              <div>
-                <p className="mb-1 text-xs">Qty</p>
-                <input
-                  type="number"
-                  value={itemForm.qty}
-                  onChange={(e) =>
-                    setItemForm({ ...itemForm, qty: Number(e.target.value) })
-                  }
-                  className="px-3 py-2 border rounded-lg w-full text-sm"
-                />
-              </div>
-
-              <div>
-                <p className="mb-1 text-xs">Harga</p>
-                <input
-                  type="number"
-                  value={itemForm.harga}
-                  onChange={(e) =>
-                    setItemForm({ ...itemForm, harga: Number(e.target.value) })
-                  }
-                  className="px-3 py-2 border rounded-lg w-full text-sm"
-                />
-              </div>
-            </div>
-          )}
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full btn btn-primary"
+          >
+            {loading
+              ? "Menyimpan..."
+              : `Simpan ${items.length} Item`}
+          </button>
 
         </div>
-
-        {/* SUBTOTAL */}
-        <div className="text-neutral-500 text-sm">
-          Total:{" "}
-          <span className="font-semibold text-black">
-            Rp {subtotal.toLocaleString("id-ID")}
-          </span>
-        </div>
-
-        <PrimaryButtonAction onClick={handleSubmit} disabled={loading}>
-          {loading ? "Menyimpan..." : "Tambah"}
-        </PrimaryButtonAction>
-
-      </FragmentBody>
+      </FragmentFooter>
 
     </FragmentLayout>
   );
