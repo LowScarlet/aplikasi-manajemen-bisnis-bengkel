@@ -196,8 +196,8 @@ export default function ClientPage({ data }: { data: any }) {
       </FragmentBody>
       <FragmentFooter>
         <div className="space-y-3 p-4">
-          <div className="bg-base-100 card">
-            <div className="card-body">
+          <div className="bg-base-100 text-xs card">
+            <div className="py-3 card-body">
               <p className="font-medium">Detail Pembayaran</p>
 
               <div className="flex justify-between">
@@ -222,7 +222,10 @@ export default function ClientPage({ data }: { data: any }) {
             </div>
           </div>
 
-          <Link href={`/tagihan/${data.id}/tambah/item`} className="w-full btn btn-primary">
+          <Link href={`/tagihan/${data.id}/tambah/item`} className="btn-outline w-full btn btn-primary btn-sm">
+            <MdEdit /> Ubah Ongkos / Diskon
+          </Link>
+          <Link href={`/tagihan/${data.id}/tambah/item`} className="w-full btn btn-primary btn-sm">
             <FiPlus /> Tambah Barang / Layanan
           </Link>
         </div>
