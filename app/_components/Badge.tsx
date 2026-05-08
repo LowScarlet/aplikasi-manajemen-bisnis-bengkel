@@ -1,48 +1,78 @@
 'use client'
 
+type BadgeVariant =
+  | "primary"
+  | "secondary"
+  | "accent"
+  | "success"
+  | "warning"
+  | "error"
+  | "neutral";
+
+const badgeStyles: Record<BadgeVariant, string> = {
+  primary: "badge-primary",
+  secondary: "badge-secondary",
+  accent: "badge-accent",
+  success: "badge-success",
+  warning: "badge-warning",
+  error: "badge-error",
+  neutral: "badge-neutral",
+};
+
+function formatLabel(text: string) {
+  return text
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export function RoleBadge({ role }: { role: string }) {
-  const map: Record<string, string> = {
-    ADMIN: "bg-blue-100 text-blue-600",
-    MEKANIK: "bg-green-100 text-green-600",
+  const map: Record<string, BadgeVariant> = {
+    ADMIN: "primary",
+    MEKANIK: "success",
   };
 
+  const variant = map[role] || "neutral";
+
   return (
-    <span className={`text-xs px-2 py-1 rounded-full ${map[role]}`}>
-      {role}
+    <span className={`badge badge-sm ${badgeStyles[variant]}`}>
+      {formatLabel(role)}
     </span>
   );
 }
 
 export function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    BATAL: "bg-red-100 text-red-600",
-    PROSES: "bg-yellow-100 text-yellow-600",
-    SELESAI: "bg-green-100 text-green-600",
+  const map: Record<string, BadgeVariant> = {
+    BATAL: "error",
+    PROSES: "warning",
+    SELESAI: "success",
 
-    BELUM_BAYAR: "bg-red-100 text-red-600",
-    SEBAGIAN: "bg-yellow-100 text-yellow-600",
-    LUNAS: "bg-green-100 text-green-600",
+    BELUM_BAYAR: "error",
+    SEBAGIAN: "warning",
+    LUNAS: "success",
   };
 
+  const variant = map[status] || "neutral";
+
   return (
-    <span
-      className={`text-xs px-2 py-1 rounded-full ${map[status]} text-center`}
-    >
-      {status.replace("_", " ")}
+    <span className={`badge badge-sm ${badgeStyles[variant]}`}>
+      {formatLabel(status)}
     </span>
   );
 }
 
 export function TipeBadge({ tipe }: { tipe: string }) {
-  const map: Record<string, string> = {
-    BARANG: "bg-blue-100 text-blue-600",
-    LAYANAN: "bg-green-100 text-green-600",
-    CUSTOM: "bg-neutral-200 text-neutral-600",
+  const map: Record<string, BadgeVariant> = {
+    BARANG: "primary",
+    LAYANAN: "success",
+    CUSTOM: "neutral",
   };
 
+  const variant = map[tipe] || "neutral";
+
   return (
-    <span className={`text-[10px] px-2 py-0.5 rounded ${map[tipe]}`}>
-      {tipe}
+    <span className={`badge badge-xs ${badgeStyles[variant]}`}>
+      {formatLabel(tipe)}
     </span>
   );
 }

@@ -15,14 +15,11 @@ import { IoMdShare } from "react-icons/io";
 import Image from "next/image";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
+  const subtotal = data.subtotal ?? 0;
+  const ongkos = data.ongkos ?? 0;
+  const diskon = data.diskon ?? 0;
   const total = data.total ?? 0;
-  const dibayar = data.dibayar ?? 0;
-
-  const kembalian = dibayar > total ? dibayar - total : 0;
-  const sisa = dibayar < total ? total - dibayar : 0;
-
   const details = data.details ?? [];
-  const pembayaran = data.pembayaran ?? [];
 
 
   const handleShare = async () => {
@@ -73,7 +70,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
   return (
     <FragmentLayout>
 
-      {/* PRINT STYLE */}
       <style jsx global>{`
         #print-area {
           width: 58mm;
@@ -105,7 +101,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         }
       `}</style>
 
-      {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
           {userAuth ? (
@@ -135,7 +130,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         </div>
       </FragmentHeader>
 
-      {/* BODY */}
       <FragmentBody className="py-6" id="png-area">
 
 
@@ -145,8 +139,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             id="print-area"
             className="bg-white mx-auto p-2 font-mono text-black"
           >
-
-            {/* HEADER TOKO */}
             <div className="text-center">
               <p className="font-bold text-[14px]">
                 Berkat Motor / Erizal
@@ -158,7 +150,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
             <Divider />
 
-            {/* INFO */}
             <div className="text-xs">
               <p>Kode: {data.kode}</p>
               <p>Tanggal: {formatDate(data.dibuatPada)}</p>
@@ -178,7 +169,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
             <Divider />
 
-            {/* ITEMS */}
             <Section title="Barang / Jasa">
               {details.length === 0 ? (
                 <Empty text="Tidak ada barang / jasa" />
@@ -199,43 +189,17 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
             <Divider />
 
-            {/* TOTAL */}
             <div className="space-y-1 text-xs">
+              <Row label="Subtotal" value={subtotal} />
+              <Row label="Ongkos" value={ongkos} />
+              <Row label="Diskon" value={diskon} />
+
+              <Divider />
               <Row label="Total" value={total} />
             </div>
 
             <Divider />
 
-            {/* PEMBAYARAN */}
-            <Section title="Riwayat Pembayaran">
-              {pembayaran.length === 0 ? (
-                <Empty text="Belum ada pembayaran" />
-              ) : (
-                pembayaran.map((p: any) => (
-                  <div key={p.id} className="flex justify-between">
-                    <span>{formatDate(p.dibuatPada)}</span>
-                    <span>{format(p.jumlah)}</span>
-                  </div>
-                ))
-              )}
-            </Section>
-
-            <Divider />
-
-            {/* RINGKASAN */}
-            <div className="space-y-1 text-xs">
-              <Row label="Bayar" value={dibayar} />
-
-              {dibayar >= total ? (
-                <Row label="Kembalian" value={kembalian} />
-              ) : (
-                <Row label="Sisa" value={sisa} />
-              )}
-            </div>
-
-            <Divider />
-
-            {/* FOOTER */}
             <div className="mt-2 text-xs text-center">
 
               <p>Terima kasih</p>

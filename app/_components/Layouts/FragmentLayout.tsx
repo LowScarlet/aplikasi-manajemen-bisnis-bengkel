@@ -7,8 +7,6 @@ import {
   HTMLAttributes,
 } from "react";
 
-/* ================= ROOT ================= */
-
 type FragmentLayoutProps = {
   children: ReactNode;
 } & HTMLAttributes<HTMLElement>;
@@ -20,11 +18,11 @@ export const FragmentLayout = forwardRef<HTMLElement, FragmentLayoutProps>(
         ref={ref}
         {...props}
         className={cn(
-          "bg-linear-to-b from-blue-50 to-neutral-100 min-h-screen",
+          "bg-base-200 min-h-screen",
           className
         )}
       >
-        <div className="flex flex-col bg-inherit mx-auto max-w-md min-h-screen">
+        <div className="flex flex-col bg-base-200 mx-auto max-w-md min-h-screen">
           {children}
         </div>
       </main>
@@ -33,8 +31,6 @@ export const FragmentLayout = forwardRef<HTMLElement, FragmentLayoutProps>(
 );
 
 FragmentLayout.displayName = "FragmentLayout";
-
-/* ================= HEADER ================= */
 
 type FragmentHeaderProps = {
   children: ReactNode;
@@ -47,7 +43,7 @@ export const FragmentHeader = forwardRef<HTMLElement, FragmentHeaderProps>(
         ref={ref}
         {...props}
         className={cn(
-          "top-0 z-10 sticky backdrop-blur px-4 py-3",
+          "top-0 z-10 sticky bg-base-200 px-4 py-3",
           className
         )}
       >
@@ -61,8 +57,6 @@ export const FragmentHeader = forwardRef<HTMLElement, FragmentHeaderProps>(
 
 FragmentHeader.displayName = "FragmentHeader";
 
-/* ================= BODY ================= */
-
 type FragmentBodyProps = {
   children: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
@@ -73,7 +67,7 @@ export const FragmentBody = forwardRef<HTMLDivElement, FragmentBodyProps>(
       <div
         ref={ref}
         {...props}
-        className={cn("space-y-6 px-4 pb-12 grow", className)}
+        className={cn("space-y-4 px-4 pb-12 grow", className)}
       >
         {children}
       </div>
@@ -82,8 +76,6 @@ export const FragmentBody = forwardRef<HTMLDivElement, FragmentBodyProps>(
 );
 
 FragmentBody.displayName = "FragmentBody";
-
-/* ================= FOOTER ================= */
 
 type FragmentFooterProps = {
   children: ReactNode;
@@ -96,7 +88,7 @@ export const FragmentFooter = forwardRef<HTMLDivElement, FragmentFooterProps>(
         ref={ref}
         {...props}
         className={cn(
-          "bottom-0 z-10 sticky bg-inherit backdrop-blur",
+          "bottom-0 z-10 sticky bg-base-200",
           className
         )}
       >

@@ -5,43 +5,26 @@ import {
   tagihan,
   tagihan_detail,
   tipeDetailEnum,
-  layanan
 } from "@/db/schema";
 
-import { eq, ilike } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import ClientPage from "./ClientPage";
 import { syncTagihan } from "../../page";
 import { getUser } from "@/libs/auth";
 import { redirect } from "next/navigation";
 
-/* ================= GET DATA ================= */
-
-const getDetail = async (id: string, search?: string) => {
+const getDetail = async (id: string) => {
   const data = await db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
   });
 
   if (!data) return null;
 
-  // 🔥 SERVER SIDE SEARCH (sama kayak ubah)
-  const layananList = await db
-    .select()
-    .from(layanan)
-    .where(
-      search
-        ? ilike(layanan.nama, `%${search}%`)
-        : undefined
-    )
-    .limit(20);
-
   return {
     ...data,
-    layananList,
   };
 };
-
-/* ================= ACTION ================= */
 
 export async function addItem(
   id: string,
@@ -63,8 +46,6 @@ export async function addItem(
   await db.insert(tagihan_detail).values({
     tagihanId: id,
     tipe: form.tipe,
-    barangId: form.barangId ?? null,
-    layananId: form.layananId ?? null,
     nama: form.nama,
     qty: form.qty,
     harga: form.harga,
@@ -76,14 +57,10 @@ export async function addItem(
   return { success: true };
 }
 
-/* ================= PAGE ================= */
-
 export default async function Page({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ search?: string }>;
 }) {
   const userauth = await getUser();
 
@@ -92,9 +69,8 @@ export default async function Page({
   }
 
   const { id } = await params;
-  const { search } = await searchParams;
 
-  const data = await getDetail(id, search);
+  const data = await getDetail(id);
 
   if (!data) {
     return <div>Tagihan tidak ditemukan</div>;

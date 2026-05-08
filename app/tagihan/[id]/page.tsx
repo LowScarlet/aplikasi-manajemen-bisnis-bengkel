@@ -2,48 +2,44 @@
 
 import { db } from "@/db";
 import {
-  pembayaran, statusPekerjaanEnum, statusPembayaranEnum,
+  pembayaran,
+  statusPekerjaanEnum,
+  statusPembayaranEnum,
   tagihan,
-  tagihan_detail
+  tagihan_detail,
 } from "@/db/schema";
-import { asc, desc, eq, sql } from "drizzle-orm";
+
+import { desc, eq, sql } from "drizzle-orm";
 import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
 import { redirect } from "next/navigation";
 
-/* ================= GET DETAIL ================= */
-
 const getDetail = async (id: string) => {
-  // ================= TAGIHAN =================
   const data = await db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
+
+    with: {
+      mekanik: true,
+    },
   });
 
   if (!data) return null;
 
-  // ================= DETAILS =================
   const details = await db
     .select()
     .from(tagihan_detail)
     .where(eq(tagihan_detail.tagihanId, id))
     .orderBy(
-      sql`
-        CASE
-          WHEN ${tagihan_detail.tipe} = 'BARANG' THEN 1
-          WHEN ${tagihan_detail.tipe} = 'CUSTOM' THEN 2
-          WHEN ${tagihan_detail.tipe} = 'LAYANAN' THEN 3
-          ELSE 99
-        END
-      `,
-      asc(tagihan_detail.id)
+      desc(tagihan_detail.dibuatPada)
     );
 
-  // ================= PEMBAYARAN =================
   const pembayaranList = await db
     .select()
     .from(pembayaran)
     .where(eq(pembayaran.tagihanId, id))
-    .orderBy(desc(pembayaran.dibuatPada));
+    .orderBy(
+      desc(pembayaran.dibuatPada)
+    );
 
   return {
     ...data,
@@ -52,60 +48,97 @@ const getDetail = async (id: string) => {
   };
 };
 
-/* ================= SYNC CORE ================= */
-
 export async function syncTagihan(id: string) {
-  /* ================= TOTAL ================= */
 
-  const totalResult = await db
+  const subtotalResult = await db
     .select({
-      total: sql<number>`COALESCE(SUM(${tagihan_detail.subtotal}), 0)`,
+      subtotal: sql<number>`
+        COALESCE(SUM(${tagihan_detail.subtotal}), 0)
+      `,
     })
     .from(tagihan_detail)
-    .where(eq(tagihan_detail.tagihanId, id));
+    .where(
+      eq(tagihan_detail.tagihanId, id)
+    );
 
-  const total = totalResult[0]?.total ?? 0;
+  const subtotal = Number(
+    subtotalResult[0]?.subtotal ?? 0
+  );
 
-  /* ================= DIBAYAR ================= */
+  const currentTagihan =
+    await db.query.tagihan.findFirst({
+      where: eq(tagihan.id, id),
+      columns: {
+        ongkos: true,
+        diskon: true,
+      },
+    });
+
+  const ongkos = Number(
+    currentTagihan?.ongkos ?? 0
+  );
+
+  const diskon = Number(
+    currentTagihan?.diskon ?? 0
+  );
+
+  const total = Math.max(
+    0,
+    subtotal + ongkos - diskon
+  );
 
   const bayarResult = await db
     .select({
-      dibayar: sql<number>`COALESCE(SUM(${pembayaran.jumlah}), 0)`,
+      dibayar: sql<number>`
+        COALESCE(SUM(${pembayaran.jumlah}), 0)
+      `,
     })
     .from(pembayaran)
-    .where(eq(pembayaran.tagihanId, id));
+    .where(
+      eq(pembayaran.tagihanId, id)
+    );
 
-  const dibayar = bayarResult[0]?.dibayar ?? 0;
+  const dibayar =
+    bayarResult[0]?.dibayar ?? 0;
 
-  /* ================= KEMBALIAN ================= */
+  const kembalian =
+    dibayar > total
+      ? dibayar - total
+      : 0;
 
-  const kembalian = dibayar > total ? dibayar - total : 0;
-
-  /* ================= STATUS PEMBAYARAN ================= */
-
-  let statusPembayaran: typeof statusPembayaranEnum.enumValues[number];
+  let statusPembayaran:
+    typeof statusPembayaranEnum.enumValues[number];
 
   if (dibayar <= 0) {
-    statusPembayaran = "BELUM_BAYAR";
-  } else if (dibayar >= total) {
-    statusPembayaran = "LUNAS";
-  } else {
-    statusPembayaran = "SEBAGIAN";
-  }
+    statusPembayaran =
+      "BELUM_BAYAR";
 
-  /* ================= UPDATE ================= */
+  } else if (dibayar >= total) {
+    statusPembayaran =
+      "LUNAS";
+
+  } else {
+    statusPembayaran =
+      "SEBAGIAN";
+  }
 
   await db
     .update(tagihan)
     .set({
+      subtotal,
       total,
       dibayar,
       kembalian,
       statusPembayaran,
     })
-    .where(eq(tagihan.id, id));
+    .where(
+      eq(tagihan.id, id)
+    );
 
   return {
+    subtotal,
+    ongkos,
+    diskon,
     total,
     dibayar,
     kembalian,
@@ -115,21 +148,23 @@ export async function syncTagihan(id: string) {
 
 export async function updateStatusTagihan(
   id: string,
-  status: typeof statusPekerjaanEnum.enumValues[number]
+  status:
+    typeof statusPekerjaanEnum.enumValues[number]
 ) {
   await db
     .update(tagihan)
     .set({ status })
-    .where(eq(tagihan.id, id));
+    .where(
+      eq(tagihan.id, id)
+    );
 }
-
-/* ================= PAGE ================= */
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+
   const { id } = await params;
 
   const userauth = await getUser();
@@ -138,11 +173,19 @@ export default async function Page({
     redirect(`/tagihan/${id}/kuitansi`);
   }
 
+  await syncTagihan(id);
+
   const data = await getDetail(id);
 
   if (!data) {
-    return <div>Tagihan tidak ditemukan</div>;
+    return (
+      <div>
+        Tagihan tidak ditemukan
+      </div>
+    );
   }
 
-  return <ClientPage data={data} />;
+  return (
+    <ClientPage data={data} />
+  );
 }

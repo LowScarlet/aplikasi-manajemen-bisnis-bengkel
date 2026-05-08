@@ -7,21 +7,15 @@ import { z } from "zod";
 import { desc, like } from "drizzle-orm";
 import { getUser } from "@/libs/auth";
 
-/* ================= HELPER ================= */
-
 function formatDate() {
   const now = new Date();
   return now.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
-/* ================= SCHEMA ================= */
-
 const createSchema = z.object({
   namaCustomer: z.string().optional(),
   catatan: z.string().optional(),
 });
-
-/* ================= PAGE ================= */
 
 export default async function Page() {
   const userauth = await getUser();
@@ -55,9 +49,7 @@ export default async function Page() {
 
     const data = result.data;
 
-    /* ================= GENERATE KODE ================= */
-
-    const today = formatDate(); // 20260419
+    const today = formatDate();
 
     const last = await db
       .select({ kode: tagihan.kode })
@@ -75,8 +67,6 @@ export default async function Page() {
     }
 
     const kode = `INV-${today}-${String(nextNumber).padStart(3, "0")}`;
-
-    /* ================= INSERT ================= */
 
     const payload = {
       kode,
@@ -114,7 +104,6 @@ export default async function Page() {
       };
     }
 
-    // 🔥 redirect di luar try
     redirect(`/tagihan/${id}`);
   }
 

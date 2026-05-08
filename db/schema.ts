@@ -11,11 +11,6 @@ import {
 //
 // 🔥 ENUM
 //
-export const jenisTransaksiEnum = pgEnum("jenis_transaksi", [
-  "MASUK",
-  "KELUAR",
-  "KOREKSI",
-]);
 
 export const statusPekerjaanEnum = pgEnum("status_pekerjaan", [
   "PROSES",
@@ -41,27 +36,6 @@ export const statusPembayaranEnum = pgEnum("status_pembayaran", [
 ]);
 
 //
-// 📦 KATEGORI
-//
-export const kategori = pgTable("kategori", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  kode: text("kode").unique(),
-  nama: text("nama").notNull(),
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
-});
-
-//
-// 🏢 SUPPLIER
-//
-export const supplier = pgTable("supplier", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nama: text("nama").notNull(),
-  telepon: text("telepon"),
-  alamat: text("alamat"),
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
-});
-
-//
 // 👤 PENGGUNA
 //
 export const pengguna = pgTable("pengguna", {
@@ -70,71 +44,6 @@ export const pengguna = pgTable("pengguna", {
   username: text("username").unique(),
   password: text("password"),
   peran: peranEnum("peran").notNull(),
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
-});
-
-//
-// 📦 BARANG
-//
-export const barang = pgTable("barang", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nama: text("nama").notNull(),
-  kode: text("kode").unique(),
-
-  kategoriId: uuid("kategori_id")
-    .notNull()
-    .references(() => kategori.id, {
-      onDelete: "restrict",
-    }),
-
-  catatan: text("catatan"),
-  satuan: text("satuan").notNull(),
-
-  hargaBeli: integer("harga_beli").default(0),
-  hargaJual: integer("harga_jual").notNull(),
-
-  stok: integer("stok").default(0),
-  stokMinimum: integer("stok_minimum").default(0),
-
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
-  diperbaruiPada: timestamp("diperbarui_pada").defaultNow(),
-});
-
-//
-// 🔄 TRANSAKSI BARANG
-//
-export const transaksi_barang = pgTable("transaksi_barang", {
-  id: uuid("id").defaultRandom().primaryKey(),
-
-  barangId: uuid("barang_id")
-    .notNull()
-    .references(() => barang.id, {
-      onDelete: "restrict",
-    }),
-
-  supplierId: uuid("supplier_id").references(() => supplier.id, {
-    onDelete: "set null",
-  }),
-
-  tagihanId: uuid("tagihan_id").references(() => tagihan.id, {
-    onDelete: "cascade",
-  }),
-
-  jenis: jenisTransaksiEnum("jenis").notNull(),
-  jumlah: integer("jumlah").notNull(),
-  total: integer("total").notNull(),
-
-  referensi: text("referensi"),
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
-});
-
-//
-// 🧰 LAYANAN
-//
-export const layanan = pgTable("layanan", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  nama: text("nama").notNull(),
-  harga: integer("harga").notNull(),
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
@@ -156,11 +65,14 @@ export const tagihan = pgTable("tagihan", {
     onDelete: "set null",
   }),
 
+  subtotal: integer("subtotal").default(0),
+  ongkos: integer("ongkos").default(0),
+  diskon: integer("diskon").default(0),
   total: integer("total").default(0),
   dibayar: integer("dibayar").default(0),
   kembalian: integer("kembalian").default(0),
 
-  catatan: text("catatan"),
+  catatan: text("catatan").default(''),
 
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
@@ -179,18 +91,12 @@ export const tagihan_detail = pgTable("tagihan_detail", {
 
   tipe: tipeDetailEnum("tipe").notNull(),
 
-  barangId: uuid("barang_id").references(() => barang.id, {
-    onDelete: "set null",
-  }),
-
-  layananId: uuid("layanan_id").references(() => layanan.id, {
-    onDelete: "set null",
-  }),
-
   nama: text("nama").notNull(),
   qty: integer("qty").notNull(),
   harga: integer("harga").notNull(),
   subtotal: integer("subtotal").notNull(),
+
+  dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
 //
@@ -217,41 +123,6 @@ export const pembayaran = pgTable("pembayaran", {
 // ================= RELATIONS =================
 //
 
-export const kategoriRelations = relations(kategori, ({ many }) => ({
-  barang: many(barang),
-}));
-
-export const barangRelations = relations(barang, ({ one, many }) => ({
-  kategori: one(kategori, {
-    fields: [barang.kategoriId],
-    references: [kategori.id],
-  }),
-  transaksi: many(transaksi_barang),
-  tagihanDetail: many(tagihan_detail),
-}));
-
-export const supplierRelations = relations(supplier, ({ many }) => ({
-  transaksi: many(transaksi_barang),
-}));
-
-export const transaksiRelations = relations(
-  transaksi_barang,
-  ({ one }) => ({
-    barang: one(barang, {
-      fields: [transaksi_barang.barangId],
-      references: [barang.id],
-    }),
-    supplier: one(supplier, {
-      fields: [transaksi_barang.supplierId],
-      references: [supplier.id],
-    }),
-    tagihan: one(tagihan, {
-      fields: [transaksi_barang.tagihanId],
-      references: [tagihan.id],
-    }),
-  })
-);
-
 export const penggunaRelations = relations(pengguna, ({ many }) => ({
   tagihan: many(tagihan),
 }));
@@ -262,7 +133,6 @@ export const tagihanRelations = relations(tagihan, ({ one, many }) => ({
     references: [pengguna.id],
   }),
   details: many(tagihan_detail),
-  transaksi: many(transaksi_barang),
   pembayaran: many(pembayaran),
 }));
 
@@ -273,20 +143,8 @@ export const tagihanDetailRelations = relations(
       fields: [tagihan_detail.tagihanId],
       references: [tagihan.id],
     }),
-    barang: one(barang, {
-      fields: [tagihan_detail.barangId],
-      references: [barang.id],
-    }),
-    layanan: one(layanan, {
-      fields: [tagihan_detail.layananId],
-      references: [layanan.id],
-    }),
   })
 );
-
-export const layananRelations = relations(layanan, ({ many }) => ({
-  tagihanDetail: many(tagihan_detail),
-}));
 
 export const pembayaranRelations = relations(pembayaran, ({ one }) => ({
   tagihan: one(tagihan, {

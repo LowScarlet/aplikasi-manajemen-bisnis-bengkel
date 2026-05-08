@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./_providers/ProgressBar";
-import { Hanken_Grotesk } from "next/font/google";
+import {  Cause } from "next/font/google";
 
-const hanken_grotesk = Hanken_Grotesk({ subsets: ['latin'] })
+const cause = Cause({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Berkat Motor',
@@ -35,7 +35,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${hanken_grotesk.className} h-full antialiased`}
+      data-theme="light"
+      className={`${cause.className} h-full antialiased`}
     >
       <body className="flex flex-col min-h-full">
         <Providers>{children}</Providers>

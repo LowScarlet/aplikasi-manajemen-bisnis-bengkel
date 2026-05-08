@@ -4,27 +4,26 @@
 import {
   FragmentLayout,
   FragmentHeader,
-  FragmentBody
+  FragmentBody,
+  FragmentFooter
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
-  DangerButtonAction,
-  GhostButton,
-  PrimaryButton,
-  PrimaryButtonAction,
+  PrimaryButton
 } from "@/app/_components/Buttons";
 
-import { Card } from "@/app/_components/Card";
 
 import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
-import { format, formatDate } from "@/libs/utils";
+import { cn, format, formatDate } from "@/libs/utils";
 import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
-import { MdCancel, MdEdit } from "react-icons/md";
+import { MdEdit } from "react-icons/md";
 import Image from "next/image";
 import { updateStatusTagihan } from "./page";
-import { IoMdCheckmark } from "react-icons/io";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { FaRupiahSign } from "react-icons/fa6";
+import { RiProgress2Fill } from "react-icons/ri";
 
 export default function ClientPage({ data }: { data: any }) {
 
@@ -32,13 +31,10 @@ export default function ClientPage({ data }: { data: any }) {
 
   const [loading, setLoading] = useState(false);
 
-  /* ================= CALC ================= */
-
+  const subtotal = data.subtotal ?? 0;
+  const ongkos = data.ongkos ?? 0;
+  const diskon = data.diskon ?? 0;
   const total = data.total ?? 0;
-  const dibayar = data.dibayar ?? 0;
-  const sisa = total - dibayar;
-
-  /* ================= RENDER ================= */
 
   const handleChangeStatus = async (status: any) => {
     try {
@@ -58,219 +54,179 @@ export default function ClientPage({ data }: { data: any }) {
   return (
     <FragmentLayout>
 
-      {/* HEADER */}
       <FragmentHeader>
         <div className="flex items-center gap-2">
-          <GhostButton href="/tagihan">
+          <Link href="/tagihan" className="btn btn-ghost btn-square">
             <FiArrowLeft />
-          </GhostButton>
+          </Link>
 
           <h1 className="font-bold text-xl">
             Detail Tagihan
           </h1>
         </div>
-
-        <div className="flex gap-2">
-          <PrimaryButton href={`/tagihan/${data.id}/kuitansi`}>
-            <FiPrinter size={14} />
-          </PrimaryButton>
-        </div>
+        <Link href={`/tagihan/${data.id}/kuitansi`} className="btn btn-primary btn-square btn-sm">
+          <FiPrinter size={14} />
+        </Link>
       </FragmentHeader>
 
-      {/* BODY */}
       <FragmentBody className="space-y-4">
 
-        {/* ================= STATUS ALERT ================= */}
         {data.status === "PROSES" && (
-          <Card className="bg-yellow-50 border border-yellow-200">
-            <div className="space-y-3">
-
-              <p className="font-medium text-yellow-800 text-sm">
-                Status Pengerjaan Saat Ini{" "}
-                <span className="font-semibold">Sedang Di Kerjakan</span>
-              </p>
-
-              <div className="flex gap-2">
-                <DangerButtonAction
-                  disabled={loading}
-                  onClick={() => handleChangeStatus('BATAL')}
-                >
-                  <MdCancel size={16} /> Batalkan
-                </DangerButtonAction>
-
-                <PrimaryButtonAction
-                  disabled={loading}
-                  onClick={() => handleChangeStatus('SELESAI')}
-                >
-                  <IoMdCheckmark size={16} /> Sudah Selesai
-                </PrimaryButtonAction>
-              </div>
-
+          <div role="alert" className="alert alert-warning">
+            <RiProgress2Fill size={30} />
+            <div>
+              <h3 className="font-bold">Apakah Pengerjaan Motor Ini Telah Selesai?</h3>
             </div>
-          </Card>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => handleChangeStatus('SELESAI')}
+            >
+              Ya, Sudah Selesai!
+            </button>
+          </div>
         )}
 
-        {/* INFO */}
-        <Card>
-          <div className="flex justify-between gap-2">
-            <div className="grow">
-              <div className="flex justify-between">
-                <p className="font-medium text-sm">{data.kode}</p>
-                <p className="text-neutral-500 text-xs">
-                  {formatDate(data.dibuatPada)}
+        {data.statusPembayaran === "BELUM_BAYAR" && (
+          <div role="alert" className="alert alert-warning">
+            <FaRupiahSign size={30} />
+            <div>
+              <h3 className="font-bold">Apakah Pembayaran Untuk Tagihan Ini Telah Dibayar?</h3>
+            </div>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => handleChangeStatus('SELESAI')}
+            >
+              Ya, Sudah Dibayar!
+            </button>
+          </div>
+        )}
+
+        <div className="bg-base-100 card">
+          <div className="card-body">
+            <div className="flex justify-between gap-2">
+              <div className="grow">
+                <div className="flex justify-between">
+                  <p className="font-medium text-xs">{data.kode}</p>
+                  <p className="text-xs text-end">
+                    {formatDate(data.dibuatPada)}
+                  </p>
+                </div>
+
+                <p className="text-lg">
+                  {data.namaCustomer ?? "-"}
                 </p>
-              </div>
 
-              <p className="text-neutral-500 text-sm">
-                {data.namaCustomer ?? "-"}
-              </p>
+                <p className="mt-2 text-sm">
+                  {data.catatan ?? "Tidak Ada Catatan!"}
+                </p>
 
-              <p className="mt-2 text-neutral-500 text-sm">
-                {data.catatan ?? "Tidak Ada Catatan!"}
-              </p>
-
-              <div className="space-y-1 mt-2 text-xs">
-                <div>
-                  Pengerjaan: <StatusBadge status={data.status} />
-                </div>
-                <div>
-                  Pembayaran: <StatusBadge status={data.statusPembayaran} />
-                </div>
-              </div>
-            </div>
-            <div className="min-w-20 shrink-0">
-              <Image
-                src={`/tagihan/${data.id}/qrcode`}
-                alt="QR Code"
-                className="bg-white p-1 rounded w-20 h-20 object-contain aspect-square"
-                width={100}
-                height={100}
-              />
-            </div>
-          </div>
-
-          <div className="mt-3">
-            <PrimaryButton href={`/tagihan/${data.id}/ubah`}>
-              <MdEdit /> Ubah
-            </PrimaryButton>
-          </div>
-        </Card>
-
-        {/* ITEMS */}
-        <Card className="space-y-3">
-          <p className="font-medium text-sm">Barang & Layanan</p>
-
-          {data.details.length === 0 && (
-            <p className="text-neutral-500 text-sm text-center">
-              Tidak ada item
-            </p>
-          )}
-
-          {data.details.map((item: any) => (
-            <div key={item.id} className="flex justify-between gap-2 text-sm">
-              <div className="flex-1">
-                <div className="flex justify-between gap-2">
-                  <p className="font-medium">{item.nama}</p>
+                <div className="space-y-1 mt-2 text-xs">
                   <div>
-                    <TipeBadge tipe={item.tipe} />
+                    Pengerjaan: <StatusBadge status={data.status} />
+                  </div>
+                  <div>
+                    Pembayaran: <StatusBadge status={data.statusPembayaran} />
+                  </div>
+                </div>
+              </div>
+              <div className="min-w-20 shrink-0">
+                <Image
+                  src={`/tagihan/${data.id}/qrcode`}
+                  alt="QR Code"
+                  className="bg-white p-1 rounded w-24 h-24 object-contain aspect-square"
+                  width={100}
+                  height={100}
+                />
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <Link href={`/tagihan/${data.id}/ubah`} className="w-full btn btn-primary">
+                <MdEdit /> Ubah Informasi
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-base-100 card">
+          <div className="card-body">
+            <p className="font-medium text-sm">Barang & Layanan</p>
+
+            {data.details.length === 0 && (
+              <p className="text-neutral-500 text-sm text-center">
+                Tidak ada item
+              </p>
+            )}
+
+            {data.details.map((item: any, index: number) => (
+              <div
+                key={item.id}
+                className={cn('flex justify-between gap-2 py-3 text-sm', index !== data.details.length - 1 ? "border-b border-base-content border-dashed" : "")}
+              >
+                <div className="flex-1">
+                  <div className="flex justify-between gap-2">
+                    <p className="font-medium">{item.nama}</p>
+
+                    <div>
+                      <TipeBadge tipe={item.tipe} />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between gap-2 mt-0.5 text-xs">
+                    <p className="text-neutral-400">
+                      {item.qty} x Rp {format(item.harga)}
+                    </p>
+
+                    <p className="font-bold text-neutral-400 text-end">
+                      Rp {format(item.qty * item.harga)}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex justify-between gap-2">
-                  <p className="text-neutral-400 text-xs">
-                    {item.qty} x Rp {format(item.harga)}
-                  </p>
-
-                  <p className="text-neutral-400 text-xs">
-                    Rp {format(item.qty * item.harga)}
-                  </p>
+                <div>
+                  <Link href={`/tagihan/${data.id}/ubah/item/${item.id}`} className="btn-outline btn btn-primary btn-square">
+                    <MdEdit size={24} />
+                  </Link>
                 </div>
               </div>
-              <div>
-                <PrimaryButton
-                  href={`/tagihan/${data.id}/ubah/item/${item.id}`}
-                >
-                  <MdEdit />
-                </PrimaryButton>
-              </div>
+            ))}
 
-            </div>
-          ))}
-
-          <PrimaryButton href={`/tagihan/${data.id}/tambah/item`}>
-            <FiPlus /> Tambah Barang/Jasa
-          </PrimaryButton>
-        </Card>
-
-        {/* PEMBAYARAN */}
-        <Card className="space-y-2 text-sm">
-          <p className="font-medium">Pembayaran</p>
-
-          {data.pembayaran.length === 0 && (
-            <p className="text-neutral-500 text-sm text-center">
-              Belum ada pembayaran
-            </p>
-          )}
-
-          {data.pembayaran.map((p: any) => (
-            <div key={p.id} className="flex justify-between items-center gap-2 text-sm">
-              <div>
-                <p>Rp {format(p.jumlah)}</p>
-                {(p.metode?.trim() || p.catatan?.trim()) && (
-                  <p className="text-neutral-500 text-xs">
-                    {(p.metode?.trim() || "Tidak diketahui")} - {(p.catatan?.trim() || "Tidak ada catatan")}
-                  </p>
-                )}
-              </div>
-              <div>
-                <PrimaryButton
-                  href={`/tagihan/${data.id}/ubah/pembayaran/${p.id}`}
-                >
-                  <MdEdit />
-                </PrimaryButton>
-              </div>
-
-            </div>
-          ))}
-
-          <PrimaryButton href={`/tagihan/${data.id}/tambah/pembayaran`}>
-            <FiPlus /> Tambah Pembayaran
-          </PrimaryButton>
-        </Card>
-
-        {/* TOTAL */}
-        <Card className="space-y-2 text-sm">
-          <p className="font-medium">Detail Pembayaran</p>
-
-          <div className="flex justify-between">
-            <span>Total</span>
-            <span>Rp {total.toLocaleString("id-ID")}</span>
           </div>
+        </div>
 
-          <div className="flex justify-between">
-            <span>Dibayar</span>
-            <span className={dibayar < total ? "text-red-500 font-semibold" : ""}>
-              Rp {dibayar.toLocaleString("id-ID")}
-            </span>
+        <div className="bg-base-100 card">
+          <div className="card-body">
+            <p className="font-medium">Detail Pembayaran</p>
+
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>+ Rp {subtotal.toLocaleString("id-ID")}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Ongkos</span>
+              <span>+ Rp {ongkos.toLocaleString("id-ID")}</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Diskon</span>
+              <span>- Rp {diskon.toLocaleString("id-ID")}</span>
+            </div>
+
+            <div className="flex justify-between mb-1 border-base-content border-t">
+              <span>Total Pembayaran</span>
+              <span>= Rp {total.toLocaleString("id-ID")}</span>
+            </div>
           </div>
-
-          {sisa <= 0 ? (
-            <div className="flex justify-between">
-              <span>Kembalian</span>
-              <span>Rp {Math.abs(sisa).toLocaleString("id-ID")}</span>
-            </div>
-          ) : (
-            <div className="flex justify-between">
-              <span>Sisa</span>
-              <span className="font-semibold text-red-500">
-                Rp {sisa.toLocaleString("id-ID")}
-              </span>
-            </div>
-          )}
-        </Card>
-
+        </div>
       </FragmentBody>
-
+      <FragmentFooter>
+        <div className="p-4">
+          <Link href={`/tagihan/${data.id}/tambah/item`} className="w-full btn btn-primary">
+            <FiPlus /> Tambah Barang / Layanan
+          </Link>
+        </div>
+      </FragmentFooter>
     </FragmentLayout>
   );
 }

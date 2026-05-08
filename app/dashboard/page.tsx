@@ -15,9 +15,6 @@ export default async function Page() {
     redirect("/auth/login");
   }
 
-  /* ================= STATS ================= */
-
-  // total pendapatan (yang lunas)
   const pendapatanResult = await db
     .select({
       total: sql<number>`COALESCE(SUM(${tagihan.total}), 0)`,
@@ -27,7 +24,6 @@ export default async function Page() {
 
   const pendapatan = pendapatanResult[0]?.total ?? 0;
 
-  // jumlah tagihan belum bayar
   const belumBayarResult = await db
     .select({
       count: sql<number>`COUNT(*)`,
