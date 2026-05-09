@@ -18,7 +18,7 @@ import { MdOutlineContentCut } from "react-icons/md";
 import { useMemo, useState } from "react";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
-  const [enableCut, setEnableCut] = useState(true);
+  const [enableCut, setEnableCut] = useState(!!userAuth);
 
   const [cutMode, setCutMode] = useState<
     "equal" | "per12"
@@ -297,57 +297,59 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         </div>
 
       </FragmentBody>
-      <FragmentFooter>
-        <div className="space-y-3 mb-4">
+      {userAuth && (
+        <FragmentFooter>
+          <div className="space-y-3 mb-4">
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm"
-              checked={enableCut}
-              onChange={(e) => setEnableCut(e.target.checked)}
-            />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={enableCut}
+                onChange={(e) => setEnableCut(e.target.checked)}
+              />
 
-            <span className="text-sm">
-              Buat tanda potong
-            </span>
-          </label>
+              <span className="text-sm">
+                Buat tanda potong
+              </span>
+            </label>
 
-          {enableCut && (
+            {enableCut && (
 
-            <div className="space-y-2 pl-6">
+              <div className="space-y-2 pl-6">
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  className="radio radio-sm"
-                  checked={cutMode === "equal"}
-                  onChange={() => setCutMode("equal")}
-                />
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="radio radio-sm"
+                    checked={cutMode === "equal"}
+                    onChange={() => setCutMode("equal")}
+                  />
 
-                <span className="text-sm">
-                  Potong ratakan otomatis
-                </span>
-              </label>
+                  <span className="text-sm">
+                    Potong ratakan otomatis
+                  </span>
+                </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  className="radio radio-sm"
-                  checked={cutMode === "per12"}
-                  onChange={() => setCutMode("per12")}
-                />
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="radio radio-sm"
+                    checked={cutMode === "per12"}
+                    onChange={() => setCutMode("per12")}
+                  />
 
-                <span className="text-sm">
-                  Potong per 12 item
-                </span>
-              </label>
+                  <span className="text-sm">
+                    Potong per 12 item
+                  </span>
+                </label>
 
-            </div>
-          )}
+              </div>
+            )}
 
-        </div>
-      </FragmentFooter>
+          </div>
+        </FragmentFooter>
+      )}
 
     </FragmentLayout>
   );
