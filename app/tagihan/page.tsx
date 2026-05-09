@@ -5,8 +5,6 @@ import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
 import { redirect } from "next/navigation";
 
-/* ================= QUERY ================= */
-
 const getTagihan = async (q: string, page: number) => {
   const limit = 10;
   const offset = (page - 1) * limit;
@@ -47,11 +45,7 @@ const getTagihan = async (q: string, page: number) => {
     .offset(offset);
 };
 
-/* ================= TYPE ================= */
-
 export type Tagihan = Awaited<ReturnType<typeof getTagihan>>[number];
-
-/* ================= PAGE ================= */
 
 type Props = {
   searchParams: Promise<{

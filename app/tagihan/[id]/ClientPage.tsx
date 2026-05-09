@@ -213,12 +213,12 @@ export default function ClientPage({
 
                 </div>
 
-                <p className="mt-1 font-bold text-lg break-words">
+                <p className="mt-1 font-bold text-lg wrap-break-word">
                   {data.namaCustomer ??
                     "-"}
                 </p>
 
-                <p className="mt-2 text-sm break-words">
+                <p className="mt-2 text-sm wrap-break-word">
                   {data.catatan ||
                     "Tidak Ada Catatan!"}
                 </p>
@@ -261,19 +261,17 @@ export default function ClientPage({
 
             </div>
 
-            {!isSelesai && (
-              <div className="mt-4">
+            <div className="mt-4">
 
-                <Link
-                  href={`/tagihan/${data.id}/ubah`}
-                  className="w-full btn btn-primary"
-                >
-                  <MdEdit />
-                  Ubah Informasi
-                </Link>
+              <Link
+                href={`/tagihan/${data.id}/ubah`}
+                className="w-full btn btn-primary"
+              >
+                <MdEdit />
+                Ubah Informasi
+              </Link>
 
-              </div>
-            )}
+            </div>
 
           </div>
 
@@ -315,7 +313,7 @@ export default function ClientPage({
 
                     <div className="flex justify-between gap-2">
 
-                      <p className="font-medium break-words">
+                      <p className="font-medium wrap-break-word">
                         {item.nama}
                       </p>
 

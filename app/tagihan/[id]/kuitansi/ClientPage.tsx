@@ -195,7 +195,8 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
             <div className="space-y-1 text-xs">
               <Row label="Subtotal" value={subtotal} />
               <Row label="Ongkos" value={ongkos} />
-              <Row label="Diskon" value={diskon} />
+              {diskon > 0 && <Row label="Diskon" value={diskon} />}
+              
 
               <Divider />
               <Row label="Total" value={total} />

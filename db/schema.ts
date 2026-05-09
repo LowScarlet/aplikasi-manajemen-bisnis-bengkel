@@ -8,10 +8,6 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-//
-// 🔥 ENUM
-//
-
 export const statusPekerjaanEnum = pgEnum("status_pekerjaan", [
   "PROSES",
   "SELESAI",
@@ -35,9 +31,6 @@ export const statusPembayaranEnum = pgEnum("status_pembayaran", [
   "LUNAS",
 ]);
 
-//
-// 👤 PENGGUNA
-//
 export const pengguna = pgTable("pengguna", {
   id: uuid("id").defaultRandom().primaryKey(),
   nama: text("nama").notNull(),
@@ -47,9 +40,6 @@ export const pengguna = pgTable("pengguna", {
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
-//
-// 🧾 TAGIHAN
-//
 export const tagihan = pgTable("tagihan", {
   id: uuid("id").defaultRandom().primaryKey(),
   kode: text("kode").notNull(),
@@ -77,9 +67,6 @@ export const tagihan = pgTable("tagihan", {
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
-//
-// 📄 DETAIL TAGIHAN
-//
 export const tagihan_detail = pgTable("tagihan_detail", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -99,9 +86,6 @@ export const tagihan_detail = pgTable("tagihan_detail", {
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
-//
-// 💰 PEMBAYARAN
-//
 export const pembayaran = pgTable("pembayaran", {
   id: uuid("id").defaultRandom().primaryKey(),
 
@@ -118,10 +102,6 @@ export const pembayaran = pgTable("pembayaran", {
 
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
-
-//
-// ================= RELATIONS =================
-//
 
 export const penggunaRelations = relations(pengguna, ({ many }) => ({
   tagihan: many(tagihan),
