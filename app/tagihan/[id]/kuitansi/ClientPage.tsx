@@ -298,7 +298,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
       </FragmentBody>
       {userAuth && (
-        <FragmentFooter>
+        <FragmentFooter className="p-4">
           <div className="space-y-3 mb-4">
 
             <label className="flex items-center gap-2 cursor-pointer">
