@@ -28,9 +28,9 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
   const ongkos = data.ongkos ?? 0;
   const diskon = data.diskon ?? 0;
   const total = data.total ?? 0;
-  const details = data.details ?? [];
 
   const groupedDetails = useMemo(() => {
+    const details = data.details ?? [];
 
     // tanpa potong
     if (!enableCut) {
@@ -57,7 +57,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       details.slice(half),
     ];
 
-  }, [details, enableCut, cutMode]);
+  }, [enableCut, cutMode, data.details]);
 
 
   const handleShare = async () => {
