@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./_providers/ProgressBar";
-import {  Cause } from "next/font/google";
+import { Cause } from "next/font/google";
 
 const cause = Cause({
   subsets: ['latin'],
@@ -34,16 +34,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: "light",
-  themeColor: [
-    {
-      media: "(prefers-color-scheme: light)",
-      color: "#ffffff",
-    },
-    {
-      media: "(prefers-color-scheme: dark)",
-      color: "#1d232a",
-    },
-  ],
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -54,6 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
+      data-theme="light"
       className={`${cause.className} h-full antialiased`}
     >
       <body className="flex flex-col min-h-full">
