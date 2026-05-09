@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -20,7 +20,6 @@ import { addItems } from "./page";
 
 import { cn, format } from "@/libs/utils";
 
-import Link from "next/link";
 import { TipeBadge } from "@/app/_components/Badge";
 
 export default function ClientPage({
@@ -28,7 +27,6 @@ export default function ClientPage({
 }: {
   data: any;
 }) {
-
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -53,6 +51,50 @@ export default function ClientPage({
       acc + (item.qty * item.harga),
     0
   );
+
+  const hasUnsavedChanges =
+    items.length > 0;
+
+  useEffect(() => {
+
+    const handleBeforeUnload = (
+      event: BeforeUnloadEvent
+    ) => {
+
+      if (!hasUnsavedChanges) return;
+
+      event.preventDefault();
+
+      event.returnValue = "";
+    };
+
+    window.addEventListener(
+      "beforeunload",
+      handleBeforeUnload
+    );
+
+    return () => {
+      window.removeEventListener(
+        "beforeunload",
+        handleBeforeUnload
+      );
+    };
+
+  }, [hasUnsavedChanges]);
+
+  const handleBack = () => {
+
+    if (
+      hasUnsavedChanges &&
+      !confirm(
+        "Perubahan belum disimpan. Keluar?"
+      )
+    ) {
+      return;
+    }
+
+    router.push(`/tagihan/${data.id}`);
+  };
 
   const handleAddToList = () => {
 
@@ -122,12 +164,12 @@ export default function ClientPage({
       <FragmentHeader>
         <div className="flex items-center gap-2">
 
-          <Link
-            href={`/tagihan/${data.id}`}
+          <button
+            onClick={handleBack}
             className="btn btn-ghost btn-square"
           >
             <FiArrowLeft />
-          </Link>
+          </button>
 
           <h1 className="font-bold text-xl">
             Tambah Barang / Layanan
@@ -337,6 +379,8 @@ export default function ClientPage({
             >
               Tambah ke Daftar
             </button>
+
+            <div className="py-4 divider" />
 
             <button
               onClick={handleSubmit}

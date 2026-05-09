@@ -1,25 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./_providers/ProgressBar";
 import {  Cause } from "next/font/google";
 
-const cause = Cause({ subsets: ['latin'] })
+const cause = Cause({
+  subsets: ['latin'],
+  fallback: ["sans-serif"],
+})
 
 export const metadata: Metadata = {
   title: 'Berkat Motor',
   description: 'Aplikasi Manajemen Bengkel Berkat Motor.',
   metadataBase: new URL('https://app.berkatmotor.lowscarlet.my.id'),
-
-  themeColor: [
-    {
-      media: '(prefers-color-scheme: light)',
-      color: '#ffffff',
-    },
-    {
-      media: '(prefers-color-scheme: dark)',
-      color: '#1d232a',
-    },
-  ],
 
   openGraph: {
     type: "website",
@@ -40,6 +32,19 @@ export const metadata: Metadata = {
   creator: "Tegar Maulana Fahreza",
   publisher: "Vercel"
 }
+
+export const viewport: Viewport = {
+  themeColor: [
+    {
+      media: "(prefers-color-scheme: light)",
+      color: "#ffffff",
+    },
+    {
+      media: "(prefers-color-scheme: dark)",
+      color: "#1d232a",
+    },
+  ],
+};
 
 export default function RootLayout({
   children,
