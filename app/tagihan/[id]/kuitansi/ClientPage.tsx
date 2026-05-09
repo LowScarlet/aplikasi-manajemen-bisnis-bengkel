@@ -7,6 +7,7 @@ import {
   FragmentLayout,
   FragmentHeader,
   FragmentBody,
+  FragmentFooter,
 } from "@/app/_components/Layouts/FragmentLayout";
 import { format, formatDate } from "@/libs/utils";
 import { toPng } from "html-to-image";
@@ -14,20 +15,49 @@ import { IoMdShare } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
 import { MdOutlineContentCut } from "react-icons/md";
+import { useMemo, useState } from "react";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
+  const [enableCut, setEnableCut] = useState(true);
+
+  const [cutMode, setCutMode] = useState<
+    "equal" | "per12"
+  >("equal");
+
   const subtotal = data.subtotal ?? 0;
   const ongkos = data.ongkos ?? 0;
   const diskon = data.diskon ?? 0;
   const total = data.total ?? 0;
   const details = data.details ?? [];
 
-  const chunkSize = 12;
+  const groupedDetails = useMemo(() => {
 
-  const groupedDetails = [];
-  for (let i = 0; i < details.length; i += chunkSize) {
-    groupedDetails.push(details.slice(i, i + chunkSize));
-  }
+    // tanpa potong
+    if (!enableCut) {
+      return [details];
+    }
+
+    // potong per 12 item
+    if (cutMode === "per12") {
+
+      const result = [];
+
+      for (let i = 0; i < details.length; i += 12) {
+        result.push(details.slice(i, i + 12));
+      }
+
+      return result;
+    }
+
+    // ratakan otomatis
+    const half = Math.ceil(details.length / 2);
+
+    return [
+      details.slice(0, half),
+      details.slice(half),
+    ];
+
+  }, [details, enableCut, cutMode]);
 
 
   const handleShare = async () => {
@@ -203,20 +233,20 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
                 {/* Divider khusus potong */}
                 {groupIndex !== groupedDetails.length - 1 && (
-                  <div className="py-4">
+                  <div className="py-8">
 
                     <div className="mb-2 font-bold text-[10px] text-center">
                       Selanjutnya →
                     </div>
 
                     <div className="flex items-center gap-4 w-full text-center">
-                      <div className="border-black border-t-2 border-dashed grow" />
+                      <div className="border-black border-t border-dashed grow" />
 
-                      <p className="text-[12px]">
-                        <MdOutlineContentCut />
+                      <p>
+                        <MdOutlineContentCut size={8} />
                       </p>
 
-                      <div className="border-black border-t-2 border-dashed grow" />
+                      <div className="border-black border-t border-dashed grow" />
                     </div>
 
                   </div>
@@ -268,6 +298,57 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
         </div>
 
       </FragmentBody>
+      <FragmentFooter>
+        <div className="space-y-3 mb-4">
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={enableCut}
+              onChange={(e) => setEnableCut(e.target.checked)}
+            />
+
+            <span className="text-sm">
+              Buat tanda potong
+            </span>
+          </label>
+
+          {enableCut && (
+
+            <div className="space-y-2 pl-6">
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  className="radio radio-sm"
+                  checked={cutMode === "equal"}
+                  onChange={() => setCutMode("equal")}
+                />
+
+                <span className="text-sm">
+                  Potong ratakan otomatis
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  className="radio radio-sm"
+                  checked={cutMode === "per12"}
+                  onChange={() => setCutMode("per12")}
+                />
+
+                <span className="text-sm">
+                  Potong per 12 item
+                </span>
+              </label>
+
+            </div>
+          )}
+
+        </div>
+      </FragmentFooter>
 
     </FragmentLayout>
   );
