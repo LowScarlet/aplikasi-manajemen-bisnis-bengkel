@@ -13,6 +13,7 @@ import { toPng } from "html-to-image";
 import { IoMdShare } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
+import { MdOutlineContentCut } from "react-icons/md";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
   const subtotal = data.subtotal ?? 0;
@@ -20,6 +21,13 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
   const diskon = data.diskon ?? 0;
   const total = data.total ?? 0;
   const details = data.details ?? [];
+
+  const chunkSize = 12;
+
+  const groupedDetails = [];
+  for (let i = 0; i < details.length; i += chunkSize) {
+    groupedDetails.push(details.slice(i, i + chunkSize));
+  }
 
 
   const handleShare = async () => {
@@ -172,23 +180,49 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
             <Divider />
 
-            <Section title="Barang / Jasa">
-              {details.length === 0 ? (
-                <Empty text="Tidak ada barang / jasa" />
-              ) : (
-                details.map((item: any) => (
-                  <div key={item.id}>
-                    <p>{item.nama}</p>
-                    <div className="flex justify-between">
-                      <span>
-                        {item.qty} x {format(item.harga)}
-                      </span>
-                      <span>{format(item.subtotal)}</span>
+            {groupedDetails.map((group: any[], groupIndex: number) => (
+              <div key={groupIndex}>
+
+                <Section title="Barang / Jasa">
+                  {group.map((item: any) => (
+                    <div key={item.id}>
+                      <p>{item.nama}</p>
+
+                      <div className="flex justify-between">
+                        <span>
+                          {item.qty} x {format(item.harga)}
+                        </span>
+
+                        <span>
+                          {format(item.subtotal)}
+                        </span>
+                      </div>
                     </div>
+                  ))}
+                </Section>
+
+                {/* Divider khusus potong */}
+                {groupIndex !== groupedDetails.length - 1 && (
+                  <div className="py-4">
+
+                    <div className="mb-2 font-bold text-[10px] text-center">
+                      Selanjutnya →
+                    </div>
+
+                    <div className="flex items-center gap-4 w-full text-center">
+                      <div className="border-black border-t-2 border-dashed grow" />
+
+                      <p className="text-[12px]">
+                        <MdOutlineContentCut />
+                      </p>
+
+                      <div className="border-black border-t-2 border-dashed grow" />
+                    </div>
+
                   </div>
-                ))
-              )}
-            </Section>
+                )}
+              </div>
+            ))}
 
             <Divider />
 
@@ -196,7 +230,7 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <Row label="Subtotal" value={subtotal} />
               <Row label="Ongkos" value={ongkos} />
               {diskon > 0 && <Row label="Diskon" value={diskon} />}
-              
+
 
               <Divider />
               <Row label="Total" value={total} />
@@ -253,14 +287,6 @@ function Section({
       <p className="font-medium">{title}</p>
       {children}
     </div>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return (
-    <p className="text-neutral-400 text-center">
-      {text}
-    </p>
   );
 }
 
