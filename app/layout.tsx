@@ -53,8 +53,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
-      data-theme="light"
+      lang="id"
       className={`${cause.className} h-full antialiased`}
     >
       <body className="flex flex-col min-h-full">
