@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     card: 'summary',
   },
 
-  colorScheme: "dark",
   creator: "Tegar Maulana Fahreza",
   publisher: "Vercel"
 }
 
 export const viewport: Viewport = {
+  colorScheme: "light",
   themeColor: [
     {
       media: "(prefers-color-scheme: light)",
