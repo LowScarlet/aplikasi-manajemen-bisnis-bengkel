@@ -11,6 +11,7 @@ import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
 import { redirect } from "next/navigation";
 import { getDetail } from "../page";
+import { syncTagihan } from "../../page";
 
 export async function updateTagihan(
   id: string,
@@ -26,6 +27,8 @@ export async function updateTagihan(
       diskon: form.diskon
     })
     .where(eq(tagihan.id, id));
+
+  await syncTagihan(id);
 
   return { success: true };
 }

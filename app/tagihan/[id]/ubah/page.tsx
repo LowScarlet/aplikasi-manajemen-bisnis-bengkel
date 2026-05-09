@@ -28,12 +28,7 @@ export async function updateTagihan(
 ) {
   await db
     .update(tagihan)
-    .set({
-      namaCustomer: form.namaCustomer,
-      catatan: form.catatan,
-      status: form.status,
-      statusPembayaran: form.statusPembayaran,
-    })
+    .set(form)
     .where(eq(tagihan.id, id));
 
   return { success: true };

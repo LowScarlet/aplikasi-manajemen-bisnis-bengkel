@@ -159,6 +159,19 @@ export async function updateStatusTagihan(
     );
 }
 
+export async function updateStatusPembayaranTagihan(
+  id: string,
+  statusPembayaran:
+    typeof statusPembayaranEnum.enumValues[number]
+) {
+  await db
+    .update(tagihan)
+    .set({ statusPembayaran })
+    .where(
+      eq(tagihan.id, id)
+    );
+}
+
 export default async function Page({
   params,
 }: {
@@ -172,8 +185,6 @@ export default async function Page({
   if (!userauth) {
     redirect(`/tagihan/${id}/kuitansi`);
   }
-
-  await syncTagihan(id);
 
   const data = await getDetail(id);
 

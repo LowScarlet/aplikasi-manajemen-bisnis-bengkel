@@ -30,6 +30,7 @@ import { MdEdit } from "react-icons/md";
 import Image from "next/image";
 
 import {
+  updateStatusPembayaranTagihan,
   updateStatusTagihan
 } from "./page";
 
@@ -66,8 +67,7 @@ export default function ClientPage({
   const total =
     data.total ?? 0;
 
-  const isSelesai =
-    data.status === "SELESAI";
+  const isSelesai = data.status === "SELESAI" && data.statusPembayaran === "LUNAS";
 
   const handleChangeStatus = async (
     status: any
@@ -98,11 +98,38 @@ export default function ClientPage({
     }
   };
 
+  const handleChangeStatusPembayaran = async (
+    statusPembayaran: any
+  ) => {
+    try {
+
+      setLoading(true);
+
+      await updateStatusPembayaranTagihan(
+        data.id,
+        statusPembayaran
+      );
+
+      router.refresh();
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        "Gagal menyimpan perubahan"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
   return (
     <FragmentLayout>
-
       <FragmentHeader>
-
         <div className="flex items-center gap-2">
 
           <Link
@@ -180,8 +207,8 @@ export default function ClientPage({
                 disabled={loading}
                 className="btn btn-primary btn-sm"
                 onClick={() =>
-                  handleChangeStatus(
-                    "SELESAI"
+                  handleChangeStatusPembayaran(
+                    "LUNAS"
                   )
                 }
               >

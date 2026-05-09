@@ -31,8 +31,7 @@ export default function ClientPage({
     namaCustomer: data.namaCustomer ?? "",
     catatan: data.catatan ?? "",
     status: data.status ?? "PROSES",
-    statusPembayaran:
-      data.statusPembayaran ?? "BELUM_BAYAR",
+    statusPembayaran: data.statusPembayaran ?? "BELUM_BAYAR",
   });
 
   const [loading, setLoading] = useState(false);
@@ -109,8 +108,6 @@ export default function ClientPage({
       <FragmentBody className="space-y-4">
 
         <div>
-
-          {/* NAMA CUSTOMER */}
           <fieldset className="fieldset">
 
             <legend className="fieldset-legend">
@@ -133,7 +130,6 @@ export default function ClientPage({
 
           </fieldset>
 
-          {/* CATATAN */}
           <fieldset className="fieldset">
 
             <legend className="fieldset-legend">
@@ -154,7 +150,6 @@ export default function ClientPage({
 
           </fieldset>
 
-          {/* STATUS */}
           <fieldset className="fieldset">
 
             <legend className="fieldset-legend">
@@ -187,7 +182,6 @@ export default function ClientPage({
 
           </fieldset>
 
-          {/* STATUS PEMBAYARAN */}
           <fieldset className="fieldset">
 
             <legend className="fieldset-legend">
@@ -223,7 +217,6 @@ export default function ClientPage({
 
         </div>
 
-        {/* ACTION */}
         <div className="space-y-2 pt-2">
 
           <button
@@ -236,8 +229,7 @@ export default function ClientPage({
               : "Simpan"}
           </button>
 
-
-          <div className="py-4 divider"/>
+          <div className="py-4 divider" />
 
           <button
             onClick={handleDelete}
