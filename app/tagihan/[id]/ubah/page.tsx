@@ -11,7 +11,7 @@ import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
 import { redirect } from "next/navigation";
 
-const getDetail = async (id: string) => {
+export const getDetail = async (id: string) => {
   return db.query.tagihan.findFirst({
     where: eq(tagihan.id, id),
   });
@@ -40,8 +40,6 @@ export async function updateTagihan(
 }
 
 export async function deleteTagihan(id: string) {
-  // optional: validasi dulu kalau mau
-
   await db.delete(tagihan).where(eq(tagihan.id, id));
 
   return { success: true };

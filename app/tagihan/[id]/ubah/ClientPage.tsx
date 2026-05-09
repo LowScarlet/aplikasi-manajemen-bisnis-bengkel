@@ -10,17 +10,20 @@ import {
   FragmentBody
 } from "@/app/_components/Layouts/FragmentLayout";
 
-import {
-  DangerButtonAction,
-  GhostButton,
-  PrimaryButtonAction
-} from "@/app/_components/Buttons";
+import Link from "next/link";
 
 import { FiArrowLeft } from "react-icons/fi";
 
-import { deleteTagihan, updateTagihan } from "./page";
+import {
+  deleteTagihan,
+  updateTagihan
+} from "./page";
 
-export default function ClientPage({ data }: { data: any }) {
+export default function ClientPage({
+  data
+}: {
+  data: any
+}) {
 
   const router = useRouter();
 
@@ -28,13 +31,12 @@ export default function ClientPage({ data }: { data: any }) {
     namaCustomer: data.namaCustomer ?? "",
     catatan: data.catatan ?? "",
     status: data.status ?? "PROSES",
-    statusPembayaran: data.statusPembayaran ?? "BELUM_BAYAR",
+    statusPembayaran:
+      data.statusPembayaran ?? "BELUM_BAYAR",
   });
 
   const [loading, setLoading] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
-
-  /* ================= HANDLER ================= */
 
   const handleSubmit = async () => {
     try {
@@ -43,9 +45,12 @@ export default function ClientPage({ data }: { data: any }) {
       await updateTagihan(data.id, form);
 
       router.push(`/tagihan/${data.id}`);
+
     } catch (err) {
       console.error(err);
+
       alert("Gagal menyimpan perubahan");
+
     } finally {
       setLoading(false);
     }
@@ -53,7 +58,11 @@ export default function ClientPage({ data }: { data: any }) {
 
   const handleDelete = async () => {
     try {
-      const confirmDelete = confirm("Hapus tagihan ini?");
+
+      const confirmDelete = confirm(
+        "Hapus tagihan ini?"
+      );
+
       if (!confirmDelete) return;
 
       setLoadingDelete(true);
@@ -61,11 +70,17 @@ export default function ClientPage({ data }: { data: any }) {
       await deleteTagihan(data.id);
 
       router.push("/tagihan");
+
     } catch (err) {
+
       console.error(err);
+
       alert("Gagal menghapus tagihan");
+
     } finally {
+
       setLoadingDelete(false);
+
     }
   };
 
@@ -73,90 +88,168 @@ export default function ClientPage({ data }: { data: any }) {
     <FragmentLayout>
 
       <FragmentHeader>
+
         <div className="flex items-center gap-2">
-          <GhostButton href={`/tagihan/${data.id}`}>
+
+          <Link
+            href={`/tagihan/${data.id}`}
+            className="btn btn-ghost btn-square"
+          >
             <FiArrowLeft />
-          </GhostButton>
+          </Link>
 
           <h1 className="font-bold text-xl">
             Ubah Informasi Tagihan
           </h1>
+
         </div>
+
       </FragmentHeader>
 
       <FragmentBody className="space-y-4">
 
-        <div className="space-y-3">
+        <div>
 
-          {/* CUSTOMER */}
-          <div>
-            <p className="mb-1 text-xs">Nama Customer</p>
+          {/* NAMA CUSTOMER */}
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Nama Customer
+            </legend>
+
             <input
+              type="text"
               value={form.namaCustomer}
+              placeholder="Masukkan nama customer"
+              className="w-full input input-bordered"
               onChange={(e) =>
-                setForm({ ...form, namaCustomer: e.target.value })
+                setForm({
+                  ...form,
+                  namaCustomer:
+                    e.target.value.toUpperCase()
+                })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
             />
-          </div>
+
+          </fieldset>
 
           {/* CATATAN */}
-          <div>
-            <p className="mb-1 text-xs">Catatan</p>
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Catatan
+            </legend>
+
             <textarea
               value={form.catatan}
+              placeholder="Tambahkan catatan"
+              className="w-full h-24 textarea textarea-bordered"
               onChange={(e) =>
-                setForm({ ...form, catatan: e.target.value })
+                setForm({
+                  ...form,
+                  catatan: e.target.value
+                })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
             />
-          </div>
+
+          </fieldset>
 
           {/* STATUS */}
-          <div>
-            <p className="mb-1 text-xs">Status Pengerjaan</p>
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Status Pengerjaan
+            </legend>
+
             <select
               value={form.status}
+              className="w-full select-bordered select"
               onChange={(e) =>
-                setForm({ ...form, status: e.target.value })
+                setForm({
+                  ...form,
+                  status: e.target.value
+                })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
             >
-              <option value="PROSES">Proses</option>
-              <option value="SELESAI">Selesai</option>
-              <option value="BATAL">Batal</option>
+              <option value="PROSES">
+                Proses
+              </option>
+
+              <option value="SELESAI">
+                Selesai
+              </option>
+
+              <option value="BATAL">
+                Batal
+              </option>
+
             </select>
-          </div>
+
+          </fieldset>
 
           {/* STATUS PEMBAYARAN */}
-          <div>
-            <p className="mb-1 text-xs">Status Pembayaran</p>
+          <fieldset className="fieldset">
+
+            <legend className="fieldset-legend">
+              Status Pembayaran
+            </legend>
+
             <select
               value={form.statusPembayaran}
+              className="w-full select-bordered select"
               onChange={(e) =>
-                setForm({ ...form, statusPembayaran: e.target.value })
+                setForm({
+                  ...form,
+                  statusPembayaran:
+                    e.target.value
+                })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
             >
-              <option value="BELUM_BAYAR">Belum Bayar</option>
-              <option value="SEBAGIAN">Sebagian</option>
-              <option value="LUNAS">Lunas</option>
+              <option value="BELUM_BAYAR">
+                Belum Bayar
+              </option>
+
+              <option value="SEBAGIAN">
+                Sebagian
+              </option>
+
+              <option value="LUNAS">
+                Lunas
+              </option>
+
             </select>
-          </div>
+
+          </fieldset>
 
         </div>
 
         {/* ACTION */}
-        <PrimaryButtonAction onClick={handleSubmit} disabled={loading}>
-          {loading ? "Menyimpan..." : "Simpan"}
-        </PrimaryButtonAction>
+        <div className="space-y-2 pt-2">
 
-        <DangerButtonAction
-          onClick={handleDelete}
-          disabled={loadingDelete}
-        >
-          {loadingDelete ? "Menghapus..." : "Hapus Tagihan"}
-        </DangerButtonAction>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full btn btn-primary"
+          >
+            {loading
+              ? "Menyimpan..."
+              : "Simpan"}
+          </button>
+
+
+          <div className="py-4 divider"/>
+
+          <button
+            onClick={handleDelete}
+            disabled={loadingDelete}
+            className="btn-outline w-full btn btn-error"
+          >
+            {loadingDelete
+              ? "Menghapus..."
+              : "Hapus Tagihan"}
+          </button>
+
+        </div>
 
       </FragmentBody>
 

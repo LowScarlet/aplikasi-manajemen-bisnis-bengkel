@@ -9,45 +9,92 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 
 import {
-  PrimaryButton
-} from "@/app/_components/Buttons";
+  FiArrowLeft,
+  FiPlus,
+  FiPrinter
+} from "react-icons/fi";
 
+import {
+  cn,
+  format,
+  formatDate
+} from "@/libs/utils";
 
-import { FiArrowLeft, FiPlus, FiPrinter } from "react-icons/fi";
-import { cn, format, formatDate } from "@/libs/utils";
-import { StatusBadge, TipeBadge } from "@/app/_components/Badge";
+import {
+  StatusBadge,
+  TipeBadge
+} from "@/app/_components/Badge";
+
 import { MdEdit } from "react-icons/md";
+
 import Image from "next/image";
-import { updateStatusTagihan } from "./page";
+
+import {
+  updateStatusTagihan
+} from "./page";
+
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import Link from "next/link";
+
 import { FaRupiahSign } from "react-icons/fa6";
+
 import { RiProgress2Fill } from "react-icons/ri";
 
-export default function ClientPage({ data }: { data: any }) {
+export default function ClientPage({
+  data
+}: {
+  data: any
+}) {
 
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const subtotal = data.subtotal ?? 0;
-  const ongkos = data.ongkos ?? 0;
-  const diskon = data.diskon ?? 0;
-  const total = data.total ?? 0;
+  const subtotal =
+    data.subtotal ?? 0;
 
-  const handleChangeStatus = async (status: any) => {
+  const ongkos =
+    data.ongkos ?? 0;
+
+  const diskon =
+    data.diskon ?? 0;
+
+  const total =
+    data.total ?? 0;
+
+  const isSelesai =
+    data.status === "SELESAI";
+
+  const handleChangeStatus = async (
+    status: any
+  ) => {
     try {
+
       setLoading(true);
 
-      await updateStatusTagihan(data.id, status)
+      await updateStatusTagihan(
+        data.id,
+        status
+      );
 
-      router.refresh()
+      router.refresh();
+
     } catch (err) {
+
       console.error(err);
-      alert("Gagal menyimpan perubahan");
+
+      alert(
+        "Gagal menyimpan perubahan"
+      );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -55,81 +102,153 @@ export default function ClientPage({ data }: { data: any }) {
     <FragmentLayout>
 
       <FragmentHeader>
+
         <div className="flex items-center gap-2">
-          <Link href="/tagihan" className="btn btn-ghost btn-square">
+
+          <Link
+            href="/tagihan"
+            className="btn btn-ghost btn-square"
+          >
             <FiArrowLeft />
           </Link>
 
           <h1 className="font-bold text-xl">
             Detail Tagihan
           </h1>
+
         </div>
-        <Link href={`/tagihan/${data.id}/kuitansi`} className="btn btn-primary btn-square btn-sm">
+
+        <Link
+          href={`/tagihan/${data.id}/kuitansi`}
+          className="btn btn-primary btn-square btn-sm"
+        >
           <FiPrinter size={14} />
         </Link>
+
       </FragmentHeader>
 
       <FragmentBody className="space-y-4">
 
         {data.status === "PROSES" && (
-          <div role="alert" className="alert alert-warning">
+          <div
+            role="alert"
+            className="alert alert-warning"
+          >
+
             <RiProgress2Fill size={30} />
+
             <div>
-              <h3 className="font-bold">Apakah Pengerjaan Motor Ini Telah Selesai?</h3>
+              <h3 className="font-bold">
+                Apakah Pengerjaan Motor
+                Ini Telah Selesai?
+              </h3>
             </div>
+
             <button
-              className="btn btn-sm btn-primary"
-              onClick={() => handleChangeStatus('SELESAI')}
+              disabled={loading}
+              className="btn btn-primary btn-sm"
+              onClick={() =>
+                handleChangeStatus(
+                  "SELESAI"
+                )
+              }
             >
               Ya, Sudah Selesai!
             </button>
+
           </div>
         )}
 
-        {data.statusPembayaran === "BELUM_BAYAR" && (
-          <div role="alert" className="alert alert-warning">
-            <FaRupiahSign size={30} />
-            <div>
-              <h3 className="font-bold">Apakah Pembayaran Untuk Tagihan Ini Telah Dibayar?</h3>
-            </div>
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={() => handleChangeStatus('SELESAI')}
+        {data.statusPembayaran ===
+          "BELUM_BAYAR" && (
+            <div
+              role="alert"
+              className="alert alert-warning"
             >
-              Ya, Sudah Dibayar!
-            </button>
-          </div>
-        )}
+
+              <FaRupiahSign size={30} />
+
+              <div>
+                <h3 className="font-bold">
+                  Apakah Pembayaran
+                  Untuk Tagihan Ini
+                  Telah Dibayar?
+                </h3>
+              </div>
+
+              <button
+                disabled={loading}
+                className="btn btn-primary btn-sm"
+                onClick={() =>
+                  handleChangeStatus(
+                    "SELESAI"
+                  )
+                }
+              >
+                Ya, Sudah Dibayar!
+              </button>
+
+            </div>
+          )}
 
         <div className="bg-base-100 card">
+
           <div className="card-body">
+
             <div className="flex justify-between gap-2">
+
               <div className="grow">
-                <div className="flex justify-between">
-                  <p className="font-medium text-xs">{data.kode}</p>
-                  <p className="text-xs text-end">
-                    {formatDate(data.dibuatPada)}
+
+                <div className="flex justify-between gap-2">
+
+                  <p className="font-medium text-xs">
+                    {data.kode}
                   </p>
+
+                  <p className="text-xs text-end">
+                    {formatDate(
+                      data.dibuatPada
+                    )}
+                  </p>
+
                 </div>
 
-                <p className="text-lg">
-                  {data.namaCustomer ?? "-"}
+                <p className="mt-1 font-bold text-lg break-words">
+                  {data.namaCustomer ??
+                    "-"}
                 </p>
 
-                <p className="mt-2 text-sm">
-                  {data.catatan ?? "Tidak Ada Catatan!"}
+                <p className="mt-2 text-sm break-words">
+                  {data.catatan ||
+                    "Tidak Ada Catatan!"}
                 </p>
 
-                <div className="space-y-1 mt-2 text-xs">
+                <div className="space-y-1 mt-3 text-xs">
+
                   <div>
-                    Pengerjaan: <StatusBadge status={data.status} />
+                    Pengerjaan:{" "}
+                    <StatusBadge
+                      status={
+                        data.status
+                      }
+                    />
                   </div>
+
                   <div>
-                    Pembayaran: <StatusBadge status={data.statusPembayaran} />
+                    Pembayaran:{" "}
+                    <StatusBadge
+                      status={
+                        data.statusPembayaran
+                      }
+                    />
                   </div>
+
                 </div>
+
               </div>
+
               <div className="min-w-20 shrink-0">
+
                 <Image
                   src={`/tagihan/${data.id}/qrcode`}
                   alt="QR Code"
@@ -137,114 +256,237 @@ export default function ClientPage({ data }: { data: any }) {
                   width={100}
                   height={100}
                 />
+
               </div>
+
             </div>
 
-            <div className="mt-3">
-              <Link href={`/tagihan/${data.id}/ubah`} className="w-full btn btn-primary">
-                <MdEdit /> Ubah Informasi
-              </Link>
-            </div>
+            {!isSelesai && (
+              <div className="mt-4">
+
+                <Link
+                  href={`/tagihan/${data.id}/ubah`}
+                  className="w-full btn btn-primary"
+                >
+                  <MdEdit />
+                  Ubah Informasi
+                </Link>
+
+              </div>
+            )}
+
           </div>
+
         </div>
 
         <div className="bg-base-100 card">
-          <div className="card-body">
-            <p className="font-medium text-sm">Barang & Layanan</p>
 
-            {data.details.length === 0 && (
-              <p className="text-neutral-500 text-sm text-center">
-                Tidak ada item
-              </p>
+          <div className="card-body">
+
+            <p className="font-medium text-sm">
+              Barang & Layanan
+            </p>
+
+            {data.details.length ===
+              0 && (
+                <p className="text-neutral-500 text-sm text-center">
+                  Tidak ada item
+                </p>
+              )}
+
+            {data.details.map(
+              (
+                item: any,
+                index: number
+              ) => (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "flex justify-between gap-2 py-3 text-sm",
+                    index !==
+                    data.details
+                      .length -
+                    1 &&
+                    "border-base-content border-b border-dashed"
+                  )}
+                >
+
+                  <div className="flex-1">
+
+                    <div className="flex justify-between gap-2">
+
+                      <p className="font-medium break-words">
+                        {item.nama}
+                      </p>
+
+                      <div>
+                        <TipeBadge
+                          tipe={
+                            item.tipe
+                          }
+                        />
+                      </div>
+
+                    </div>
+
+                    <div className="flex justify-between gap-2 mt-0.5 text-xs">
+
+                      <p className="text-neutral-400">
+                        {item.qty} x Rp{" "}
+                        {format(
+                          item.harga
+                        )}
+                      </p>
+
+                      <p className="font-bold text-neutral-400 text-end">
+                        Rp{" "}
+                        {format(
+                          item.qty *
+                          item.harga
+                        )}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  {!isSelesai && (
+                    <div>
+
+                      <Link
+                        href={`/tagihan/${data.id}/ubah/item/${item.id}`}
+                        className="btn-outline btn btn-primary btn-square"
+                      >
+                        <MdEdit
+                          size={24}
+                        />
+                      </Link>
+
+                    </div>
+                  )}
+
+                </div>
+              )
             )}
 
-            {data.details.map((item: any, index: number) => (
-              <div
-                key={item.id}
-                className={cn('flex justify-between gap-2 py-3 text-sm', index !== data.details.length - 1 ? "border-b border-base-content border-dashed" : "")}
-              >
-                <div className="flex-1">
-                  <div className="flex justify-between gap-2">
-                    <p className="font-medium">{item.nama}</p>
-
-                    <div>
-                      <TipeBadge tipe={item.tipe} />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between gap-2 mt-0.5 text-xs">
-                    <p className="text-neutral-400">
-                      {item.qty} x Rp {format(item.harga)}
-                    </p>
-
-                    <p className="font-bold text-neutral-400 text-end">
-                      Rp {format(item.qty * item.harga)}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <Link href={`/tagihan/${data.id}/ubah/item/${item.id}`} className="btn-outline btn btn-primary btn-square">
-                    <MdEdit size={24} />
-                  </Link>
-                </div>
-              </div>
-            ))}
-
           </div>
+
         </div>
+
       </FragmentBody>
+
       <FragmentFooter>
+
         <div className="space-y-3 p-4">
+
           <div className="collapse collapse-arrow bg-base-100 border border-base-300">
-            <input type="checkbox" className="peer" />
+
+            <input
+              type="checkbox"
+              className="peer"
+              defaultChecked
+            />
 
             <div className="collapse-title font-medium text-sm">
               Detail Pembayaran
             </div>
 
             <div className="collapse-content text-xs">
+
               <div className="space-y-2">
+
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
+
                   <span>
-                    + Rp {subtotal.toLocaleString("id-ID")}
+                    Subtotal
                   </span>
+
+                  <span>
+                    + Rp{" "}
+                    {format(
+                      subtotal
+                    )}
+                  </span>
+
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Ongkos</span>
+
                   <span>
-                    + Rp {ongkos.toLocaleString("id-ID")}
+                    Ongkos
                   </span>
+
+                  <span>
+                    + Rp{" "}
+                    {format(
+                      ongkos
+                    )}
+                  </span>
+
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Diskon</span>
+
                   <span>
-                    - Rp {diskon.toLocaleString("id-ID")}
+                    Diskon
                   </span>
+
+                  <span>
+                    - Rp{" "}
+                    {format(
+                      diskon
+                    )}
+                  </span>
+
                 </div>
 
                 <div className="flex justify-between pt-2 border-base-300 border-t font-medium">
-                  <span>Total Pembayaran</span>
 
                   <span>
-                    = Rp {total.toLocaleString("id-ID")}
+                    Total Pembayaran
                   </span>
+
+                  <span>
+                    = Rp{" "}
+                    {format(
+                      total
+                    )}
+                  </span>
+
                 </div>
+
+                {!isSelesai && (
+                  <Link
+                    href={`/tagihan/${data.id}/ubah/detail_pembayaran`}
+                    className="btn-outline w-full btn btn-primary btn-sm"
+                  >
+                    <MdEdit />
+                    Ubah Ongkos /
+                    Diskon
+                  </Link>
+                )}
+
               </div>
+
             </div>
+
           </div>
 
-          <Link href={`/tagihan/${data.id}/tambah/item`} className="btn-outline w-full btn btn-primary btn-sm">
-            <MdEdit /> Ubah Ongkos / Diskon
-          </Link>
-          <Link href={`/tagihan/${data.id}/tambah/item`} className="w-full btn btn-primary btn-sm">
-            <FiPlus /> Tambah Barang / Layanan
-          </Link>
+          {!isSelesai && (
+            <Link
+              href={`/tagihan/${data.id}/tambah/item`}
+              className="w-full btn btn-primary btn-sm"
+            >
+              <FiPlus />
+              Tambah Barang /
+              Layanan
+            </Link>
+          )}
+
         </div>
+
       </FragmentFooter>
+
     </FragmentLayout>
   );
 }

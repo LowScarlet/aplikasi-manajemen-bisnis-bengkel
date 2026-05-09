@@ -112,7 +112,11 @@ export default function ClientPage({
                       </div>
 
                       <p className="font-bold text-base">
-                        {item.namaCustomer ?? "-"} — {item.catatan ?? "-"}
+                        {item.namaCustomer ?? "-"}
+
+                        {item.catatan?.trim() && (
+                          <> — {item.catatan}</>
+                        )}
                       </p>
                     </div>
                   </div>

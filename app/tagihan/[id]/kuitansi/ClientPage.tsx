@@ -10,9 +10,9 @@ import {
 } from "@/app/_components/Layouts/FragmentLayout";
 import { format, formatDate } from "@/libs/utils";
 import { toPng } from "html-to-image";
-import { GhostButton, PrimaryButtonAction } from "@/app/_components/Buttons";
 import { IoMdShare } from "react-icons/io";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
   const subtotal = data.subtotal ?? 0;
@@ -103,30 +103,33 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
       <FragmentHeader>
         <div className="flex items-center gap-2">
+
           {userAuth ? (
-            <GhostButton href={`/tagihan/${data.id}`}>
+            <Link href={`/tagihan/${data.id}`} className="btn btn-ghost btn-square">
               <FiArrowLeft />
-            </GhostButton>
+            </Link>
           ) : undefined}
 
           <h1 className="font-bold text-xl">
-            Kuitansi
+            Kuintansi
           </h1>
         </div>
 
         <div className="flex gap-2">
 
-          <PrimaryButtonAction
+          <button
             onClick={handleShare}
+            className="btn-outline btn btn-primary btn-square btn-sm"
           >
             <IoMdShare size={14} />
-          </PrimaryButtonAction>
+          </button>
 
-          <PrimaryButtonAction
+          <button
             onClick={() => window.print()}
+            className="btn btn-primary btn-square btn-sm"
           >
             <FiPrinter size={14} />
-          </PrimaryButtonAction>
+          </button>
         </div>
       </FragmentHeader>
 

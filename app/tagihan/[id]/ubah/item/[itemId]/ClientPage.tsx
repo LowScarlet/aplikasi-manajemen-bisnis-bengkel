@@ -2,8 +2,15 @@
 'use client'
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { cn, format } from "@/libs/utils";
+
+import {
+  useRouter,
+  useSearchParams
+} from "next/navigation";
+
+import {
+  format
+} from "@/libs/utils";
 
 import {
   FragmentLayout,
@@ -11,20 +18,22 @@ import {
   FragmentBody
 } from "@/app/_components/Layouts/FragmentLayout";
 
-import {
-  DangerButtonAction,
-  GhostButton,
-  PrimaryButtonAction
-} from "@/app/_components/Buttons";
+import Link from "next/link";
 
 import { FiArrowLeft } from "react-icons/fi";
-import { deleteItem, updateItem } from "./page";
 
-export default function ClientPage({ data, item }: any) {
+import {
+  deleteItem,
+  updateItem
+} from "./page";
+
+export default function ClientPage({
+  data,
+  item
+}: any) {
+
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  /* ================= STATE ================= */
 
   const [form, setForm] = useState({
     nama: item.nama,
@@ -38,10 +47,10 @@ export default function ClientPage({ data, item }: any) {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
 
-  /* ================= HANDLER ================= */
-
   const handleSearch = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(
+      searchParams.toString()
+    );
 
     if (value) {
       params.set("search", value);
@@ -54,10 +63,15 @@ export default function ClientPage({ data, item }: any) {
 
   const handleSubmit = async () => {
     try {
+
       setLoadingSubmit(true);
 
       if (form.tipe === "CUSTOM") {
-        if (!form.nama || form.qty <= 0 || form.harga <= 0) {
+        if (
+          !form.nama ||
+          form.qty <= 0 ||
+          form.harga <= 0
+        ) {
           alert("Isi data dengan benar");
           return;
         }
@@ -71,189 +85,229 @@ export default function ClientPage({ data, item }: any) {
       }
 
       await updateItem(item.id, form);
+
       router.push(`/tagihan/${data.id}`);
+
     } catch (err) {
+
       console.error(err);
+
       alert("Gagal update item");
+
     } finally {
+
       setLoadingSubmit(false);
+
     }
   };
 
-  const handleDeleteItem = async (id: string) => {
+  const handleDeleteItem = async (
+    id: string
+  ) => {
     try {
-      const confirmDelete = confirm("Hapus item ini?");
+
+      const confirmDelete = confirm(
+        "Hapus item ini?"
+      );
+
       if (!confirmDelete) return;
 
       setLoadingDelete(true);
 
       await deleteItem(id);
+
       router.push(`/tagihan/${data.id}`);
+
     } catch (err) {
+
       console.error(err);
+
       alert("Gagal hapus item");
+
     } finally {
+
       setLoadingDelete(false);
+
     }
   };
 
-  const subtotal = (form.qty || 0) * (form.harga || 0);
-
-  /* ================= RENDER ================= */
+  const subtotal =
+    (form.qty || 0) *
+    (form.harga || 0);
 
   return (
     <FragmentLayout>
+
       <FragmentHeader>
+
         <div className="flex items-center gap-2">
-          <GhostButton href={`/tagihan/${data.id}`}>
+
+          <Link
+            href={`/tagihan/${data.id}`}
+            className="btn btn-ghost btn-square"
+          >
             <FiArrowLeft />
-          </GhostButton>
+          </Link>
 
           <h1 className="font-bold text-xl">
             Edit Barang / Layanan
           </h1>
+
         </div>
+
       </FragmentHeader>
 
       <FragmentBody className="space-y-4">
+        <div>
+          <fieldset className="fieldset">
 
-        <div className="space-y-3">
+            <legend className="fieldset-legend">
+              Nama
+            </legend>
 
-          {/* TIPE */}
-          <div>
-            <p className="mb-1 text-xs">Tipe</p>
-            <select
-              value={form.tipe}
+            <input
+              value={form.nama}
               onChange={(e) =>
                 setForm({
                   ...form,
-                  tipe: e.target.value as any,
-                  barangId: null,
-                  layananId: null,
-                  nama: "",
-                  harga: 0,
+                  nama: e.target.value
                 })
               }
-              className="px-3 py-2 border rounded-lg w-full text-sm"
-            >
-              <option value="CUSTOM">Lainnya</option>
-              <option value="LAYANAN">Layanan</option>
-            </select>
-          </div>
+              placeholder="Masukkan nama item"
+              className="w-full input input-bordered"
+            />
 
-          {/* ================= LAYANAN ================= */}
-          {form.tipe === "LAYANAN" && (
-            <div>
-              <p className="mb-1 text-xs">Pilih Layanan</p>
+          </fieldset>
 
-              <input
-                placeholder="Cari layanan..."
-                defaultValue={searchParams.get("search") ?? ""}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="mb-2 px-3 py-2 border rounded-lg w-full text-sm"
-              />
+          <div className="gap-3 grid grid-cols-3">
 
-              <div className="border rounded-lg max-h-48 overflow-auto">
-                {data.layananList.length === 0 && (
-                  <div className="p-2 text-neutral-500 text-sm">
-                    Tidak ada layanan
-                  </div>
-                )}
-                
-                {data.layananList.map((l: any) => (
-                  <button
-                    key={l.id}
-                    type="button"
-                    onClick={() =>
-                      setForm(prev => ({
-                        ...prev,
-                        layananId: l.id,
-                        nama: l.nama,
-                        harga: l.harga,
-                      }))
-                    }
-                    className={cn(
-                      "flex justify-between items-center px-3 py-2 border rounded-md w-full text-sm text-left transition",
-                      form.layananId === l.id
-                        ? "bg-blue-100 border-blue-500 font-semibold"
-                        : "hover:bg-neutral-100 border-transparent"
-                    )}
-                  >
-                    <span>
-                      {l.nama} - Rp {format(l.harga)}
-                    </span>
+            <fieldset className="fieldset">
 
-                    {form.layananId === l.id && (
-                      <span className="text-blue-600 text-xs">✔</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+              <legend className="fieldset-legend">
+                Qty
+              </legend>
 
-          {/* ================= CUSTOM ================= */}
-          {form.tipe === "CUSTOM" && (
-            <div>
-              <p className="mb-1 text-xs">Nama</p>
-              <input
-                value={form.nama}
-                onChange={(e) =>
-                  setForm({ ...form, nama: e.target.value })
-                }
-                className="px-3 py-2 border rounded-lg w-full text-sm"
-              />
-            </div>
-          )}
-
-          {/* QTY & HARGA */}
-          <div className="gap-2 grid grid-cols-2">
-            <div>
-              <p className="mb-1 text-xs">Qty</p>
               <input
                 type="number"
-                value={form.qty}
-                onChange={(e) =>
-                  setForm({ ...form, qty: Number(e.target.value) })
-                }
-                className="px-3 py-2 border rounded-lg w-full text-sm"
-              />
-            </div>
+                min={1}
+                value={form.qty || ""}
+                onChange={(e) => {
 
-            <div>
-              <p className="mb-1 text-xs">Harga</p>
-              <input
-                type="number"
-                value={form.harga}
-                onChange={(e) =>
-                  setForm({ ...form, harga: Number(e.target.value) })
-                }
-                className="px-3 py-2 border rounded-lg w-full text-sm"
-              />
-            </div>
-          </div>
+                  const raw = e.target.value;
 
-          {/* SUBTOTAL */}
-          <div className="text-neutral-500 text-sm">
-            Total:{" "}
-            <span className="font-semibold text-black">
-              Rp {subtotal.toLocaleString("id-ID")}
-            </span>
+                  if (raw === "") {
+
+                    setForm({
+                      ...form,
+                      qty: 0,
+                    });
+
+                    return;
+                  }
+
+                  const cleaned =
+                    raw.replace(/^0+(?=\d)/, "");
+
+                  setForm({
+                    ...form,
+                    qty: Number(cleaned),
+                  });
+                }}
+                className="w-full input input-bordered"
+              />
+
+            </fieldset>
+
+            <fieldset className="fieldset">
+
+              <legend className="fieldset-legend">
+                Harga
+              </legend>
+
+              <label className="flex items-center gap-2 w-full input input-bordered">
+
+                <span>Rp</span>
+
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={
+                    form.harga
+                      ? format(form.harga)
+                      : ""
+                  }
+                  onChange={(e) => {
+
+                    const raw =
+                      e.target.value.replace(/\D/g, "");
+
+                    setForm({
+                      ...form,
+                      harga: Number(raw),
+                    });
+                  }}
+                  placeholder="0"
+                  className="grow"
+                />
+
+              </label>
+
+            </fieldset>
+
+            <fieldset className="fieldset">
+
+              <legend className="fieldset-legend">
+                Subtotal
+              </legend>
+
+              <label className="flex items-center gap-2 w-full input input-bordered">
+
+                <span>Rp</span>
+
+                <input
+                  value={format(subtotal)}
+                  className="font-bold grow"
+                  readOnly
+                />
+
+              </label>
+
+            </fieldset>
+
           </div>
 
         </div>
 
-        <PrimaryButtonAction onClick={handleSubmit}>
-          Simpan Perubahan
-        </PrimaryButtonAction>
+        <div className="space-y-2">
 
-        <DangerButtonAction
-          onClick={() => handleDeleteItem(item.id)}
-        >
-          Hapus Item
-        </DangerButtonAction>
+          <button
+            onClick={handleSubmit}
+            disabled={loadingSubmit}
+            className="w-full btn btn-primary"
+          >
+            {loadingSubmit
+              ? "Menyimpan..."
+              : "Simpan Perubahan"}
+          </button>
+
+          <div className="py-4 divider" />
+
+          <button
+            onClick={() =>
+              handleDeleteItem(item.id)
+            }
+            disabled={loadingDelete}
+            className="btn-outline w-full btn btn-error"
+          >
+            {loadingDelete
+              ? "Menghapus..."
+              : "Hapus Item"}
+          </button>
+
+        </div>
 
       </FragmentBody>
+
     </FragmentLayout>
   );
 }
