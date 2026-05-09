@@ -59,7 +59,6 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
 
   }, [enableCut, cutMode, data.details]);
 
-
   const handleShare = async () => {
     const element = document.getElementById("png-area");
     if (!element) return;
