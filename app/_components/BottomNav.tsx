@@ -93,8 +93,8 @@ export function BottomNav() {
             <FiPlus size={18} />
           </div>
 
-          <span className="mt-1 font-medium text-neutral-400">
-            Tambah Tagihan
+          <span className="mt-1 font-medium text-neutral-400 text-center">
+            Tambah
           </span>
 
         </Link>
