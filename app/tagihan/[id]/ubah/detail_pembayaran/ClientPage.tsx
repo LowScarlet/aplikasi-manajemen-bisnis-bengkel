@@ -70,7 +70,7 @@ export default function ClientPage({
           </Link>
 
           <h1 className="font-bold text-xl">
-            Edit Barang / Layanan
+            Edit Ongkos, Diskon Dan lainnya
           </h1>
 
         </div>
