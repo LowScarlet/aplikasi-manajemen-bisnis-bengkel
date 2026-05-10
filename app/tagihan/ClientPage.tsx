@@ -16,7 +16,7 @@ import { Pagination } from "@/app/_components/Pagination";
 import { BottomNav } from "../_components/BottomNav";
 
 import { FiPlus, FiSearch } from "react-icons/fi";
-import { LuScanLine } from "react-icons/lu";
+import { LuCalendarSearch, LuScanLine } from "react-icons/lu";
 
 import { Tagihan } from "./page";
 import { QRScannerModal } from "../_components/QRScannerModal";
@@ -48,8 +48,8 @@ export default function ClientPage({
       <FragmentHeader>
         <h1 className="font-bold text-xl">Tagihan</h1>
 
-        <Link className="btn btn-primary btn-sm btn-square" href="/tagihan/tambah">
-          <FiPlus />
+        <Link className="btn btn-primary btn-sm" href="/tagihan/tambah">
+          <FiPlus /> Tambah
         </Link>
       </FragmentHeader>
 
@@ -74,6 +74,15 @@ export default function ClientPage({
           >
             <LuScanLine />
           </button>
+        </div>
+
+        <div className="flex justify-between">
+          <div role="tablist" className="tabs-border tabs">
+            <a role="tab" className="tab tab-active">hari Ini</a>
+            <a role="tab" className="tab">Semua</a>
+          </div>
+
+          <button className="btn-outline btn btn-primary"><LuCalendarSearch /> Cari tanggal</button>
         </div>
 
         <section className="space-y-3">
