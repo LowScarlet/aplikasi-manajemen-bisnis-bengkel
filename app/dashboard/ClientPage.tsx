@@ -224,7 +224,7 @@ export default function ClientPage({
 
               <div className="w-full stats stats-vertical">
 
-                <div className="stat">
+                <div className="px-2! stat">
 
                   <div className="stat-title">
                     Minggu Ini
@@ -237,7 +237,7 @@ export default function ClientPage({
 
                 </div>
 
-                <div className="stat">
+                <div className="px-2! stat">
 
                   <div className="stat-title">
                     Bulan Ini
@@ -250,7 +250,7 @@ export default function ClientPage({
 
                 </div>
 
-                <div className="stat">
+                <div className="px-2! stat">
 
                   <div className="stat-title">
                     Semua Waktu
