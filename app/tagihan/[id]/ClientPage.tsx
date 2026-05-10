@@ -500,7 +500,7 @@ export default function ClientPage({
           {!isSelesai && (
             <Link
               href={`/tagihan/${data.id}/tambah/item`}
-              className="w-full btn btn-primary btn-sm"
+              className="w-full btn btn-primary"
             >
               <FiPlus />
               Tambah Barang /
