@@ -48,7 +48,7 @@ export default function RootLayout({
     <html
       lang="id"
       data-theme="light"
-      className={`${cause.className} h-full antialiased`}
+      className={`${cause.className} h-full antialiased bg-base-200`}
     >
       <body className="flex flex-col min-h-full">
         <Providers>{children}</Providers>
