@@ -17,13 +17,85 @@ const createSchema = z.object({
   catatan: z.string().optional(),
 });
 
-export default async function Page() {
+async function generateKode() {
+  const today = formatDate();
+
+  const last = await db
+    .select({
+      kode: tagihan.kode,
+    })
+    .from(tagihan)
+    .where(
+      like(
+        tagihan.kode,
+        `INV-${today}%`
+      )
+    )
+    .orderBy(
+      desc(tagihan.kode)
+    )
+    .limit(1);
+
+  let nextNumber = 1;
+
+  if (last.length > 0) {
+    const lastKode =
+      last[0].kode;
+
+    const lastNum = Number(
+      lastKode.split("-")[2]
+    );
+
+    nextNumber = lastNum + 1;
+  }
+
+  return `INV-${today}-${String(
+    nextNumber
+  ).padStart(3, "0")}`;
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    cepat?: string;
+  }>;
+}) {
+
+  const params = await searchParams;
+
   const userauth = await getUser();
 
   if (!userauth) {
     redirect("/auth/login");
   }
 
+  if ("cepat" in params) {
+    const kode =
+      await generateKode();
+
+    const out = await db
+      .insert(tagihan)
+      .values({
+        kode,
+        namaCustomer:
+          `Customer ${kode}`,
+        catatan: null,
+      })
+      .returning({
+        id: tagihan.id,
+      });
+
+    const id = out[0]?.id;
+
+    if (!id) {
+      throw new Error(
+        "Gagal membuat tagihan"
+      );
+    }
+
+    redirect(`/tagihan/${id}`);
+  }
 
   async function createTagihan(prevState: any, formData: FormData) {
     "use server";
@@ -49,24 +121,8 @@ export default async function Page() {
 
     const data = result.data;
 
-    const today = formatDate();
-
-    const last = await db
-      .select({ kode: tagihan.kode })
-      .from(tagihan)
-      .where(like(tagihan.kode, `INV-${today}%`))
-      .orderBy(desc(tagihan.kode))
-      .limit(1);
-
-    let nextNumber = 1;
-
-    if (last.length > 0) {
-      const lastKode = last[0].kode; // INV-20260419-003
-      const lastNum = Number(lastKode.split("-")[2]);
-      nextNumber = lastNum + 1;
-    }
-
-    const kode = `INV-${today}-${String(nextNumber).padStart(3, "0")}`;
+    const kode =
+      await generateKode();
 
     const payload = {
       kode,

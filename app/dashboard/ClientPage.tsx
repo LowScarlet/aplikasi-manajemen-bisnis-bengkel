@@ -72,24 +72,17 @@ export default function ClientPage({
             <Card.Header>Pintasan</Card.Header>
 
             <Card.Body>
-              <div className="gap-4 grid grid-cols-3 text-center">
+              <div className="gap-4 grid grid-cols-4 text-center">
                 <MenuItem
                   icon={FaPlus}
-                  label="Buat Tagihan"
-                  href="/tagihan/tambah"
+                  label="Buat Tagihan Servis Cepat"
+                  href="/tagihan/tambah?cepat"
                   color="primary"
                 />
 
                 <MenuItem
-                  icon={LuScanLine}
-                  label="Scan QR"
-                  href="/scan"
-                  color="secondary"
-                />
-
-                <MenuItem
                   icon={RiUserAddLine}
-                  label="Pengguna"
+                  label="Manajemen Pengguna"
                   href="/pengguna"
                   color="accent"
                 />
