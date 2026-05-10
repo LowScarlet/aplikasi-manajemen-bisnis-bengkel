@@ -30,6 +30,11 @@ export const statusPembayaranEnum = pgEnum("status_pembayaran", [
   "LUNAS",
 ]);
 
+export const metodePembayaranEnum = pgEnum("metode_pembayaran", [
+  "LANGSUNG",
+  "CICIL",
+]);
+
 export const pengguna = pgTable("pengguna", {
   id: uuid("id").defaultRandom().primaryKey(),
   nama: text("nama").notNull(),
@@ -49,6 +54,9 @@ export const tagihan = pgTable("tagihan", {
 
   statusPembayaran: statusPembayaranEnum("status_pembayaran")
     .default("BELUM_BAYAR"),
+
+  metodePembayaran: metodePembayaranEnum("metode_pembayaran")
+    .default("LANGSUNG"),
 
   mekanikId: uuid("mekanik_id").references(() => pengguna.id, {
     onDelete: "set null",
@@ -85,7 +93,7 @@ export const tagihan_detail = pgTable("tagihan_detail", {
   dibuatPada: timestamp("dibuat_pada").defaultNow(),
 });
 
-export const pembayaran = pgTable("pembayaran", {
+export const cicilan = pgTable("cicilan", {
   id: uuid("id").defaultRandom().primaryKey(),
 
   tagihanId: uuid("tagihan_id")
@@ -96,24 +104,29 @@ export const pembayaran = pgTable("pembayaran", {
 
   jumlah: integer("jumlah").notNull(),
 
-  metode: text("metode"),
   catatan: text("catatan"),
 
-  dibuatPada: timestamp("dibuat_pada").defaultNow(),
+  dibuatPada: timestamp("dibuat_pada")
+    .defaultNow(),
 });
 
 export const penggunaRelations = relations(pengguna, ({ many }) => ({
   tagihan: many(tagihan),
 }));
 
-export const tagihanRelations = relations(tagihan, ({ one, many }) => ({
-  mekanik: one(pengguna, {
-    fields: [tagihan.mekanikId],
-    references: [pengguna.id],
-  }),
-  details: many(tagihan_detail),
-  pembayaran: many(pembayaran),
-}));
+export const tagihanRelations = relations(
+  tagihan,
+  ({ one, many }) => ({
+    mekanik: one(pengguna, {
+      fields: [tagihan.mekanikId],
+      references: [pengguna.id],
+    }),
+
+    details: many(tagihan_detail),
+
+    cicilan: many(cicilan),
+  })
+);
 
 export const tagihanDetailRelations = relations(
   tagihan_detail,
@@ -125,9 +138,12 @@ export const tagihanDetailRelations = relations(
   })
 );
 
-export const pembayaranRelations = relations(pembayaran, ({ one }) => ({
-  tagihan: one(tagihan, {
-    fields: [pembayaran.tagihanId],
-    references: [tagihan.id],
-  }),
-}));
+export const cicilanRelations = relations(
+  cicilan,
+  ({ one }) => ({
+    tagihan: one(tagihan, {
+      fields: [cicilan.tagihanId],
+      references: [tagihan.id],
+    }),
+  })
+);
