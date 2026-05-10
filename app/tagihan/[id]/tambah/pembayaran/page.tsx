@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from "@/db";
-import { tagihan, pembayaran } from "@/db/schema";
+import { tagihan, cicilan } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 import ClientPage from "./ClientPage";
@@ -23,7 +23,6 @@ export async function addPayment(
   id: string,
   form: {
     jumlah: number;
-    metode: string;
     catatan?: string;
   }
 ) {
@@ -31,10 +30,9 @@ export async function addPayment(
     throw new Error("Jumlah tidak valid");
   }
 
-  await db.insert(pembayaran).values({
+  await db.insert(cicilan).values({
     tagihanId: id,
     jumlah: form.jumlah,
-    metode: form.metode,
     catatan: form.catatan ?? "",
   });
 

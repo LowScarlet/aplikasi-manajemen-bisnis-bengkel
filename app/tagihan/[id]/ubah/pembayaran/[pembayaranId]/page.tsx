@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from "@/db";
-import { pembayaran, tagihan } from "@/db/schema";
+import { cicilan, tagihan } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 import ClientPage from "./ClientPage";
@@ -12,10 +12,10 @@ import { redirect } from "next/navigation";
 /* ================= GET DATA ================= */
 
 const getData = async (id: string, pembayaranId: string) => {
-  const payment = await db.query.pembayaran.findFirst({
+  const payment = await db.query.cicilan.findFirst({
     where: and(
-      eq(pembayaran.id, pembayaranId),
-      eq(pembayaran.tagihanId, id)
+      eq(cicilan.id, pembayaranId),
+      eq(cicilan.tagihanId, id)
     ),
   });
 
@@ -36,7 +36,6 @@ export async function updatePayment(
   pembayaranId: string,
   form: {
     jumlah: number;
-    metode: string;
     catatan?: string;
   }
 ) {
@@ -45,19 +44,18 @@ export async function updatePayment(
   }
 
   await db
-    .update(pembayaran)
+    .update(cicilan)
     .set({
       jumlah: form.jumlah,
-      metode: form.metode,
       catatan: form.catatan ?? "",
     })
-    .where(eq(pembayaran.id, pembayaranId));
+    .where(eq(cicilan.id, pembayaranId));
 
-  const payment = await db.query.pembayaran.findFirst({
-    where: eq(pembayaran.id, pembayaranId),
+  const payment = await db.query.cicilan.findFirst({
+    where: eq(cicilan.id, pembayaranId),
   });
 
-  if (!payment) throw new Error("Pembayaran tidak ditemukan");
+  if (!payment) throw new Error("Cicilan tidak ditemukan");
 
   await syncTagihan(payment.tagihanId);
 
@@ -65,17 +63,17 @@ export async function updatePayment(
 }
 
 export async function deletePayment(pembayaranId: string) {
-  const payment = await db.query.pembayaran.findFirst({
-    where: eq(pembayaran.id, pembayaranId),
+  const payment = await db.query.cicilan.findFirst({
+    where: eq(cicilan.id, pembayaranId),
   });
 
   if (!payment) {
-    throw new Error("Pembayaran tidak ditemukan");
+    throw new Error("Cicilan tidak ditemukan");
   }
 
   await db
-    .delete(pembayaran)
-    .where(eq(pembayaran.id, pembayaranId));
+    .delete(cicilan)
+    .where(eq(cicilan.id, pembayaranId));
 
   await syncTagihan(payment.tagihanId);
 

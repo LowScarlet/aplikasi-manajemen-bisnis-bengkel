@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import {
-  pembayaran,
+  cicilan,
   statusPekerjaanEnum,
   statusPembayaranEnum,
   tagihan,
@@ -33,27 +33,32 @@ const getDetail = async (id: string) => {
       desc(tagihan_detail.dibuatPada)
     );
 
-  const pembayaranList = await db
+  const cicilanList = await db
     .select()
-    .from(pembayaran)
-    .where(eq(pembayaran.tagihanId, id))
+    .from(cicilan)
+    .where(eq(cicilan.tagihanId, id))
     .orderBy(
-      desc(pembayaran.dibuatPada)
+      desc(cicilan.dibuatPada)
     );
 
   return {
     ...data,
     details,
-    pembayaran: pembayaranList,
+    cicilan: cicilanList,
   };
 };
 
-export async function syncTagihan(id: string) {
+export async function syncTagihan(
+  id: string
+) {
 
   const subtotalResult = await db
     .select({
       subtotal: sql<number>`
-        COALESCE(SUM(${tagihan_detail.subtotal}), 0)
+        COALESCE(
+          SUM(${tagihan_detail.subtotal}),
+          0
+        )
       `,
     })
     .from(tagihan_detail)
@@ -68,9 +73,13 @@ export async function syncTagihan(id: string) {
   const currentTagihan =
     await db.query.tagihan.findFirst({
       where: eq(tagihan.id, id),
+
       columns: {
         ongkos: true,
         diskon: true,
+        metodePembayaran: true,
+        statusPembayaran: true,
+        dibayar: true,
       },
     });
 
@@ -87,40 +96,58 @@ export async function syncTagihan(id: string) {
     subtotal + ongkos - diskon
   );
 
-  const bayarResult = await db
-    .select({
-      dibayar: sql<number>`
-        COALESCE(SUM(${pembayaran.jumlah}), 0)
-      `,
-    })
-    .from(pembayaran)
-    .where(
-      eq(pembayaran.tagihanId, id)
+  let dibayar =
+    Number(
+      currentTagihan?.dibayar ?? 0
     );
 
-  const dibayar =
-    bayarResult[0]?.dibayar ?? 0;
+  let statusPembayaran:
+    typeof statusPembayaranEnum.enumValues[number] =
+      currentTagihan?.statusPembayaran ??
+      "BELUM_BAYAR";
+
+  // KHUSUS CICIL
+  if (
+    currentTagihan?.metodePembayaran ===
+    "CICIL"
+  ) {
+
+    const bayarResult = await db
+      .select({
+        dibayar: sql<number>`
+          COALESCE(
+            SUM(${cicilan.jumlah}),
+            0
+          )
+        `,
+      })
+      .from(cicilan)
+      .where(
+        eq(cicilan.tagihanId, id)
+      );
+
+    dibayar = Number(
+      bayarResult[0]?.dibayar ?? 0
+    );
+
+    if (dibayar <= 0) {
+      statusPembayaran =
+        "BELUM_BAYAR";
+
+    } else if (dibayar >= total) {
+      statusPembayaran =
+        "LUNAS";
+
+    } else {
+      statusPembayaran =
+        "SEBAGIAN";
+    }
+  }
 
   const kembalian =
     dibayar > total
       ? dibayar - total
       : 0;
-
-  let statusPembayaran:
-    typeof statusPembayaranEnum.enumValues[number];
-
-  if (dibayar <= 0) {
-    statusPembayaran =
-      "BELUM_BAYAR";
-
-  } else if (dibayar >= total) {
-    statusPembayaran =
-      "LUNAS";
-
-  } else {
-    statusPembayaran =
-      "SEBAGIAN";
-  }
 
   await db
     .update(tagihan)
@@ -164,6 +191,21 @@ export async function updateStatusPembayaranTagihan(
   statusPembayaran:
     typeof statusPembayaranEnum.enumValues[number]
 ) {
+  const data = await db.query.tagihan.findFirst({
+    where: eq(tagihan.id, id),
+    columns: {
+      metodePembayaran: true,
+    },
+  });
+
+  if (
+    data?.metodePembayaran === "CICIL"
+  ) {
+    throw new Error(
+      "Status pembayaran cicilan otomatis"
+    );
+  }
+
   await db
     .update(tagihan)
     .set({ statusPembayaran })
