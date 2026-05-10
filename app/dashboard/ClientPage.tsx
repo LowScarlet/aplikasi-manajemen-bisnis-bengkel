@@ -126,7 +126,7 @@ export default function ClientPage({
 
           <div className="bg-base-100 border border-base-300 card">
 
-            <div className="card-body">
+            <div className="py-4 card-body">
 
               <h2 className="text-base card-title">
                 Pintasan
@@ -160,7 +160,7 @@ export default function ClientPage({
 
           <div className="bg-base-100 border border-base-300 card">
 
-            <div className="card-body">
+            <div className="py-4 card-body">
 
               <h2 className="text-base card-title">
                 Ringkasan Aktivitas
@@ -216,7 +216,7 @@ export default function ClientPage({
 
           <div className="bg-base-100 border border-base-300 card">
 
-            <div className="card-body">
+            <div className="py-4 card-body">
 
               <h2 className="text-base card-title">
                 Ringkasan Omzet
