@@ -24,7 +24,7 @@ export default async function Page() {
     redirect("/auth/login");
   }
 
-  
+
   async function createTagihan(prevState: any, formData: FormData) {
     "use server";
 
@@ -72,7 +72,8 @@ export default async function Page() {
       kode,
       namaCustomer: data.namaCustomer?.trim()
         ? data.namaCustomer
-        : null,
+        : `Customer ${kode}`,
+
       catatan: data.catatan?.trim()
         ? data.catatan
         : null,
