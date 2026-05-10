@@ -155,20 +155,29 @@ export default function ClientPage({
       </FragmentHeader>
 
       <FragmentBody className="space-y-4">
-
         {data.status === "PROSES" && (
+
           <div
             role="alert"
-            className="alert alert-warning"
+            className="flex justify-between items-start sm:items-center gap-4 alert alert-warning"
           >
 
-            <RiProgress2Fill size={30} />
+            <div className="flex items-start gap-3 grow">
 
-            <div>
-              <h3 className="font-bold">
-                Apakah Pengerjaan Motor
-                Ini Telah Selesai?
-              </h3>
+              <RiProgress2Fill
+                size={24}
+                className="mt-0.5 shrink-0"
+              />
+
+              <div className="min-w-0">
+
+                <h3 className="font-bold leading-tight">
+                  Apakah Pengerjaan Motor
+                  Ini Telah Selesai?
+                </h3>
+
+              </div>
+
             </div>
 
             <button
@@ -180,27 +189,36 @@ export default function ClientPage({
                 )
               }
             >
-              Ya, Sudah Selesai!
+              Ya
             </button>
 
           </div>
         )}
-
         {data.statusPembayaran ===
           "BELUM_BAYAR" && (
+
             <div
               role="alert"
-              className="alert alert-warning"
+              className="flex justify-between items-start sm:items-center gap-4 alert alert-warning"
             >
 
-              <FaRupiahSign size={30} />
+              <div className="flex items-start gap-3 grow">
 
-              <div>
-                <h3 className="font-bold">
-                  Apakah Pembayaran
-                  Untuk Tagihan Ini
-                  Telah Dibayar?
-                </h3>
+                <FaRupiahSign
+                  size={24}
+                  className="mt-0.5 shrink-0"
+                />
+
+                <div className="min-w-0">
+
+                  <h3 className="font-bold leading-tight">
+                    Apakah Pembayaran
+                    Untuk Tagihan Ini
+                    Telah Dibayar?
+                  </h3>
+
+                </div>
+
               </div>
 
               <button
@@ -212,7 +230,7 @@ export default function ClientPage({
                   )
                 }
               >
-                Ya, Sudah Dibayar!
+                Ya
               </button>
 
             </div>
