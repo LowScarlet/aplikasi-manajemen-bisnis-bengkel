@@ -10,7 +10,6 @@ const getDetail = async (id: string) => {
     where: eq(tagihan.id, id),
     with: {
       details: true,
-      pembayaran: true,
     },
   });
 };

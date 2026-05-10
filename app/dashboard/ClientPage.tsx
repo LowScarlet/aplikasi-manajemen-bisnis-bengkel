@@ -89,7 +89,7 @@ export default function ClientPage({
               </div>
 
               <div className="stat-title">
-                Pendapatan Hari Ini
+                Omzet Hari Ini
               </div>
 
               <div className="text-success text-2xl stat-value">
@@ -219,7 +219,7 @@ export default function ClientPage({
             <div className="card-body">
 
               <h2 className="text-base card-title">
-                Ringkasan Pendapatan
+                Ringkasan Omzet
               </h2>
 
               <div className="w-full stats stats-vertical">
