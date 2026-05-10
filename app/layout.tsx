@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./_providers/ProgressBar";
 import { Cause } from "next/font/google";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const cause = Cause({
   subsets: ['latin'],
@@ -50,6 +52,11 @@ export default function RootLayout({
     >
       <body className="flex flex-col min-h-full">
         <Providers>{children}</Providers>
+
+        <ToastContainer
+          position="top-center"
+          autoClose={2000}
+        />
       </body>
     </html>
   );
