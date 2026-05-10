@@ -21,7 +21,6 @@ export const peranEnum = pgEnum("peran_pengguna", [
 
 export const tipeDetailEnum = pgEnum("tipe_detail", [
   "BARANG",
-  "LAYANAN",
   "CUSTOM",
 ]);
 

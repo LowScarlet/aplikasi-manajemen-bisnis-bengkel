@@ -18,7 +18,9 @@ import { MdOutlineContentCut } from "react-icons/md";
 import { useMemo, useState } from "react";
 
 export default function ClientPage({ data, userAuth }: { data: any, userAuth: any }) {
-  const [enableCut, setEnableCut] = useState(!!userAuth);
+  const [enableCut, setEnableCut] = useState(false);
+
+  const [hideCustomerInfo, setHideCustomerInfo] = useState(true);
 
   const [cutMode, setCutMode] = useState<
     "equal" | "per12"
@@ -195,10 +197,10 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
               <p>Tanggal: {formatDate(data.dibuatPada)}</p>
             </div>
 
-            {/* CUSTOMER */}
-            {(data.namaCustomer || data.catatan) && (
+            {!hideCustomerInfo && (data.namaCustomer || data.catatan) && (
               <div className="space-y-1 mt-2 text-xs">
                 <p>{data.namaCustomer ?? "-"}</p>
+
                 {data.catatan && (
                   <p className="text-neutral-600">
                     {data.catatan}
@@ -299,55 +301,99 @@ export default function ClientPage({ data, userAuth }: { data: any, userAuth: an
       </FragmentBody>
       {userAuth && (
         <FragmentFooter className="p-4">
-          <div className="space-y-3 mb-4">
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                checked={enableCut}
-                onChange={(e) => setEnableCut(e.target.checked)}
-              />
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300">
 
-              <span className="text-sm">
-                Buat tanda potong
-              </span>
-            </label>
+            <input
+              type="checkbox"
+              className="peer"
+              defaultChecked
+            />
 
-            {enableCut && (
+            <div className="collapse-title font-medium text-sm">
+              Pengaturan Print
+            </div>
 
-              <div className="space-y-2 pl-6">
+            <div className="collapse-content text-xs">
+
+              <div className="space-y-4">
 
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    type="radio"
-                    className="radio radio-sm"
-                    checked={cutMode === "equal"}
-                    onChange={() => setCutMode("equal")}
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={hideCustomerInfo}
+                    onChange={(e) =>
+                      setHideCustomerInfo(e.target.checked)
+                    }
                   />
 
                   <span className="text-sm">
-                    Potong ratakan otomatis
+                    Sembunyikan nama & catatan
                   </span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
-                    type="radio"
-                    className="radio radio-sm"
-                    checked={cutMode === "per12"}
-                    onChange={() => setCutMode("per12")}
+                    type="checkbox"
+                    className="checkbox checkbox-sm"
+                    checked={enableCut}
+                    onChange={(e) =>
+                      setEnableCut(e.target.checked)
+                    }
                   />
 
                   <span className="text-sm">
-                    Potong per 12 item
+                    Buat tanda potong
                   </span>
                 </label>
+
+                {enableCut && (
+
+                  <div className="space-y-3 pl-6 border-base-300 border-l">
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="cut-mode"
+                        className="radio radio-sm"
+                        checked={cutMode === "equal"}
+                        onChange={() =>
+                          setCutMode("equal")
+                        }
+                      />
+
+                      <span className="text-sm">
+                        Potong ratakan otomatis
+                      </span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="cut-mode"
+                        className="radio radio-sm"
+                        checked={cutMode === "per12"}
+                        onChange={() =>
+                          setCutMode("per12")
+                        }
+                      />
+
+                      <span className="text-sm">
+                        Potong per 12 item
+                      </span>
+                    </label>
+
+                  </div>
+
+                )}
 
               </div>
-            )}
+
+            </div>
 
           </div>
+
         </FragmentFooter>
       )}
 

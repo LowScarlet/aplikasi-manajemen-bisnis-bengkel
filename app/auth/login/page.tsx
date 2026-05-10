@@ -10,8 +10,6 @@ import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
 
-/* ================= LOGIN ================= */
-
 export async function login(form: {
   username: string;
   password: string;
@@ -44,8 +42,6 @@ export async function login(form: {
 
   redirect("/dashboard");
 }
-
-/* ================= PAGE ================= */
 
 export default async function Page() {
   const user = await getUser();
