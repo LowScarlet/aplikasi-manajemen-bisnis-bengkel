@@ -132,7 +132,7 @@ export default function ClientPage({
                 Pintasan
               </h2>
 
-              <div className="gap-4 grid grid-cols-4 text-center">
+              <div className="gap-4 grid grid-cols-3 text-center">
 
                 <MenuItem
                   icon={FaPlus}
