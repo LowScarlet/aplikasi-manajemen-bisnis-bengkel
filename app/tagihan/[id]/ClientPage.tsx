@@ -43,6 +43,7 @@ import Link from "next/link";
 import { FaRupiahSign } from "react-icons/fa6";
 
 import { RiProgress2Fill } from "react-icons/ri";
+import { LuScanText } from "react-icons/lu";
 
 export default function ClientPage({
   data
@@ -516,14 +517,22 @@ export default function ClientPage({
           </div>
 
           {!isSelesai && (
-            <Link
-              href={`/tagihan/${data.id}/tambah/item`}
-              className="w-full btn btn-primary"
-            >
-              <FiPlus />
-              Tambah Barang /
-              Layanan
-            </Link>
+            <div className="flex gap-3">
+              <Link
+                href={`/tagihan/${data.id}/scan`}
+                className="btn-outline btn btn-square btn-primary"
+              >
+                <LuScanText />
+              </Link>
+              <Link
+                href={`/tagihan/${data.id}/tambah/item`}
+                className="grow btn btn-primary"
+              >
+                <FiPlus />
+                Tambah Barang /
+                Layanan
+              </Link>
+            </div>
           )}
 
         </div>
