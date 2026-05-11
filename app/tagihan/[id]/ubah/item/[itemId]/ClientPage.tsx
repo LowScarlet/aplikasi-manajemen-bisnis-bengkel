@@ -41,7 +41,7 @@ export default function ClientPage({
     harga: item.harga,
     barangId: item.barangId ?? null,
     layananId: item.layananId ?? null,
-    tipe: item.tipe as "LAYANAN" | "CUSTOM",
+    tipe: item.tipe as "BARANG" | "CUSTOM",
   });
 
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -77,7 +77,7 @@ export default function ClientPage({
         }
       }
 
-      if (form.tipe === "LAYANAN") {
+      if (form.tipe === "BARANG") {
         if (!form.layananId) {
           alert("Pilih layanan");
           return;
