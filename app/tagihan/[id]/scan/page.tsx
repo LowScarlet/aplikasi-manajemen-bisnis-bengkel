@@ -7,6 +7,10 @@ import { getDetail } from "../ubah/page";
 import { redirect } from "next/navigation";
 import ClientPage from "./ClientPage";
 import { getUser } from "@/libs/auth";
+import { db } from "@/db";
+import { tagihan_detail, tagihan } from "@/db/schema";
+import { syncTagihan } from "../page";
+import { eq } from "drizzle-orm";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -173,6 +177,52 @@ export async function parseInvoices(
       : [],
     ongkos:
       Number(parsed.ongkos) || 0,
+  };
+}
+
+export async function saveScanItems(
+  id: string,
+  items: {
+    nama: string;
+    qty: number;
+    harga: number;
+  }[],
+  ongkos: number
+) {
+
+  if (!items.length) {
+    throw new Error("Item kosong");
+  }
+
+  const values = items.map((item) => {
+
+    if (item.qty <= 0 || item.harga < 0) {
+      throw new Error("Qty / harga tidak valid");
+    }
+
+    return {
+      tagihanId: id,
+      tipe: "CUSTOM" as const,
+      nama: item.nama,
+      qty: item.qty,
+      harga: item.harga,
+      subtotal: item.qty * item.harga,
+    };
+  });
+
+  await db.insert(tagihan_detail).values(values);
+
+  if (ongkos > 0) {
+    await db
+      .update(tagihan)
+      .set({ ongkos })
+      .where(eq(tagihan.id, id));
+  }
+
+  await syncTagihan(id);
+
+  return {
+    success: true,
   };
 }
 

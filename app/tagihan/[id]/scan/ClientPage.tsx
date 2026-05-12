@@ -3,7 +3,6 @@
 
 import {
   useState,
-  useTransition,
 } from "react";
 
 import {
@@ -27,7 +26,7 @@ import {
   format
 } from "@/libs/utils";
 
-import { parseInvoices } from "./page";
+import { parseInvoices, saveScanItems } from "./page";
 
 export default function ClientPage({
   data,
@@ -46,8 +45,11 @@ export default function ClientPage({
   const [files, setFiles] =
     useState<File[]>([]);
 
-  const [loading, startTransition] =
-    useTransition();
+  const [loading, setLoading] =
+    useState(false);
+
+  const [saving, setSaving] =
+    useState(false);
 
   const grandTotal =
     items.reduce(
@@ -95,6 +97,8 @@ export default function ClientPage({
 
     try {
 
+      setLoading(true);
+
       setFiles(selectedFiles);
 
       const compressedFiles =
@@ -121,8 +125,17 @@ export default function ClientPage({
           formData
         );
 
-      setItems(result.item || []);
-      setOngkos(result.ongkos || 0);
+      setItems((prev) => [
+        ...prev,
+        ...(result.item || []),
+      ]);
+
+      setOngkos((prev) =>
+        prev + (result.ongkos || 0)
+      );
+
+      // reset file setelah scan berhasil
+      setFiles([]);
 
     } catch (err) {
 
@@ -131,6 +144,42 @@ export default function ClientPage({
       alert(
         "Gagal scan invoice"
       );
+
+    } finally {
+
+      setLoading(false);
+    }
+  }
+
+  async function handleSave() {
+
+    if (items.length <= 0) return;
+
+    try {
+
+      setSaving(true);
+
+      await saveScanItems(
+        data.id,
+        items,
+        ongkos
+      );
+
+      router.push(`/tagihan/${data.id}`);
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        err instanceof Error
+          ? err.message
+          : "Gagal simpan items"
+      );
+
+    } finally {
+
+      setSaving(false);
     }
   }
 
@@ -184,7 +233,7 @@ export default function ClientPage({
         )}
 
         {/* loading */}
-        {loading && (
+        {loading && items.length <= 0 && (
 
           <div className="py-20 text-center">
 
@@ -200,16 +249,16 @@ export default function ClientPage({
         {/* LIST ITEMS */}
         {items.length > 0 && (
 
-          <div className="bg-base-100 shadow-sm card">
+          <div className="space-y-3">
 
-            <div className="divide-y">
+            {items.map((item, index) => (
 
-              {items.map((item, index) => (
+              <div
+                key={index}
+                className="bg-base-100 shadow-sm card"
+              >
 
-                <div
-                  key={index}
-                  className="space-y-4 p-4"
-                >
+                <div className="space-y-4 p-4">
 
                   <div className="flex justify-between items-start gap-3">
 
@@ -247,10 +296,10 @@ export default function ClientPage({
 
                       </fieldset>
 
-                      <div className="gap-3 grid grid-cols-3">
+                      <div className="gap-3 grid grid-cols-5">
 
                         {/* qty */}
-                        <fieldset className="fieldset">
+                        <fieldset className="col-span-1 fieldset">
 
                           <legend className="fieldset-legend">
                             Qty
@@ -265,7 +314,7 @@ export default function ClientPage({
                         </fieldset>
 
                         {/* harga */}
-                        <fieldset className="fieldset">
+                        <fieldset className="col-span-2 fieldset">
 
                           <legend className="fieldset-legend">
                             Harga
@@ -319,7 +368,7 @@ export default function ClientPage({
                         </fieldset>
 
                         {/* subtotal */}
-                        <fieldset className="fieldset">
+                        <fieldset className="col-span-2 fieldset">
 
                           <legend className="fieldset-legend">
                             Subtotal
@@ -347,7 +396,10 @@ export default function ClientPage({
 
                     </div>
 
-                    {/* hapus */}
+                  </div>
+
+                  <div>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -359,7 +411,7 @@ export default function ClientPage({
                           )
                         );
                       }}
-                      className="btn btn-error btn-sm"
+                      className="w-full btn btn-error btn-sm"
                     >
                       Hapus
                     </button>
@@ -367,212 +419,212 @@ export default function ClientPage({
                   </div>
 
                 </div>
-              ))}
 
-            </div>
+              </div>
+            ))}
 
           </div>
         )}
 
       </FragmentBody>
 
-      <FragmentFooter className="space-y-4 p-4">
+      <FragmentFooter>
 
-        {/* ongkos */}
-        <div className="flex justify-between items-center gap-3">
+        <div className="space-y-3 p-4">
 
-          <span className="opacity-70 whitespace-nowrap">
-            Ongkos
-          </span>
-
-          <label className="flex items-center gap-2 w-44 input input-bordered">
-
-            <span>Rp</span>
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300">
 
             <input
-              type="text"
-              inputMode="numeric"
-              value={
-                ongkos
-                  ? format(ongkos)
-                  : ""
-              }
-              onChange={(e) => {
-
-                const raw =
-                  e.target.value.replace(
-                    /\D/g,
-                    ""
-                  );
-
-                setOngkos(
-                  Number(raw)
-                );
-              }}
-              className="grow"
-              placeholder="0"
+              type="checkbox"
+              className="peer"
+              defaultChecked
             />
 
-          </label>
+            <div className="collapse-title font-medium text-sm">
+              Detail Pembelian ({items.length} Item)
+            </div>
 
-        </div>
+            <div className="collapse-content text-sm">
 
-        {/* grand total */}
-        <div
-          className="flex justify-between items-center"
-        >
+              <div className="space-y-4">
 
-          <span className="font-medium">
-            Grand Total
-          </span>
+                {/* ongkos */}
+                <div className="flex justify-between items-center gap-3">
 
-          <span className="font-bold text-xl">
-            Rp{format(grandTotal)}
-          </span>
+                  <span className="opacity-70 whitespace-nowrap">
+                    Ongkos
+                  </span>
 
-        </div>
+                  <label className="flex items-center gap-2 w-44 input input-bordered">
 
-        <div className="space-y-3">
+                    <span>Rp</span>
 
-          <div className="gap-3 grid grid-cols-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={
+                        ongkos
+                          ? format(ongkos)
+                          : ""
+                      }
+                      onChange={(e) => {
 
-            {/* pilih galeri */}
-            <label
-              className="btn-outline btn"
-            >
+                        const raw =
+                          e.target.value.replace(
+                            /\D/g,
+                            ""
+                          );
 
-              <FiImage />
+                        setOngkos(
+                          Number(raw)
+                        );
+                      }}
+                      className="grow"
+                      placeholder="0"
+                    />
 
-              Pilih Foto
+                  </label>
 
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                onChange={(e) => {
+                </div>
 
-                  const selected =
-                    Array.from(
-                      e.target.files || []
-                    );
+                {/* grand total */}
+                <div
+                  className="flex justify-between items-center pt-2 border-base-300 border-t font-medium"
+                >
 
-                  setFiles(selected);
-                }}
-              />
+                  <span>
+                    Grand Total
+                  </span>
 
-            </label>
+                  <span className="font-bold text-lg">
+                    Rp{format(grandTotal)}
+                  </span>
 
-            {/* kamera */}
-            <label
-              className="btn-outline btn"
-            >
-
-              <FiCamera />
-
-              Foto Langsung
-
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-                hidden
-                onChange={(e) => {
-
-                  const selected =
-                    Array.from(
-                      e.target.files || []
-                    );
-
-                  setFiles(selected);
-                }}
-              />
-
-            </label>
-
-          </div>
-
-          {/* list file */}
-          {files.length > 0 && (
-
-            <div className="bg-base-100 shadow-sm card">
-
-              <div className="divide-y">
-
-                {files.map(
-                  (file, index) => (
-
-                    <div
-                      key={index}
-                      className="flex justify-between items-center p-3 text-sm"
-                    >
-
-                      <div className="flex items-center gap-2 min-w-0">
-
-                        <FiImage
-                          className="opacity-60 shrink-0"
-                        />
-
-                        <span className="truncate">
-                          {file.name}
-                        </span>
-
-                      </div>
-
-                      <div className="opacity-60 text-xs whitespace-nowrap">
-
-                        {(
-                          file.size /
-                          1024 /
-                          1024
-                        ).toFixed(2)} MB
-
-                      </div>
-
-                    </div>
-                  )
-                )}
+                </div>
 
               </div>
 
             </div>
-          )}
 
-          {/* tombol */}
-          {items.length > 0 ? (
+          </div>
 
-            <button
-              type="button"
-              className="w-full btn btn-primary"
-            >
-              Simpan
-            </button>
+          <div className="space-y-3">
 
-          ) : (
 
-            <button
-              type="button"
-              onClick={() => {
 
-                startTransition(() => {
+            {/* list file */}
+            {files.length > 0 && (
+
+              <div className="bg-base-100 shadow-sm card">
+
+                <div className="divide-y">
+
+                  {files.map(
+                    (file, index) => (
+
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-3 text-sm"
+                      >
+
+                        <div className="flex items-center gap-2 min-w-0">
+
+                          <FiImage
+                            className="opacity-60 shrink-0"
+                          />
+
+                          <span className="truncate">
+                            {file.name}
+                          </span>
+
+                        </div>
+
+                        <div className="opacity-60 text-xs whitespace-nowrap">
+
+                          {(
+                            file.size /
+                            1024 /
+                            1024
+                          ).toFixed(2)} MB
+
+                        </div>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+
+              </div>
+            )}
+
+            {files.length <= 0 ? (
+
+              <label
+                className="btn-outline w-full btn"
+              >
+
+                <FiCamera />
+
+                Pilih / Foto Invoice
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={(e) => {
+
+                    const selected =
+                      Array.from(
+                        e.target.files || []
+                      );
+
+                    setFiles(selected);
+                  }}
+                />
+
+              </label>
+
+            ) : (
+
+              <button
+                type="button"
+                onClick={() => {
+
                   processFiles(files);
-                });
-              }}
-              disabled={
-                loading ||
-                files.length <= 0
-              }
-              className="w-full btn btn-primary"
-            >
+                }}
+                disabled={loading}
+                className="btn-outline w-full btn btn-secondary"
+              >
 
-              {loading
-                ? "Memproses..."
-                : "Scan Invoice"}
+                {loading
+                  ? "Memproses..."
+                  : "Scan Invoice"}
 
-            </button>
+              </button>
 
-          )}
+            )}
+
+            {/* simpan */}
+            {items.length > 0 && (
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full grow btn btn-primary"
+              >
+
+                {saving
+                  ? "Menyimpan..."
+                  : "Simpan"}
+
+              </button>
+            )}
+
+
+          </div>
 
         </div>
 
