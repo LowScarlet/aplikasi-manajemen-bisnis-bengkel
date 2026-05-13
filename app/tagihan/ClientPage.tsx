@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -32,6 +32,14 @@ export default function ClientPage({
   initialSearch: string;
   currentPage: number;
 }) {
+  const searchParams = useSearchParams();
+
+  const currentFilter =
+    searchParams.get("filter") ?? "today";
+
+  const currentTanggal =
+    searchParams.get("tanggal") ?? "";
+
   const [search, setSearch] = useState(initialSearch);
   const [openScan, setOpenScan] = useState(false);
 
@@ -40,6 +48,32 @@ export default function ClientPage({
   function handleSearch(value: string) {
     setSearch(value);
     router.push(`/tagihan?q=${value}&page=1`);
+  }
+
+  function updateQuery(
+    values: Record<string, string>
+  ) {
+
+    const params =
+      new URLSearchParams(
+        searchParams.toString()
+      );
+
+    Object.entries(values).forEach(
+      ([key, value]) => {
+
+        if (!value) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+
+      }
+    );
+
+    router.push(
+      `/tagihan?${params.toString()}`
+    );
   }
 
   return (
@@ -76,13 +110,72 @@ export default function ClientPage({
           </button>
         </div>
 
-        <div className="flex justify-between">
-          <div role="tablist" className="tabs-border tabs">
-            <a role="tab" className="tab tab-active">hari Ini</a>
-            <a role="tab" className="tab">Semua</a>
+        <div className="flex justify-between items-center">
+
+          <div
+            role="tablist"
+            className="tabs-border tabs"
+          >
+
+            <button
+              role="tab"
+              className={cn(
+                "tab",
+                currentFilter === "today"
+                && "tab-active"
+              )}
+              onClick={() =>
+                updateQuery({
+                  filter: "today",
+                  tanggal: "",
+                  page: "1",
+                })
+              }
+            >
+              Hari Ini
+            </button>
+
+            <button
+              role="tab"
+              className={cn(
+                "tab",
+                currentFilter === "all"
+                && "tab-active"
+              )}
+              onClick={() =>
+                updateQuery({
+                  filter: "all",
+                  tanggal: "",
+                  page: "1",
+                })
+              }
+            >
+              Semua
+            </button>
+
           </div>
 
-          <button className="btn-outline btn btn-primary"><LuCalendarSearch /> Cari tanggal</button>
+          <label className="gap-2 btn-outline btn btn-primary">
+
+            <LuCalendarSearch />
+
+            Cari tanggal
+
+            <input
+              type="date"
+              className="hidden"
+              value={currentTanggal}
+              onChange={(e) =>
+                updateQuery({
+                  tanggal: e.target.value,
+                  filter: "all",
+                  page: "1",
+                })
+              }
+            />
+
+          </label>
+
         </div>
 
         <section className="space-y-3">

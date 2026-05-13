@@ -51,6 +51,19 @@ export default function ClientPage({
     mingguIni: number;
     bulanIni: number;
     semuaWaktu: number;
+
+    mingguLabel: string;
+    bulanLabel: string;
+
+    mingguGrowth: {
+      naik: boolean;
+      persen: string | number;
+    };
+
+    bulanGrowth: {
+      naik: boolean;
+      persen: string | number;
+    };
   };
   omzetHarian?: Array<{
     tanggal: string;
@@ -65,6 +78,35 @@ export default function ClientPage({
     }),
     total: item.total,
   }));
+
+  const total30Hari =
+    omzetHarian.reduce(
+      (acc, item) => acc + item.total,
+      0
+    );
+
+  const firstValue =
+    omzetHarian[0]?.total ?? 0;
+
+  const lastValue =
+    omzetHarian[
+      omzetHarian.length - 1
+    ]?.total ?? 0;
+
+  const growth30Hari =
+    firstValue === 0
+      ? 100
+      : (
+        (
+          (lastValue - firstValue)
+          /
+          firstValue
+        ) * 100
+      );
+
+  const isGrowthPositive =
+    growth30Hari >= 0;
+
   return (
     <FragmentLayout>
 
@@ -242,11 +284,46 @@ export default function ClientPage({
 
               <div className="py-4 card-body">
 
-                <h2 className="text-base card-title">
-                  Grafik Omzet (30 Hari)
-                </h2>
+                <div className="flex justify-between items-start">
 
-                <div className="w-full h-64">
+                  <div>
+                    <h2 className="text-base card-title">
+                      Grafik Omzet (30 Hari)
+                    </h2>
+
+                    <p className="text-sm text-base-content/60">
+                      Performa omzet harian
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+
+                    <div className="font-semibold text-sm">
+                      Rp{" "}
+                      {total30Hari.toLocaleString("id-ID")}
+                    </div>
+
+                    <div
+                      className={
+                        isGrowthPositive
+                          ? "text-success text-xs font-medium"
+                          : "text-error text-xs font-medium"
+                      }
+                    >
+                      {isGrowthPositive ? "⬆" : "⬇"}{" "}
+                      {Math.abs(growth30Hari).toFixed(1)}%
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div
+                  className="w-full h-64 select-none"
+                  style={{
+                    WebkitTapHighlightColor: "transparent",
+                  }}
+                >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -306,13 +383,24 @@ export default function ClientPage({
 
             <div className="py-4 card-body">
 
-              <h2 className="text-base card-title">
-                Ringkasan Omzet
-              </h2>
+              <div className="flex justify-between items-center">
 
-              <div className="w-full stats stats-vertical">
+                <div>
+                  <h2 className="text-base card-title">
+                    Ringkasan Omzet
+                  </h2>
 
-                <div className="px-2! stat">
+                  <p className="text-sm text-base-content/60">
+                    Statistik transaksi lunas
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="space-y-3 mt-2">
+
+                {/* Minggu Ini */}
+                <div className="bg-base-200/40 rounded-xl stat">
 
                   <div className="stat-title">
                     Minggu Ini
@@ -323,9 +411,33 @@ export default function ClientPage({
                     {stats.mingguIni.toLocaleString("id-ID")}
                   </div>
 
+                  <div className="flex justify-between items-center mt-1 stat-desc">
+
+                    <span>
+                      {stats.mingguLabel}
+                    </span>
+
+                    <span
+                      className={
+                        stats.mingguGrowth.naik
+                          ? "text-success font-medium"
+                          : "text-error font-medium"
+                      }
+                    >
+                      {stats.mingguGrowth.naik ? "⬆" : "⬇"}{" "}
+                      {stats.mingguGrowth.persen}%
+                    </span>
+
+                  </div>
+
+                  <div className="mt-1 text-xs stat-desc">
+                    Dibanding minggu lalu
+                  </div>
+
                 </div>
 
-                <div className="px-2! stat">
+                {/* Bulan Ini */}
+                <div className="bg-base-200/40 rounded-xl stat">
 
                   <div className="stat-title">
                     Bulan Ini
@@ -336,9 +448,33 @@ export default function ClientPage({
                     {stats.bulanIni.toLocaleString("id-ID")}
                   </div>
 
+                  <div className="flex justify-between items-center mt-1 stat-desc">
+
+                    <span>
+                      {stats.bulanLabel}
+                    </span>
+
+                    <span
+                      className={
+                        stats.bulanGrowth.naik
+                          ? "text-success font-medium"
+                          : "text-error font-medium"
+                      }
+                    >
+                      {stats.bulanGrowth.naik ? "⬆" : "⬇"}{" "}
+                      {stats.bulanGrowth.persen}%
+                    </span>
+
+                  </div>
+
+                  <div className="mt-1 text-xs stat-desc">
+                    Dibanding bulan lalu
+                  </div>
+
                 </div>
 
-                <div className="px-2! stat">
+                {/* Semua Waktu */}
+                <div className="bg-base-200/40 rounded-xl stat">
 
                   <div className="stat-title">
                     Semua Waktu
@@ -349,8 +485,12 @@ export default function ClientPage({
                     {stats.semuaWaktu.toLocaleString("id-ID")}
                   </div>
 
-                  <div className="stat-desc">
+                  <div className="mt-1 stat-desc">
                     Total seluruh transaksi lunas
+                  </div>
+
+                  <div className="mt-1 text-xs stat-desc">
+                    Sejak awal penggunaan sistem
                   </div>
 
                 </div>
