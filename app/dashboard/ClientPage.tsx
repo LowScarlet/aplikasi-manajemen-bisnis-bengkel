@@ -274,8 +274,19 @@ export default function ClientPage({
                         dataKey="total"
                         stroke="#0d47a1"
                         strokeWidth={3}
-                        dot={{ fill: "#0d47a1", r: 4 }}
-                        activeDot={{ r: 6 }}
+                        dot={{
+                          fill: "#0d47a1",
+                          r: 4,
+                          style: {
+                            outline: "none",
+                          },
+                        }}
+                        activeDot={{
+                          r: 6,
+                          style: {
+                            outline: "none",
+                          },
+                        }}
                         isAnimationActive={true}
                       />
                     </LineChart>
