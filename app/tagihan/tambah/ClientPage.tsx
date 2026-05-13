@@ -9,7 +9,7 @@ import {
 
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa6";
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 
 export default function ClientPage({
   onSubmit,
@@ -20,6 +20,8 @@ export default function ClientPage({
     errors: {},
     values: {},
   });
+
+  const [isPending, startTransition] = useTransition();
 
   return (
     <FragmentLayout>
@@ -51,7 +53,11 @@ export default function ClientPage({
 
         <form
           id="create-form"
-          action={formAction}
+          action={(formData) => {
+            startTransition(() => {
+              formAction(formData);
+            });
+          }}
         >
           <fieldset className="fieldset">
             <legend className="fieldset-legend">
@@ -97,15 +103,22 @@ export default function ClientPage({
             )}
           </fieldset>
 
-        </form>
+          <button
+            disabled={isPending}
+            type="submit"
+            className="flex justify-center items-center gap-2 py-2 rounded-lg w-full text-sm btn btn-primary"
+          >
+            {isPending ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Loading...
+              </>
+            ) : (
+              "Tambah"
+            )}
+          </button>
 
-        <button
-          type="submit"
-          form="create-form"
-          className="w-full btn btn-primary"
-        >
-          Simpan
-        </button>
+        </form>
 
       </FragmentBody>
 

@@ -71,9 +71,16 @@ export default function ClientPage() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="bg-black py-2 rounded-lg w-full text-white text-sm"
+          className="flex justify-center items-center gap-2 bg-black py-2 rounded-lg w-full text-white text-sm"
         >
-          {loading ? "Loading..." : "Login"}
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Loading...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
 
       </div>

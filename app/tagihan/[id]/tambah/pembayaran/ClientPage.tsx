@@ -119,7 +119,14 @@ export default function ClientPage({ data }: { data: any }) {
         </div>
 
         <PrimaryButtonAction onClick={handleSubmit} disabled={loading}>
-          {loading ? "Menyimpan..." : "Tambah Pembayaran"}
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Menyimpan...
+            </>
+          ) : (
+            "Tambah Pembayaran"
+          )}
         </PrimaryButtonAction>
 
       </FragmentBody>

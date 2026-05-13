@@ -160,9 +160,14 @@ export default function ClientPage({
             disabled={loadingSubmit}
             className="w-full btn btn-primary"
           >
-            {loadingSubmit
-              ? "Menyimpan..."
-              : "Simpan Perubahan"}
+            {loadingSubmit ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Menyimpan...
+              </>
+            ) : (
+              "Simpan Perubahan"
+            )}
           </button>
 
         </div>

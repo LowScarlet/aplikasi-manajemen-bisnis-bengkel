@@ -387,9 +387,14 @@ export default function ClientPage({
               disabled={loading}
               className="w-full btn btn-primary"
             >
-              {loading
-                ? "Menyimpan..."
-                : `Simpan ${items.length} Item`}
+              {loading ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Menyimpan...
+                </>
+              ) : (
+                `Simpan ${items.length} Item`
+              )}
             </button>
           </div>
 

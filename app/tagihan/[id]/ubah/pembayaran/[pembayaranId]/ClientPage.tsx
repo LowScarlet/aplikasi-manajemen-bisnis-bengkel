@@ -146,14 +146,28 @@ export default function ClientPage({
 
         {/* ACTION */}
         <PrimaryButtonAction onClick={handleSubmit} disabled={loadingSubmit}>
-          {loadingSubmit ? "Menyimpan..." : "Simpan Perubahan"}
+          {loadingSubmit ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Menyimpan...
+            </>
+          ) : (
+            "Simpan Perubahan"
+          )}
         </PrimaryButtonAction>
 
         <DangerButtonAction
           onClick={() => handleDeletePayment(payment.id)}
           disabled={loadingDelete}
         >
-          {loadingDelete ? "Menghapus..." : "Hapus Pembayaran"}
+          {loadingDelete ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Menghapus...
+            </>
+          ) : (
+            "Hapus Pembayaran"
+          )}
         </DangerButtonAction>
 
       </FragmentBody>

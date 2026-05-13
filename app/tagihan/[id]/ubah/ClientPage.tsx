@@ -224,9 +224,14 @@ export default function ClientPage({
             disabled={loading}
             className="w-full btn btn-primary"
           >
-            {loading
-              ? "Menyimpan..."
-              : "Simpan"}
+            {loading ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Menyimpan...
+              </>
+            ) : (
+              "Simpan"
+            )}
           </button>
 
           <div className="py-4 divider" />
@@ -236,9 +241,14 @@ export default function ClientPage({
             disabled={loadingDelete}
             className="btn-outline w-full btn btn-error"
           >
-            {loadingDelete
-              ? "Menghapus..."
-              : "Hapus Tagihan"}
+            {loadingDelete ? (
+              <>
+                <span className="loading loading-spinner loading-sm"></span>
+                Menghapus...
+              </>
+            ) : (
+              "Hapus Tagihan"
+            )}
           </button>
 
         </div>

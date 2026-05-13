@@ -190,7 +190,14 @@ export default function ClientPage({
                 )
               }
             >
-              Ya
+              {loading ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Ya
+                </>
+              ) : (
+                "Ya"
+              )}
             </button>
 
           </div>
@@ -231,7 +238,14 @@ export default function ClientPage({
                   )
                 }
               >
-                Ya
+                {loading ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Ya
+                  </>
+                ) : (
+                  "Ya"
+                )}
               </button>
 
             </div>
