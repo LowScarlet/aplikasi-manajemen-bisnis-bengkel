@@ -93,7 +93,7 @@ export default function ClientPage({
       return;
     }
 
-    router.push(`/tagihan/${data.id}`);
+    router.replace(`/tagihan/${data.id}`);
   };
 
   const handleAddToList = () => {
@@ -144,7 +144,7 @@ export default function ClientPage({
 
       await addItems(data.id, items);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
 
     } catch (err) {
 

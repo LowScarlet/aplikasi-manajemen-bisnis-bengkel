@@ -86,7 +86,7 @@ export default function ClientPage({
 
       await updateItem(item.id, form);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
 
     } catch (err) {
 
@@ -116,7 +116,7 @@ export default function ClientPage({
 
       await deleteItem(id);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
 
     } catch (err) {
 

@@ -43,7 +43,7 @@ export default function ClientPage({
 
       await updateTagihan(data.id, form);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
 
     } catch (err) {
       console.error(err);
@@ -68,7 +68,7 @@ export default function ClientPage({
 
       await deleteTagihan(data.id);
 
-      router.push("/tagihan");
+      router.replace("/tagihan");
 
     } catch (err) {
 

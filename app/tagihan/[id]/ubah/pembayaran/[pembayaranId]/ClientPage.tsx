@@ -59,7 +59,7 @@ export default function ClientPage({
 
       await updatePayment(payment.id, form);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
     } catch (err) {
       console.error(err);
       alert("Gagal update pembayaran");
@@ -77,7 +77,7 @@ export default function ClientPage({
 
       await deletePayment(id);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
     } catch (err) {
       console.error(err);
       alert("Gagal hapus pembayaran");

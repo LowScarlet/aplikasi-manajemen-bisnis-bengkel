@@ -42,7 +42,7 @@ export default function ClientPage({
 
       await updateTagihan(data.id, form);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
 
     } catch (err) {
 

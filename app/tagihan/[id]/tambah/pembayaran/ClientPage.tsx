@@ -51,7 +51,7 @@ export default function ClientPage({ data }: { data: any }) {
 
       await addPayment(data.id, form);
 
-      router.push(`/tagihan/${data.id}`);
+      router.replace(`/tagihan/${data.id}`);
     } catch (err) {
       console.error(err);
       alert("Gagal menambahkan pembayaran");
