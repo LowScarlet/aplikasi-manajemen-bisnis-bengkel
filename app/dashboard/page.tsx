@@ -48,6 +48,11 @@ export default async function Page() {
     1
   );
 
+  // omzet harian (30 hari terakhir)
+  const last30Days = new Date(now);
+  last30Days.setDate(now.getDate() - 30);
+  last30Days.setHours(0, 0, 0, 0);
+
   // pendapatan hari ini
   const pendapatanResult =
     await db
@@ -162,6 +167,39 @@ export default async function Page() {
         `
       );
 
+  // omzet harian untuk chart (30 hari terakhir)
+  const omzetHarianResult =
+    await db
+      .select({
+        tanggal: sql<string>`
+          DATE(${tagihan.dibuatPada})
+        `,
+        total: sql<number>`
+          COALESCE(
+            SUM(${tagihan.total}),
+            0
+          )
+        `,
+      })
+      .from(tagihan)
+      .where(
+        sql`
+          ${tagihan.statusPembayaran}
+          =
+          'LUNAS'
+          AND
+          ${tagihan.dibuatPada}
+          >=
+          ${last30Days}
+        `
+      )
+      .groupBy(
+        sql`DATE(${tagihan.dibuatPada})`
+      )
+      .orderBy(
+        sql`DATE(${tagihan.dibuatPada})`
+      );
+
   const stats = {
     pendapatan:
       Number(
@@ -204,10 +242,18 @@ export default async function Page() {
       ),
   };
 
+  const omzetHarian = omzetHarianResult.map(
+    (item) => ({
+      tanggal: item.tanggal,
+      total: Number(item.total),
+    })
+  );
+
   return (
     <ClientPage
       user={user}
       stats={stats}
+      omzetHarian={omzetHarian}
     />
   );
 }

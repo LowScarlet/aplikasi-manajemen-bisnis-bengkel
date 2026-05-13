@@ -21,12 +21,23 @@ import {
 
 import { MdOutlineReceiptLong } from "react-icons/md";
 
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+
 import { logout } from "@/app/auth/logout/action";
 import MenuItem from "../_components/MenuItem";
 
 export default function ClientPage({
   user,
   stats,
+  omzetHarian = [],
 }: {
   user: any;
   stats: {
@@ -41,7 +52,19 @@ export default function ClientPage({
     bulanIni: number;
     semuaWaktu: number;
   };
+  omzetHarian?: Array<{
+    tanggal: string;
+    total: number;
+  }>;
 }) {
+  // Format data untuk chart
+  const chartData = omzetHarian.map((item) => ({
+    name: new Date(item.tanggal).toLocaleDateString("id-ID", {
+      month: "short",
+      day: "numeric",
+    }),
+    total: item.total,
+  }));
   return (
     <FragmentLayout>
 
@@ -211,6 +234,60 @@ export default function ClientPage({
           </div>
 
         </section>
+
+        {chartData.length > 0 && (
+          <section>
+
+            <div className="bg-base-100 border border-base-300 card">
+
+              <div className="py-4 card-body">
+
+                <h2 className="text-base card-title">
+                  Grafik Omzet (30 Hari)
+                </h2>
+
+                <div className="w-full h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                        stroke="#d1d5db"
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                        stroke="#d1d5db"
+                        tickFormatter={(value) => `Rp${(value / 1000000).toFixed(1)}M`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--b1))",
+                          border: "1px solid hsl(var(--b3))",
+                          borderRadius: "0.5rem",
+                          color: "hsl(var(--bc))",
+                        }}
+                        formatter={(value: any) => `Rp ${Number(value).toLocaleString("id-ID")}`}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="total"
+                        stroke="#0d47a1"
+                        strokeWidth={3}
+                        dot={{ fill: "#0d47a1", r: 4 }}
+                        activeDot={{ r: 6 }}
+                        isAnimationActive={true}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+        )}
 
         <section>
 
