@@ -7,7 +7,6 @@ import { db } from "@/db";
 import {
   tagihan,
   tagihan_detail,
-  tipeDetailEnum,
 } from "@/db/schema";
 
 import { eq } from "drizzle-orm";
@@ -34,13 +33,11 @@ const getDetail = async (id: string) => {
 export async function addItems(
   id: string,
   items: {
-    tipe: typeof tipeDetailEnum.enumValues[number];
-    barangId?: string | null;
-    layananId?: string | null;
     nama: string;
     qty: number;
     harga: number;
-  }[]
+  }[],
+  ongkos: number
 ) {
 
   if (!items.length) {
@@ -55,7 +52,7 @@ export async function addItems(
 
     return {
       tagihanId: id,
-      tipe: item.tipe,
+      tipe: "CUSTOM" as const,
       nama: item.nama,
       qty: item.qty,
       harga: item.harga,
@@ -64,6 +61,13 @@ export async function addItems(
   });
 
   await db.insert(tagihan_detail).values(values);
+
+  if (ongkos > 0) {
+    await db
+      .update(tagihan)
+      .set({ ongkos })
+      .where(eq(tagihan.id, id));
+  }
 
   await syncTagihan(id);
 

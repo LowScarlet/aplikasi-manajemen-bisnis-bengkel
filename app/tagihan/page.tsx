@@ -207,7 +207,7 @@ export default async function Page({
     );
 
   const filter =
-    params.filter ?? "today";
+    params.filter ?? "all";
 
   const tanggal =
     params.tanggal;

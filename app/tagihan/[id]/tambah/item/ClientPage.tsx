@@ -46,11 +46,14 @@ export default function ClientPage({
     (itemForm.qty || 0) *
     (itemForm.harga || 0);
 
-  const grandTotal = items.reduce(
-    (acc, item) =>
-      acc + (item.qty * item.harga),
-    0
-  );
+  const [ongkos, setOngkos] = useState(0);
+
+  const grandTotal =
+    items.reduce(
+      (acc, item) =>
+        acc + (item.qty * item.harga),
+      0
+    ) + ongkos;
 
   const hasUnsavedChanges =
     items.length > 0;
@@ -142,7 +145,7 @@ export default function ClientPage({
         return;
       }
 
-      await addItems(data.id, items);
+      await addItems(data.id, items, ongkos);
 
       router.replace(`/tagihan/${data.id}`);
 
@@ -241,7 +244,7 @@ export default function ClientPage({
 
       </FragmentBody>
       <FragmentFooter className="p-4">
-        <div className="">
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="font-medium">
               Grand Total
@@ -250,6 +253,44 @@ export default function ClientPage({
             <span className="font-bold text-xl">
               Rp{format(grandTotal)}
             </span>
+          </div>
+
+          <div className="flex justify-between items-center gap-3">
+
+            <span className="whitespace-nowrap">
+              Ongkos
+            </span>
+
+            <label className="flex items-center gap-2 w-44 input input-bordered">
+
+              <span>Rp</span>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                value={
+                  ongkos
+                    ? format(ongkos)
+                    : ""
+                }
+                onChange={(e) => {
+
+                  const raw =
+                    e.target.value.replace(
+                      /\D/g,
+                      ""
+                    );
+
+                  setOngkos(
+                    Number(raw)
+                  );
+                }}
+                className="grow"
+                placeholder="0"
+              />
+
+            </label>
+
           </div>
         </div>
         <div>

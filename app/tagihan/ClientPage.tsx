@@ -35,7 +35,7 @@ export default function ClientPage({
   const searchParams = useSearchParams();
 
   const currentFilter =
-    searchParams.get("filter") ?? "today";
+    searchParams.get("filter") ?? "all";
 
   const currentTanggal =
     searchParams.get("tanggal") ?? "";
